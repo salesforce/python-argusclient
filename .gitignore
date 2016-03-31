@@ -1,0 +1,8 @@
+.*.sw*
+*.pyc
+SVN
+argusclient.egg-info
+build
+dist
+docs/_build
+docs/README.rst
