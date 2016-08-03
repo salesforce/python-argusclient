@@ -22,6 +22,13 @@ These functions can be combined with additional HTML tags to produce the require
 Argus cant't handle auto-closed XML tags, so using "html" `method` is recommended.
 """
 
+#
+# Copyright (c) 2016, salesforce.com, inc.
+# All rights reserved.
+# Licensed under the BSD 3-Clause license. 
+# For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+#
+
 import lxml.builder
 
 #: Use this to create additional XML/HTML tags, e.g., `E.h1` will create the `<h1>` tag 
