@@ -5,8 +5,6 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-from argusclient.model import NS_INTERNAL_PREFIX
-
 scope = "test.scope"
 metric = "test.metric"
 datapoints = {"10": 1, "20": 2}
@@ -40,7 +38,7 @@ metric_D = {
     "tags": {
         "host": "testHost"
     },
-    "namespace": NS_INTERNAL_PREFIX + namespace,
+    "namespace": namespace,
     "displayName": displayName,
     "units": "testUnits",
     "datapoints": {
@@ -98,7 +96,7 @@ namespace_D = {
     "createdDate": 1459433602777,
     "modifiedById": 101851,
     "modifiedDate": 1459433602777,
-    "qualifier": NS_INTERNAL_PREFIX + namespace,
+    "qualifier": namespace,
     "usernames": [
         userName
     ]

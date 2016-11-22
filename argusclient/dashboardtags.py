@@ -43,6 +43,7 @@ _OPTION = getattr(E, "ag-option")
 _METRIC = getattr(E, "ag-metric")
 _FLAGS = getattr(E, "ag-flags")
 _TABULAR = getattr(E, "ag-table")
+_STATUS_INDICATOR = getattr(E, "ag-status-indicator")
 
 
 def DASHBOARD(*args, **kwargs):
@@ -115,6 +116,31 @@ def SUB_TITLE(subTitle):
     return OPTION(name="subtitle.text", value=subTitle)
 
 
+def YMIN(value):
+    """ Generates a `ag-option` tag with the specified yaxis.min value. """
+    return OPTION(name="yaxis.min", value=value)
+
+
+def YMAX(value):
+    """ Generates a `ag-option` tag with the specified yaxis.max value. """
+    return OPTION(name="yaxis.max", value=value)
+
+
+def XMIN(value):
+    """ Generates a `ag-option` tag with the specified xaxis.min value. """
+    return OPTION(name="xaxis.min", value=value)
+
+
+def XMAX(value):
+    """ Generates a `ag-option` tag with the specified xaxis.max value. """
+    return OPTION(name="xaxis.max", value=value)
+
+
 def AREA_CHART(*args, **kwargs):
     """ Generates an `ag-chart` tag with `type='stackarea'`. """
     return _CHART(type='stackarea', *args, **kwargs)
+
+
+def STATUS_INDICATOR(name, hi, lo):
+    """ Generates an `ag-status-indicator` tag. """
+    return _STATUS_INDICATOR(name=name, hi=hi, lo=lo)
