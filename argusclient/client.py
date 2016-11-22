@@ -18,7 +18,7 @@ import logging
 import collections
 import httplib
 
-from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, NS_INTERNAL_PREFIX
+from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder
 
 
 class ArgusException(Exception):
@@ -39,7 +39,7 @@ class BaseQuery(object):
     def __str__(self):
         """
         Return string representation of the query that can be used with an Argus query. A metric query has the format:
-        ``-1d:-0d:[namespace:]scope:metric[{tagk=tagv,...}]:downsample[:aggregator]``. An annotation query has the format
+        ``-1d:-0d:scope:metric[{tagk=tagv,...}]:downsample[:aggregator][:namespace]``. An annotation query has the format
         ``-1d:-0d:scope:metric[{tagk=tagv,...}]:source``.
         """
         query = ":".join(str(q) for q in (self.stTimeSpec, self.enTimeSpec, self.baseExpr) + self.tailParams if q)
@@ -56,10 +56,11 @@ class MetricQuery(BaseQuery):
     >>> from argusclient.client import MetricQuery
     >>> mquery = MetricQuery("test.scope", "test.metric", "sum", tags={ "test.tag": "test.value" }, stTimeSpec="-1d", enTimeSpec="-0d", namespace="test.namespace")
     >>> print str(mquery)
-    -1d:-0d:-__-test.namespace:test.scope:test.metric{test.tag=test.value}:sum
+    -1d:-0d:test.scope:test.metric{test.tag=test.value}:sum:test.namespace
     """
     def __init__(self, scope, metric, aggregator, tags=None, namespace=None, downsampler=None, stTimeSpec=None, enTimeSpec=None):
-        super(MetricQuery, self).__init__(str(Metric(scope, metric, tags=tags, namespace=namespace)), aggregator, downsampler, stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
+        # NOTE: Namespace no longer goes into the metric expression, so we pass it down as a tail parameter.
+        super(MetricQuery, self).__init__(str(Metric(scope, metric, tags=tags)), aggregator, downsampler, namespace, stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
 
 
 class AnnotationQuery(BaseQuery):
@@ -332,6 +333,21 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         db = self._fill(self.argus._request("post", "dashboards", dataObj=dashboard))
         self._coll[db.id] = db
         return db
+
+    def get_user_dashboard(self, ownerName, dashboardName):
+        """
+        Looks up a dashboard with its name and owner. Returns `None` if not found.
+
+        :return: the :class:`argusclient.model.Dashboard` object with all fields populated.
+        """
+        assert dashboardName, "Expected a dashboard name"
+        assert ownerName, "Expected a owner name"
+        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName))
+        if not dashboards:
+            return None
+        else:
+            assert len(dashboards) == 1, "Expected a single dashboard as a result, but got: %s" % len(dashboards)
+            return dashboards[0]
 
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):

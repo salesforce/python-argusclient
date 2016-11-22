@@ -55,10 +55,10 @@ class ObjTest(unittest.TestCase):
         self.assertEquals(m.displayName, displayName)
         self.assertEquals(m.unitType, unitType)
         self.assertEquals(m.id, testId)
-        self.assertEquals(str(m), NS_INTERNAL_PREFIX + namespace + ":" + scope + ":" + metric)
+        self.assertEquals(str(m), scope + ":" + metric + ":" + namespace)
 
         m.tags = tags
-        self.assertEquals(str(m), NS_INTERNAL_PREFIX + namespace + ":" + scope + ":" + metric + "{test.tag=test.value}")
+        self.assertEquals(str(m), scope + ":" + metric + "{test.tag=test.value}" + ":" + namespace)
 
     def testCreateDashboard(self):
         d = Dashboard(dashboardName, content, shared=False, id=testId)
@@ -233,7 +233,7 @@ class TestW_2816614(unittest.TestCase):
         ns.qualifier = "test"
         self.assertEquals(ns.qualifier, "test")
         D = dict(namespace_D)
-        D["qualifier"] = NS_INTERNAL_PREFIX + "test"
+        D["qualifier"] = "test"
         self.assertEquals(ns.to_dict(), D)
 
     def test_metric_namespace(self):

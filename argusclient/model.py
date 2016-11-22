@@ -12,9 +12,6 @@ Module containing the classes that model the Argus base objects.
 import json
 
 
-NS_INTERNAL_PREFIX = "-__-"  # See: https://github.com/SalesforceEng/Argus/blob/master/ArgusCore/src/main/java/com/salesforce/dva/argus/service/NamespaceService.java#L49
-
-
 class BaseEncodable(object):
 
     def __init__(self, **kwargs):
@@ -23,10 +20,6 @@ class BaseEncodable(object):
 
     def to_dict(self):
         D = dict((k, v) for k, v in self.__dict__.items() if not k.startswith("_"))
-        # Temporary workaround for bug: "Namespace entity exposes the qualifier/underlying impl"
-        # see: https://github.com/SalesforceEng/Argus/blob/07569747685806ea9c822ae39b55fe66ccf4f7df/ArgusCore/src/main/java/com/salesforce/dva/argus/service/NamespaceService.java#L49)
-        BaseEncodable._add_qual_prefix(D, "namespace")
-        BaseEncodable._add_qual_prefix(D, "qualifier")
         return D
 
     @classmethod
@@ -35,20 +28,7 @@ class BaseEncodable(object):
             if f not in D:
                 return None
         else:
-            D = dict(D)
-            BaseEncodable._remove_qual_prefix(D, "namespace")
-            BaseEncodable._remove_qual_prefix(D, "qualifier")
             return cls(**D)
-
-    @staticmethod
-    def _add_qual_prefix(D, k):
-        if k in D and not D[k].startswith(NS_INTERNAL_PREFIX):
-            D[k] = NS_INTERNAL_PREFIX + D[k]
-
-    @staticmethod
-    def _remove_qual_prefix(D, k):
-        if k in D and D[k].startswith(NS_INTERNAL_PREFIX):
-            D[k] = D[k][len(NS_INTERNAL_PREFIX):]
 
     @property
     def argus_id(self):
@@ -165,11 +145,11 @@ class Metric(BaseEncodable):
     def __str__(self):
         """
         Return a string representation of the metric that can be directly used as the metric expressoin in a metric query and has the format:
-        ``[namespace:]scope:metric[{tagk=tagv,...}]``
+        ``scope:metric[{tagk=tagv,...}][:namespace]``
         """
         tags = hasattr(self, "tags") and self.tags or None
         metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) or self.metric
-        return ":".join(str(q) for q in (hasattr(self, "namespace") and self.namespace and NS_INTERNAL_PREFIX + self.namespace or None, self.scope, metricWithTags) if q)
+        return ":".join(str(q) for q in (self.scope, metricWithTags, hasattr(self, "namespace") and self.namespace or None) if q)
 
 
 class Annotation(BaseEncodable):

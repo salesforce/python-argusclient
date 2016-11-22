@@ -34,10 +34,10 @@ class TestMetricQuery(unittest.TestCase):
         self.assertEquals(str(MetricQuery(scope, metric, aggregator, stTimeSpec=stTime, tags=tags)), "-1d:test.scope:test.metric{test.tag=test.value}:test.aggregator")
 
     def testWithNamespace(self):
-        self.assertEquals(str(MetricQuery(scope, metric, aggregator, namespace=namespace, stTimeSpec=stTime)), "-1d:-__-test.namespace:test.scope:test.metric:test.aggregator")
+        self.assertEquals(str(MetricQuery(scope, metric, aggregator, namespace=namespace, stTimeSpec=stTime)), "-1d:test.scope:test.metric:test.aggregator:test.namespace")
 
     def testWithNamespace2(self):
-        self.assertEquals(str(MetricQuery(scope, metric, aggregator, namespace=namespace, stTimeSpec=stTime, enTimeSpec=enTime)), "-1d:-0d:-__-test.namespace:test.scope:test.metric:test.aggregator")
+        self.assertEquals(str(MetricQuery(scope, metric, aggregator, namespace=namespace, stTimeSpec=stTime, enTimeSpec=enTime)), "-1d:-0d:test.scope:test.metric:test.aggregator:test.namespace")
 
 
 class TestAnnotationQuery(unittest.TestCase):

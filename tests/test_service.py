@@ -155,6 +155,22 @@ class TestDashboard(TestServiceBase):
         self.argus.dashboards.delete(testId)
         self.assertIn((os.path.join(endpoint, "dashboards", str(testId)),), tuple(mockDelete.call_args))
 
+    @mock.patch('requests.Session.get', return_value=MockResponse("[]", 200))
+    def testGetUserDashboardNonExisting(self, mockGet):
+        res = self.argus.dashboards.get_user_dashboard(userName, dashboardName)
+        self.assertTrue(res is None)
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([dashboard_D]), 200))
+    def testGetUserDashboard(self, mockGet):
+        res = self.argus.dashboards.get_user_dashboard(userName, dashboardName)
+        self.assertTrue(res is not None)
+        self.assertEquals(res.to_dict(), dashboard_D)
+        self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([dashboard_D, dashboard_D]), 200))
+    def testGetUserDashboardMultipleUnexpected(self, mockGet):
+        self.failUnlessRaises(AssertionError, lambda: self.argus.dashboards.get_user_dashboard(userName, dashboardName))
+
 
 class TestNamespace(TestServiceBase):
     def testAddInvalidNamespace(self):

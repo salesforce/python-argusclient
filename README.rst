@@ -25,7 +25,7 @@ to do the following:
 -  Collect metrics and annotations
 -  Post metrics and annotations
 -  Query for existing dashboards
--  Create or update dashboard
+-  Update or Create dashboard
 -  Query for existing alerts
 -  Delete alert
 -  Create an alert along with a trigger and a notification
@@ -94,8 +94,9 @@ Generate some random metrics against hdara-ns:hdara:test and mark the start and 
 
     logging.info("Generating some metric and annotation data for the dashboard")
     m = Metric("hdara", "test", tags=tags, namespace=ns_name)
-    for t in xrange(100, 0, -1):
-        ts = curtm-t*1000
+    for t in xrange(10, 0, -1):
+        # Warden requires 1 minute gap between successive data points.
+        ts = curtm-t*60*1000
         m.datapoints[ts] = random.randint(50, 100)
         if not ans or t == 1:
             ans.append(Annotation("script", "hdara", "test", ts, ts, "generated", tags=tags, fields=dict(event=ans and "start" or "end", **fields)))
@@ -114,17 +115,6 @@ Send metrics and annotations to Argus
     if an_resp.error_count():
         logging.info("Errors reported in annotation data: errorCount: %s errorMessages: %s", an_resp.error_count(), an_resp.error_messages())
 
-Look for an existing dashboard by name
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-::
-
-    logging.info("Looking up existing dashboard with name: %s", dashboard_name)
-    dashbobjs = dict(((db.ownerName, db.name), db) for db in argus.dashboards.values())
-    dashbobj = dashbobjs.get((user, dashboard_name))
-    if not dashbobj:
-        dashbobj = Dashboard(dashboard_name, None, shared=True, description="A new dashboard")
-
 Generate dashboard content
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -142,18 +132,22 @@ Generate dashboard content
     ), method="html")
     dashbobj.content = content
 
-Update or create dashboard
+Update or Create dashboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ::
 
-    if dashbobj.argus_id:
-        logging.info("Updating dashboard with name: %s id %s", dashboard_name, dashbobj.argus_id)
-        argus.dashboards.update(dashbobj.argus_id, dashbobj)
-    else:
+    logging.info("Looking up existing dashboard with name: %s", dashboard_name)
+    dashbobj = argus.dashboards.get_user_dashboard(user, dashboard_name)
+    if not dashbobj:
         logging.info("Creating new dashboard with name: %s", dashboard_name)
-        dashbobj = argus.dashboard.add(dashbobj)
-    logging.info("Dashboard url: %s", os.path.join(os.path.dirname(endpoint), "argus/#/dashboards", str(dashbobj.argus_id)))
+        dashbobj = Dashboard(dashboard_name, content, shared=True, description="A new dashboard")
+        dashbobj = argus.dashboards.add(dashbobj)
+    else:
+        logging.info("Updating dashboard with name: %s id %s", dashboard_name, dashbobj.argus_id)
+        dashbobj.content = content
+        argus.dashboards.update(dashbobj.argus_id, dashbobj)
+    logging.info("Dashboard url: %s", os.path.join(os.path.dirname(endpoint), "argus/#/dashboards", str(dashbobj.argus_id)).replace("-ws", "-ui"))
 
 Look for an existing alert and delete it so that we can recreate it
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
