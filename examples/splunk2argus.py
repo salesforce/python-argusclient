@@ -5,10 +5,6 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-# Example usage:
-# python examples/splunk2argus.py --argusws <endpoint> --splunkapi <endpoint> --splunkquery "search earliest=-1d@d index=host11 \`logRecordType(blue, orange, green)\` customerId=<customerId> | bucket _time span=10m | fillnull value=0 | stats count avg(runTime) as avgRunTime.ms, p95(runTime) as p95RunTime.ms by time, index, customerId, logRecordType" --argusnamespace "<namespace_name>" --argusscope "{index}.appFeature.apex" --arguskeys "index" --argusmetrics "avgRunTime.ms,p95RunTime.ms,count" --argustags "logRecordType,customerId" --user <user> --pass <password>
-
-
 import requests, sys, json, os, time, calendar, csv, getpass, logging, urlparse
 from optparse import OptionParser, Option, OptionValueError
 
@@ -20,14 +16,35 @@ from argusclient import ArgusServiceClient, Metric
 
 # Class for parsing command-line options
 class MyOptionParser(OptionParser,object):
+    def format_epilog(self, formatter):
+        return self.epilog
     def check_values(self, values, args):
         opt, args = super(MyOptionParser, self).check_values(values, args)
         if not opt.password:
             opt.password = getpass.getpass("Password: ")
         return opt, args
 
+epilog = r"""
+Sample Usage:
+
+python examples/splunk2argus.py \
+  --argusws <endpoint> \
+  --splunkapi <endpoint> \
+  --splunkquery "search earliest=-1d@d index=host11 \`logRecordType(blue, orange, green)\` customerId=<customerId> \
+      | bucket _time span=10m \
+      | fillnull value=0 \
+      | stats count avg(runTime) as avgRunTime.ms, p95(runTime) as p95RunTime.ms by time, index, customerId, logRecordType" \
+  --argusnamespace "myMetrics" \
+  --argusscope "{index}.appFeature.apex" \
+  --arguskeys index \
+  --argusmetrics "avgRunTime.ms,p95RunTime.ms,count" \
+  --argustags logRecordType,customerId \
+  --user <user> \
+  --pass <password>
+"""
+
 # Object for command-line options
-parser = MyOptionParser()
+parser = MyOptionParser(epilog=epilog)
 # logging options
 parser.add_option("-q", "--quiet", dest="quiet", action="store_true",
                   help="quiet mode, output only errors", default=False)
@@ -53,10 +70,7 @@ parser.add_option("--dashboard", dest="dashboard", action="store_true",
 # Splunk query
 parser.add_option("-Q", "--splunkquery", dest="splunkquery", default=None,
                    help="Specify a valid Splunk SPL query")
-# parser.add_option("-S", "--earliest", dest="earliest", default="-1d@d",
-#                   help="Specify splunk time expression for the start of the time range")
-# parser.add_option("-E", "--latest", dest="latest", default="-0d@d",
-#                   help="Specify splunk time expression for the end of the time range")
+
 # Argus metric components
 parser.add_option("--argusnamespace", dest="argusnamespace", default=None,
                   help="The Argus namespace for posting metrics")
@@ -70,22 +84,27 @@ parser.add_option("--argustags", dest="argustags", default=None,
                   help="The Argus scope name for posting metrics")
 (opts, args) = parser.parse_args()
 
-# build lists for multivalue options
+# Required command-option checks
+if not opts.splunkquery:
+    parser.error("Missing required splunkquery command-line argument")
+if not opts.argusws:
+    parser.error("Missing required argusws command-line argument")
+if not opts.splunkapi:
+    parser.error("Missing required splunkapi command-line argument")
+if not opts.argustags:
+    parser.error("Missing required argustags command-line argument")
+if not opts.argusmetrics:
+    parser.error("Missing required argusmetrics command-line argument")
+if not opts.arguskeys:
+    parser.error("Missing required arguskeys command-line argument")
 
+# build lists for multivalue options
 if opts.argustags:
     tagNames= opts.argustags.split(",")
 if opts.argusmetrics:
     metricNames= opts.argusmetrics.split(",")
 if opts.arguskeys:
     keyNames= opts.arguskeys.split(",")
-
-# Required command-option checks
-if not opts.splunkquery:
-    parser.error("Please specify a Splunk SPL query")
-if not opts.argusws:
-    parser.error("Need the URL to the Argus endpoint")
-if not opts.splunkapi:
-    parser.error("Need the URL to the Splunk endpoint")
 
 # Create a logging object and set logging level based on command-line option or default
 logging.basicConfig()
@@ -167,31 +186,55 @@ def get_splunk_metrics(opts):
     # for loop to populate m_dict
     for row in data:
 
-        index = row["index"]
-
-        if not index:
-            logging.warn("Skipping row without index: %s", row)
-            continue
-
-        # Every row has a timestamp
-        ts = row["_time"] and to_gmt_epoch(row["_time"])
+        # abort without timestamp
+        try:
+            ts = row["_time"] and to_gmt_epoch(row["_time"])
+        except KeyError:
+            logging.error("Error: Timestamp not found: %s", row)
+            return None
 
         # create final scope, substitute keys into the scope
         rowScope = opts.argusscope
+
+        # abort without arguskeys
         for keyName in keyNames:
-            rowScope = rowScope.replace("{"+keyName+"}",row[keyName])
+            try:
+                rowScope = rowScope.replace("{"+keyName+"}",row[keyName])
+            except KeyError:
+                logging.error("Error: Specified arguskeys not found: %s", row)
+                return None
 
         # create tags
         tag_dict = {}
         for tagName in tagNames:
-            tag_dict[tagName] = row[tagName]
+            # abort without argustags
+            try:
+                tag_dict[tagName] = row[tagName]
+            except KeyError:
+                logging.error("Error: Specified tags not found: %s", row)
+                return None
 
         # create metrics and datapoints
         for col in metricNames:
 
             m_key = (col)
 
-            val = row[col]
+            # abort without argusmetrics
+            try:
+                val = row[col]
+            except KeyError:
+                # Key is not present
+                logging.error("Error: Specified metrics not found: %s", row)
+                return None
+
+            # abort for non-numeric metrics
+            try:
+                float(val)
+            except:
+                logging.error("Error: Non-numeric metric found: %s", row)
+                return None
+
+            # cast str to number
             if "." in val:
                 val = float(val)
             else:
@@ -199,7 +242,10 @@ def get_splunk_metrics(opts):
 
             # add a Metric object to m_dict if it doesn't already exist [namespace]:scope:metric{tags}
             if not m_key in m_dict:
-                m_dict[m_key] = Metric(scope=rowScope, metric=col, tags=tag_dict, namespace=opts.argusnamespace)
+                if opts.argusnamespace:
+                    m_dict[m_key] = Metric(scope=rowScope, metric=col, tags=tag_dict, namespace=opts.argusnamespace)
+                else:
+                    m_dict[m_key] = Metric(scope=rowScope, metric=col, tags=tag_dict)
 
             # create a copy of the current Metric object for this metric
             m = m_dict[m_key]
