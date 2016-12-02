@@ -47,7 +47,7 @@ python examples/splunk2argus.py \
 parser = MyOptionParser(epilog=epilog)
 # logging options
 parser.add_option("-q", "--quiet", dest="quiet", action="store_true",
-                  help="quiet mode, output only errors", default=False)
+                  help="Quiet mode, output only errors", default=False)
 parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
                   help="Verbose mode", default=False)
 parser.add_option("-d", "--debug", dest="debug", action="store_true",
