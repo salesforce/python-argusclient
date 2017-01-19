@@ -81,20 +81,22 @@ if not opts.inputfile:
     parser.error("Missing CSV inputfile command-line argument")
 if not opts.argusws:
     parser.error("Missing required argusws command-line argument")
-if not opts.argustags:
-    parser.error("Missing required argustags command-line argument")
+if not opts.arguskeys:
+    parser.error("Missing required arguskeys accompanied with argustags command-line argument")
 if not opts.argusmetrics:
     parser.error("Missing required argusmetrics command-line argument")
-if not opts.arguskeys:
-    parser.error("Missing required arguskeys command-line argument")
 
 # build lists for multivalue options
-if opts.argustags:
-    tagNames= opts.argustags.split(",")
 if opts.argusmetrics:
     metricNames= opts.argusmetrics.split(",")
+
 if opts.arguskeys:
     keyNames= opts.arguskeys.split(",")
+
+if opts.argustags:
+    tagNames= opts.argustags.split(",")
+else:
+    tagNames=None
 
 # Create a logging object and set logging level based on command-line option or default
 logging.basicConfig()
@@ -107,7 +109,6 @@ def to_gmt_epoch(tsstr):
     return calendar.timegm(time.strptime(tsstr[:19], "%Y-%m-%dT%H:%M:%S"))*1000
 
 def parse_csv_into_metrics(csvfile):
-
 
     with open(csvfile,'r') as input:
         # Use a CSV reader to iterate through the results, creating a list named data
@@ -123,6 +124,7 @@ def parse_csv_into_metrics(csvfile):
                 continue
             # Append rows to data
             data.append(dict(zip(cols, row)))
+
         if not opts.quiet:
             logging.info("Total result count: %s", len(data))
 
@@ -151,18 +153,17 @@ def parse_csv_into_metrics(csvfile):
 
             # create tags
             tag_dict = {}
-            for tagName in tagNames:
-                # abort without argustags
-                try:
-                    tag_dict[tagName] = row[tagName]
-                except KeyError:
-                    logging.error("Error: Specified tags not found: %s", row)
-                    return None
+            if tagNames:
+                for tagName in tagNames:
+                    # abort without argustags
+                    try:
+                        tag_dict[tagName] = row[tagName]
+                    except KeyError:
+                        logging.error("Error: Specified tags not found: %s", row)
+                        return None
 
             # create metrics and datapoints
             for col in metricNames:
-
-                m_key = (col)
 
                 # abort without argusmetrics
                 try:
@@ -186,17 +187,21 @@ def parse_csv_into_metrics(csvfile):
                     val = int(val)
 
                 # add a Metric object to m_dict if it doesn't already exist [namespace]:scope:metric{tags}
-                if not m_key in m_dict:
-                    if opts.argusnamespace:
-                        m_dict[m_key] = Metric(scope=rowScope, metric=col, tags=tag_dict, namespace=opts.argusnamespace)
-                    else:
-                        m_dict[m_key] = Metric(scope=rowScope, metric=col, tags=tag_dict)
+                if opts.argusnamespace:
+                    metric = Metric(scope=rowScope, metric=col, tags=tag_dict, namespace=opts.argusnamespace)
+                else:
+                    metric = Metric(scope=rowScope, metric=col, tags=tag_dict)
 
+                metric_key = str(metric)
+                
+                if metric_key in m_dict:
                 # create a copy of the current Metric object for this metric
-                m = m_dict[m_key]
-
+                    metric = m_dict[metric_key]
+                else:
+                    m_dict[metric_key] = metric
+                
                 # add a datapoint for this row/col combination, using the timestamp as the key
-                m.datapoints[ts] = val
+                metric.datapoints[ts] = val
 
     if not opts.quiet:
         logging.info("Total metric count: %s", len(m_dict))
@@ -206,6 +211,8 @@ def parse_csv_into_metrics(csvfile):
 metrics = parse_csv_into_metrics(opts.inputfile)
 
 if metrics:
+#    print(metrics)
+
     argus = ArgusServiceClient(opts.user,
                                opts.password,
                                endpoint=opts.argusws)
@@ -222,4 +229,5 @@ if metrics:
             logging.info("Done.")
     except:
         logging.exception("Argus failure")
+
 
