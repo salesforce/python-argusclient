@@ -391,7 +391,18 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
             alertobj.trigger = alertobj.triggers.add(alert.trigger)
         if alert.notification:
             alertobj.notification = alertobj.notifications.add(alert.notification)
-        if alert.trigger and alert.notification:
+        elif alert.notifications and isinstance(alert.notifications, list):
+            notifications = []
+            for notification in alert.notifications:
+                notifications.append(alertobj.notifications.add(notification))
+            alertobj.notifications = notifications
+        if alert.trigger and alert.notifications:
+            alertobj.trigger.notificationsIds = []
+            for notification in alertobj.notifications:
+                self.argus.alerts.add_notification_trigger(alertobj.id, notification.id, alertobj.trigger.id)
+                notification.triggersIds = [alertobj.trigger.id]
+                alertobj.trigger.notificationsIds.append(notification.id)
+        elif alert.trigger and alert.notification:
             self.argus.alerts.add_notification_trigger(alertobj.id, alertobj.notification.id, alertobj.trigger.id)
             alertobj.notification.triggersIds = [alertobj.trigger.id]
             alertobj.trigger.notificationsIds = [alertobj.notification.id]
