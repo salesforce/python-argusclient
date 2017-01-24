@@ -324,7 +324,8 @@ class Alert(BaseEncodable):
     @notifications.setter
     def notifications(self, value):
         if not isinstance(value, list): raise ValueError("value should be of list type, but is: %s" % type(value))
-        # TODO Check for item type also
+        for item in value:
+            if not isinstance(item, Notification): raise ValueError("array member should be of Notification type, but is: %s" % type(item))
         self._notifications = value
 
 
