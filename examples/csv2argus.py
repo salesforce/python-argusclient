@@ -11,15 +11,18 @@ from optparse import OptionParser
 # Use the package in this repo (argusclient directory)
 from argusclient import ArgusServiceClient, Metric
 
+
 # Class for parsing command-line options
-class MyOptionParser(OptionParser,object):
+class MyOptionParser(OptionParser, object):
     def format_epilog(self, formatter):
         return self.epilog
+
     def check_values(self, values, args):
         opt, args = super(MyOptionParser, self).check_values(values, args)
         if not opt.password:
             opt.password = getpass.getpass("Password: ")
         return opt, args
+
 
 epilog = r"""
 Sample Usage:
@@ -51,7 +54,8 @@ parser.add_option("-p", "--pass", dest="password", default=None,
                   help="Specify password for Argus connection (not specifying this option will result in getting prompted")
 
 # Input file
-parser.add_option("-i", "--inputfile", dest="inputfile", default=None, help="Specify an input file for the CSV to be parsed and loaded into Argus.")
+parser.add_option("-i", "--inputfile", dest="inputfile", default=None,
+                  help="Specify an input file for the CSV to be parsed and loaded into Argus.")
 
 # endpoints
 parser.add_option("--argusws", dest="argusws",
@@ -67,13 +71,22 @@ parser.add_option("--dashboard", dest="dashboard", action="store_true",
 parser.add_option("--argusnamespace", dest="argusnamespace", default=None,
                   help="The Argus namespace for posting metrics")
 parser.add_option("--arguskeys", dest="arguskeys", default=None,
-                    help="Specify the result fields to use as the Argus scope for posting metrics")
+                  help="Specify the result fields to use as the Argus scope for posting metrics")
 parser.add_option("--argusscope", dest="argusscope", default=None,
                   help="The Argus scope name for posting metrics")
 parser.add_option("--argusmetrics", dest="argusmetrics", default=None,
                   help="The Argus scope name for posting metrics")
 parser.add_option("--argustags", dest="argustags", default=None,
                   help="The Argus scope name for posting metrics")
+
+# Optional Timestamp Column
+parser.add_option("--timestampcolumn", dest="timestampcolumn", default="_time",
+                  help="Optional name for column containing metric timestamp")
+
+# Optional Dateformat Parameter
+parser.add_option("--dateformat", dest="dateformat", default="%Y-%m-%dT%H:%M:%S",
+                  help="Optional date format for timestamp column, e.g. \"%Y-%m-%dT%H:%M:%S\"")
+
 (opts, args) = parser.parse_args()
 
 # Required command-option checks
@@ -81,36 +94,39 @@ if not opts.inputfile:
     parser.error("Missing CSV inputfile command-line argument")
 if not opts.argusws:
     parser.error("Missing required argusws command-line argument")
-if not opts.arguskeys:
-    parser.error("Missing required arguskeys accompanied with argustags command-line argument")
+if not opts.argusscope:
+    parser.error("Missing required argus scope accompanied with argusscope command-line argument")
 if not opts.argusmetrics:
     parser.error("Missing required argusmetrics command-line argument")
 
 # build lists for multivalue options
 if opts.argusmetrics:
-    metricNames= opts.argusmetrics.split(",")
+    metricNames = opts.argusmetrics.split(",")
 
 if opts.arguskeys:
-    keyNames= opts.arguskeys.split(",")
+    keyNames = opts.arguskeys.split(",")
+else:
+    keyNames = None
 
 if opts.argustags:
-    tagNames= opts.argustags.split(",")
+    tagNames = opts.argustags.split(",")
 else:
-    tagNames=None
+    tagNames = None
 
 # Create a logging object and set logging level based on command-line option or default
 logging.basicConfig()
 if not opts.quiet:
     logging.root.setLevel(opts.quiet and logging.WARN or (opts.debug and logging.DEBUG or logging.INFO))
 
+
 # Conversion function for Splunk format
 def to_gmt_epoch(tsstr):
     # tsstr is expected to be in the default Splunk format: "2015-11-01T00:00:00.000+00:00", return epoch time in ms resolution
-    return calendar.timegm(time.strptime(tsstr[:19], "%Y-%m-%dT%H:%M:%S"))*1000
+    return calendar.timegm(time.strptime(tsstr[:19], opts.dateformat)) * 1000
+
 
 def parse_csv_into_metrics(csvfile):
-
-    with open(csvfile,'r') as input:
+    with open(csvfile, 'r') as input:
         # Use a CSV reader to iterate through the results, creating a list named data
         csvr = csv.reader(input)
         # var for column names from first row in result
@@ -135,7 +151,7 @@ def parse_csv_into_metrics(csvfile):
 
             # abort without timestamp
             try:
-                ts = row["_time"] and to_gmt_epoch(row["_time"])
+                ts = row[opts.timestampcolumn] and to_gmt_epoch(row[opts.timestampcolumn])
             except KeyError:
                 logging.error("Error: Timestamp not found: %s", row)
                 return None
@@ -144,11 +160,12 @@ def parse_csv_into_metrics(csvfile):
             rowScope = opts.argusscope
 
             # abort without arguskeys
-            for keyName in keyNames:
-                try:
-                    rowScope = rowScope.replace("{"+keyName+"}",row[keyName])
-                except KeyError:
-                    logging.error("Error: Specified arguskeys not found: %s", row)
+            if keyNames:
+                for keyName in keyNames:
+                    try:
+                        rowScope = rowScope.replace("{" + keyName + "}", row[keyName])
+                    except KeyError:
+                        logging.error("Error: Specified arguskeys not found: %s", row)
                     return None
 
             # create tags
@@ -193,13 +210,13 @@ def parse_csv_into_metrics(csvfile):
                     metric = Metric(scope=rowScope, metric=col, tags=tag_dict)
 
                 metric_key = str(metric)
-                
+
                 if metric_key in m_dict:
-                # create a copy of the current Metric object for this metric
+                    # create a copy of the current Metric object for this metric
                     metric = m_dict[metric_key]
                 else:
                     m_dict[metric_key] = metric
-                
+
                 # add a datapoint for this row/col combination, using the timestamp as the key
                 metric.datapoints[ts] = val
 
@@ -211,7 +228,7 @@ def parse_csv_into_metrics(csvfile):
 metrics = parse_csv_into_metrics(opts.inputfile)
 
 if metrics:
-#    print(metrics)
+    #    print(metrics)
 
     argus = ArgusServiceClient(opts.user,
                                opts.password,
