@@ -87,6 +87,10 @@ parser.add_option("--timestampcolumn", dest="timestampcolumn", default="_time",
 parser.add_option("--dateformat", dest="dateformat", default="%Y-%m-%dT%H:%M:%S",
                   help="Optional date format for timestamp column, e.g. \"%Y-%m-%dT%H:%M:%S\"")
 
+# Optional test parameter
+parser.add_option("--test", dest="testing", default=None,
+                  help="Specify --test to, instead of pushing the metrics to argus, print them to STDOUT")
+
 (opts, args) = parser.parse_args()
 
 # Required command-option checks
@@ -133,7 +137,7 @@ def parse_csv_into_metrics(csvfile):
         cols = None
         data = []
         for row in csvr:
-            logging.info("Got row: %s", row)
+            logging.debug("Got row: %s", row)
             # Assign cols from the first row, the header in the CSV
             if not cols:
                 cols = row
@@ -148,7 +152,6 @@ def parse_csv_into_metrics(csvfile):
         m_dict = {}
         # for loop to populate m_dict
         for row in data:
-
             # abort without timestamp
             try:
                 ts = row[opts.timestampcolumn] and to_gmt_epoch(row[opts.timestampcolumn])
@@ -162,16 +165,19 @@ def parse_csv_into_metrics(csvfile):
             # abort without arguskeys
             if keyNames:
                 for keyName in keyNames:
+                    logging.debug("Subbing keyName " + keyName + " with value " + str(row[keyName]))
                     try:
                         rowScope = rowScope.replace("{" + keyName + "}", row[keyName])
+                        logging.debug("New rowScope = " + rowScope)
                     except KeyError:
                         logging.error("Error: Specified arguskeys not found: %s", row)
-                    return None
+                        return None
 
             # create tags
             tag_dict = {}
             if tagNames:
                 for tagName in tagNames:
+                    logging.debug("Setting tag pair for name: " + tagName + " and value: " + str(row[tagName]))
                     # abort without argustags
                     try:
                         tag_dict[tagName] = row[tagName]
@@ -217,6 +223,8 @@ def parse_csv_into_metrics(csvfile):
                 else:
                     m_dict[metric_key] = metric
 
+                logging.debug("Setting new metric with key: " + metric_key + " ts: " + str(ts) + " and val: " + str(val))
+
                 # add a datapoint for this row/col combination, using the timestamp as the key
                 metric.datapoints[ts] = val
 
@@ -228,23 +236,27 @@ def parse_csv_into_metrics(csvfile):
 metrics = parse_csv_into_metrics(opts.inputfile)
 
 if metrics:
-    #    print(metrics)
 
-    argus = ArgusServiceClient(opts.user,
-                               opts.password,
-                               endpoint=opts.argusws)
-    if not opts.quiet:
-        logging.info("Logging into Argus service")
-    try:
-        argus.login()
-        if opts.verbose:
-            logging.info("Argus login successful")
+    if opts.testing:
+        print("Test mode enabled, printing  metrics:")
+        print(metrics)
+    else:
+        argus = ArgusServiceClient(opts.user,
+                                   opts.password,
+                                   endpoint=opts.argusws)
         if not opts.quiet:
-            logging.info("Posting metrics to Argus..")
-        argus.metrics.add(metrics);
-        if not opts.quiet:
-            logging.info("Done.")
-    except:
-        logging.exception("Argus failure")
+            logging.info("Logging into Argus service")
+        try:
+            argus.login()
+            if opts.verbose:
+                logging.info("Argus login successful")
+            if not opts.quiet:
+                logging.info("Posting metrics to Argus..")
+            argus.metrics.add(metrics);
+            if not opts.quiet:
+                logging.info("Done.")
+        except:
+            logging.exception("Argus failure")
+
 
 
