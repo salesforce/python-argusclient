@@ -274,6 +274,8 @@ class Alert(BaseEncodable):
     :type triggerIds: list of int
     :param notificationIds: The list of IDs for the notifications owned by this alert.
     :type notificationIds: list of int
+    :param shared: The shared state of the alert
+    :type enabled: bool
     """
 
     id_fields = ("expression", "cronEntry",)

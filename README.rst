@@ -169,4 +169,5 @@ Finally, create alert with a trigger and a notification
     logging.info("Creating new alert with alert name: %s", alert_name)
     alertobj = argus.alerts.add(Alert(alert_name, mquery, "* */1 * * *",
                                       trigger=Trigger("hdara.test.trigger", Trigger.GREATER_THAN, 100000, 600000),
-                                      notification=Notification("hdara.test.notification", Notification.EMAIL, subscriptions=["hdara@salesforce.com"])))
+                                      notification=Notification("hdara.test.notification", Notification.EMAIL, subscriptions=["hdara@salesforce.com"]),
+                                      shared=True))
