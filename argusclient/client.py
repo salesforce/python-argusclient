@@ -134,7 +134,7 @@ class BaseModelServiceClient(object):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
-            self._coll = dict((obj.id, self._fill(obj)) for obj in coll or self.argus._request("get", self.get_all_path))
+            self._coll = dict((obj.argus_id, self._fill(obj)) for obj in coll or self.argus._request("get", self.get_all_path))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -194,6 +194,19 @@ class BaseModelServiceClient(object):
         """
         self._init_all()
         return len(self._coll)
+
+    def __getitem__(self, id):
+        return self.get(id)
+
+    def __setitem__(self, key, value):
+        raise ValueError("You can't modify this list directly, use the add(), delete() and update() methods instead")
+
+    def __delitem__(self, key):
+        raise ValueError("You can't modify this list directly, use the add(), delete() and update() methods instead")
+
+    def __contains__(self, key):
+        self._init_all()
+        return key in self.self._coll
 
 
 class UsersServiceClient(BaseModelServiceClient):
@@ -281,7 +294,7 @@ class BaseUpdatableModelServiceClient(BaseModelServiceClient):
         """
         Gets the item with specified id. This method retrieves it from Argus, if the object is not already available in the local collection.
         """
-        if not id: raise ValueError("Need to specify an id to get item")
+        if id is None: raise ValueError("Need to specify an id to get item")
         id = int(id)
         if id not in self._coll:
             self._coll[id] = self._fill(self.argus._request("get", self.id_path % id))
@@ -466,11 +479,15 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
         if trigger.argus_id: raise ValueError("A new Trigger can't have an id")
         triggers = self.argus._request("post", "alerts/%s/triggers" % self.alert.id, dataObj=trigger)
         self._init_all(triggers)
-        self.alert.triggerIds = triggers
+        self.alert.triggerIds = [t.argus_id for t in triggers]
         try:
             return next(t for t in triggers if t.name == trigger.name)
         except StopIteration:
             raise ArgusException("This is unexpected... trigger: %s not found after successfully adding it" % trigger.name)
+
+    def delete(self, id):
+        super(AlertTriggersServiceClient, self).delete(id)
+        self.alert.triggerIds = [n.argus_id for n in self._coll.items()]
 
 
 class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
@@ -495,11 +512,15 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
         if notification.argus_id: raise ValueError("A new Notification can't have an id")
         notifications = self.argus._request("post", "alerts/%s/notifications" % self.alert.id, dataObj=notification)
         self._init_all(notifications)
-        self.alert.notificationIds = notifications
+        self.alert.notificationIds = [n.argus_id for n in notifications]
         try:
             return next(n for n in notifications if n.name == notification.name)
         except StopIteration:
             raise ArgusException("This is unexpected... notification: %s not found after successfully adding it" % notification.name)
+
+    def delete(self, id):
+        super(AlertNotificationsServiceClient, self).delete(id)
+        self.alert.notificationIds = [n.argus_id for n in self._coll.items()]
 
 
 class ArgusServiceClient(object):

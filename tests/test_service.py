@@ -380,3 +380,49 @@ class TestNotificationTrigger(TestServiceBase):
     def testDeleteNotificationTrigger(self, mockDelete):
         self.argus.alerts.delete_notification_trigger(testId, testId, testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId), "triggers", str(testId)),), tuple(mockDelete.call_args))
+
+
+class TestAlertMultipleNotifications(TestServiceBase):
+
+    def setUp(self):
+        super(TestAlertMultipleNotifications, self).setUp()
+        self.alert_dict = dict(alert_D)
+        self.notif1_dict = dict(notification_D)
+        self.notif2_dict = dict(notification_D)
+        self.notif1_dict["id"] = 100
+        self.notif2_dict["id"] = 101
+        self.alert_dict["notificationIds"] = [100, 101]
+
+    def testGetAlertWithMultipleNotifications(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(self.alert_dict), 200)):
+            return self.argus.alerts.get(testId)
+        alert = get_alert()
+        self.assertEquals(alert.notificationIds, [100, 101])
+
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([self.notif1_dict, self.notif2_dict]), 200)):
+            self.assertEquals(len(alert.notifications), 2)
+        self.assertEquals(alert.notifications[100].argus_id, 100)
+        self.assertEquals(alert.notifications[101].argus_id, 101)
+
+
+class TestAlertMultipleTriggers(TestServiceBase):
+
+    def setUp(self):
+        super(TestAlertMultipleTriggers, self).setUp()
+        self.alert_dict = dict(alert_D)
+        self.trigr1_dict = dict(trigger_D)
+        self.trigr2_dict = dict(trigger_D)
+        self.trigr1_dict["id"] = 100
+        self.trigr2_dict["id"] = 101
+        self.alert_dict["triggerIds"] = [100, 101]
+
+    def testGetAlertWithMultipleTriggers(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(self.alert_dict), 200)):
+            return self.argus.alerts.get(testId)
+        alert = get_alert()
+        self.assertEquals(alert.triggerIds, [100, 101])
+
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([self.trigr1_dict, self.trigr2_dict]), 200)):
+            self.assertEquals(len(alert.triggers), 2)
+        self.assertEquals(alert.triggers[100].argus_id, 100)
+        self.assertEquals(alert.triggers[101].argus_id, 101)

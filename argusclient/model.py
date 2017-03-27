@@ -304,6 +304,7 @@ class Alert(BaseEncodable):
     @triggers.setter
     def triggers(self, value):
         if not isinstance(value, list): raise ValueError("value should be of list type, but is: %s" % type(value))
+        # This is a special case allowed only while adding new alerts, so ensure that argus_id of self and the objects is None.
         # TODO Check for item type also
         self._triggers = value
 
@@ -326,6 +327,7 @@ class Alert(BaseEncodable):
     @notifications.setter
     def notifications(self, value):
         if not isinstance(value, list): raise ValueError("value should be of list type, but is: %s" % type(value))
+        # This is a special case allowed only while adding new alerts, so ensure that argus_id of self and the objects is None.
         # TODO Check for item type also
         self._notifications = value
 
