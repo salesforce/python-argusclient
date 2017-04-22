@@ -5,7 +5,7 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-import requests, time, calendar, csv, getpass, logging
+import requests, time, calendar, csv, getpass, logging, os
 from optparse import OptionParser
 
 # Use the package in this repo (argusclient directory)
@@ -19,6 +19,8 @@ class MyOptionParser(OptionParser, object):
 
     def check_values(self, values, args):
         opt, args = super(MyOptionParser, self).check_values(values, args)
+        if os.environ.get('PASS'):
+            opt.password = os.environ.get('PASS')
         if not opt.password:
             opt.password = getpass.getpass("Password: ")
         return opt, args
@@ -75,9 +77,9 @@ parser.add_option("--arguskeys", dest="arguskeys", default=None,
 parser.add_option("--argusscope", dest="argusscope", default=None,
                   help="The Argus scope name for posting metrics")
 parser.add_option("--argusmetrics", dest="argusmetrics", default=None,
-                  help="The Argus scope name for posting metrics")
+                  help="Comma separated Argus metric names for posting metrics")
 parser.add_option("--argustags", dest="argustags", default=None,
-                  help="The Argus scope name for posting metrics")
+                  help="Comma separated Argus tag names for posting metrics")
 
 # Optional Timestamp Column
 parser.add_option("--timestampcolumn", dest="timestampcolumn", default="_time",
@@ -88,20 +90,22 @@ parser.add_option("--dateformat", dest="dateformat", default="%Y-%m-%dT%H:%M:%S"
                   help="Optional date format for timestamp column, e.g. \"%Y-%m-%dT%H:%M:%S\"")
 
 # Optional test parameter
-parser.add_option("--test", dest="testing", default=None,
+parser.add_option("--test", dest="testing", action="store_true", default=False,
                   help="Specify --test to, instead of pushing the metrics to argus, print them to STDOUT")
 
 (opts, args) = parser.parse_args()
 
 # Required command-option checks
 if not opts.inputfile:
-    parser.error("Missing CSV inputfile command-line argument")
+    parser.error("Missing CSV inputfile command-line argument.")
 if not opts.argusws:
-    parser.error("Missing required argusws command-line argument")
+    parser.error("Missing required argusws command-line argument.")
 if not opts.argusscope:
-    parser.error("Missing required argus scope accompanied with argusscope command-line argument")
+    parser.error("Missing required argus scope accompanied with argusscope command-line argument.")
 if not opts.argusmetrics:
-    parser.error("Missing required argusmetrics command-line argument")
+    parser.error("Missing required argusmetrics command-line argument.")
+if not opts.timestampcolumn or opts.timestampcolumn == "":
+    parser.error("Timestamp column unset.")
 
 # build lists for multivalue options
 if opts.argusmetrics:
@@ -142,6 +146,26 @@ def parse_csv_into_metrics(csvfile):
             if not cols:
                 cols = row
                 continue
+
+            # Validate parameters against incoming column headers
+            if not opts.timestampcolumn in cols:
+                logging.error("Error: Timestamp column \"" + opts.timestampcolumn + "\" not present in header row.")
+                return None
+	    if tagNames:
+            	for tagName in tagNames:
+                	if not tagName in cols:
+                    		logging.error("Error: tagName \"" + tagName + "\" not in column headers.")
+                    		return None
+	    if keyNames:
+            	for keyName in keyNames:
+                	if not keyName in cols:
+                    		logging.error("Error: keyName \"" + keyName + "\" not in column headers.")
+                    		return None
+            for metricName in metricNames:
+                if not metricName in cols:
+                    logging.error("Error: metricName \"" + metricName + "\" not in column headers.")
+                    return None
+
             # Append rows to data
             data.append(dict(zip(cols, row)))
 
@@ -155,8 +179,8 @@ def parse_csv_into_metrics(csvfile):
             # abort without timestamp
             try:
                 ts = row[opts.timestampcolumn] and to_gmt_epoch(row[opts.timestampcolumn])
-            except KeyError:
-                logging.error("Error: Timestamp not found: %s", row)
+            except ValueError: # catch dateformat error
+                logging.error("Error: Timestamp (" + row[opts.timestampcolumn] + ") format does not match Dateformat (" + opts.dateformat + ").")
                 return None
 
             # create final scope, substitute keys into the scope
@@ -166,12 +190,8 @@ def parse_csv_into_metrics(csvfile):
             if keyNames:
                 for keyName in keyNames:
                     logging.debug("Subbing keyName " + keyName + " with value " + str(row[keyName]))
-                    try:
-                        rowScope = rowScope.replace("{" + keyName + "}", row[keyName])
-                        logging.debug("New rowScope = " + rowScope)
-                    except KeyError:
-                        logging.error("Error: Specified arguskeys not found: %s", row)
-                        return None
+                    rowScope = rowScope.replace("{" + keyName + "}", row[keyName])
+                    logging.debug("New rowScope = " + rowScope)
 
             # create tags
             tag_dict = {}
@@ -179,22 +199,13 @@ def parse_csv_into_metrics(csvfile):
                 for tagName in tagNames:
                     logging.debug("Setting tag pair for name: " + tagName + " and value: " + str(row[tagName]))
                     # abort without argustags
-                    try:
-                        tag_dict[tagName] = row[tagName]
-                    except KeyError:
-                        logging.error("Error: Specified tags not found: %s", row)
-                        return None
+                    tag_dict[tagName] = row[tagName]
 
             # create metrics and datapoints
             for col in metricNames:
 
                 # abort without argusmetrics
-                try:
-                    val = row[col]
-                except KeyError:
-                    # Key is not present
-                    logging.error("Error: Specified metrics not found: %s", row)
-                    return None
+                val = row[col]
 
                 # abort for non-numeric metrics
                 try:
@@ -204,10 +215,15 @@ def parse_csv_into_metrics(csvfile):
                     return None
 
                 # cast str to number
-                if "." in val:
-                    val = float(val)
-                else:
+                if val.isdigit():
                     val = int(val)
+                else:
+                    try:
+                        val = float(val)
+                    except:
+                         logging.error("Error: Non-numeric metric found: %s", row)
+                         return None
+
 
                 # add a Metric object to m_dict if it doesn't already exist [namespace]:scope:metric{tags}
                 if opts.argusnamespace:
@@ -216,13 +232,8 @@ def parse_csv_into_metrics(csvfile):
                     metric = Metric(scope=rowScope, metric=col, tags=tag_dict)
 
                 metric_key = str(metric)
-
-                if metric_key in m_dict:
-                    # create a copy of the current Metric object for this metric
-                    metric = m_dict[metric_key]
-                else:
-                    m_dict[metric_key] = metric
-
+                metric = m_dict.setdefault(str(metric), metric)     
+                
                 logging.debug("Setting new metric with key: " + metric_key + " ts: " + str(ts) + " and val: " + str(val))
 
                 # add a datapoint for this row/col combination, using the timestamp as the key
@@ -252,10 +263,15 @@ if metrics:
                 logging.info("Argus login successful")
             if not opts.quiet:
                 logging.info("Posting metrics to Argus..")
-            argus.metrics.add(metrics);
+            response = argus.metrics.add(metrics);
+            print(response)
+            if opts.verbose:
+                logging.info("Argus response:")
+                logging.info(response)
             if not opts.quiet:
                 logging.info("Done.")
         except:
             logging.exception("Argus failure")
+
 
 
