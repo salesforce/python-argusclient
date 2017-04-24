@@ -266,8 +266,9 @@ if metrics:
                 logging.info("Argus login successful")
             if not opts.quiet:
                 logging.info("Posting metrics to Argus..")
+
             response = argus.metrics.add(metrics);
-            print(response)
+
             if opts.verbose:
                 logging.info("Argus response:")
                 logging.info(response)
