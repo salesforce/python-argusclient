@@ -134,6 +134,7 @@ def to_gmt_epoch(tsstr):
 
 
 def parse_csv_into_metrics(csvfile):
+
     with open(csvfile, 'r') as input:
         # Use a CSV reader to iterate through the results, creating a list named data
         csvr = csv.reader(input)
@@ -151,16 +152,16 @@ def parse_csv_into_metrics(csvfile):
             if not opts.timestampcolumn in cols:
                 logging.error("Error: Timestamp column \"" + opts.timestampcolumn + "\" not present in header row.")
                 return None
-	    if tagNames:
-            	for tagName in tagNames:
-                	if not tagName in cols:
-                    		logging.error("Error: tagName \"" + tagName + "\" not in column headers.")
-                    		return None
-	    if keyNames:
-            	for keyName in keyNames:
-                	if not keyName in cols:
-                    		logging.error("Error: keyName \"" + keyName + "\" not in column headers.")
-                    		return None
+        if tagNames:
+                for tagName in tagNames:
+                    if not tagName in cols:
+                            logging.error("Error: tagName \"" + tagName + "\" not in column headers.")
+                            return None
+        if keyNames:
+                for keyName in keyNames:
+                    if not keyName in cols:
+                            logging.error("Error: keyName \"" + keyName + "\" not in column headers.")
+                            return None
             for metricName in metricNames:
                 if not metricName in cols:
                     logging.error("Error: metricName \"" + metricName + "\" not in column headers.")
@@ -174,13 +175,20 @@ def parse_csv_into_metrics(csvfile):
 
         # dictionary var to hold metrics
         m_dict = {}
+
         # for loop to populate m_dict
+        rowNum = 2 # rowNum starts after header row, useful for counting, reporting errors, etc. 
+
         for row in data:
             # abort without timestamp
             try:
                 ts = row[opts.timestampcolumn] and to_gmt_epoch(row[opts.timestampcolumn])
-            except ValueError: # catch dateformat error
+            except ValueError: # catch dateformat error parsing timestamp value
                 logging.error("Error: Timestamp (" + row[opts.timestampcolumn] + ") format does not match Dateformat (" + opts.dateformat + ").")
+                return None
+            # Fail if the timestamp value is blank    
+            if not ts:
+                logging.error("Error: Parse error for Timestamp value on row " + rowNum + ". Value=\"" + row[opts.timestampcolumn] + "\"")
                 return None
 
             # create final scope, substitute keys into the scope
@@ -207,13 +215,6 @@ def parse_csv_into_metrics(csvfile):
                 # abort without argusmetrics
                 val = row[col]
 
-                # abort for non-numeric metrics
-                try:
-                    float(val)
-                except:
-                    logging.error("Error: Non-numeric metric found: %s", row)
-                    return None
-
                 # cast str to number
                 if val.isdigit():
                     val = int(val)
@@ -238,6 +239,8 @@ def parse_csv_into_metrics(csvfile):
 
                 # add a datapoint for this row/col combination, using the timestamp as the key
                 metric.datapoints[ts] = val
+
+            rowNum += 1 # increment the row counter
 
     if not opts.quiet:
         logging.info("Total metric count: %s", len(m_dict))
@@ -272,6 +275,4 @@ if metrics:
                 logging.info("Done.")
         except:
             logging.exception("Argus failure")
-
-
 
