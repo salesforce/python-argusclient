@@ -141,6 +141,6 @@ def AREA_CHART(*args, **kwargs):
     return _CHART(type='stackarea', *args, **kwargs)
 
 
-def STATUS_INDICATOR(name, hi, lo):
-    """ Generates an `ag-status-indicator` tag. """
-    return _STATUS_INDICATOR(name=name, hi=hi, lo=lo)
+def STATUS_INDICATOR(*args, **kwargs):
+    """Generates an `ag-status-indicator` tag with the passed in `name`,`hi`,`low` and METRIC attributes"""
+    return _STATUS_INDICATOR(*args, **kwargs)

@@ -1,4 +1,5 @@
 .*.sw*
+*.bak
 *.pyc
 SVN
 argusclient.egg-info
