@@ -1,0 +1,1448 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>argusclient Package &mdash; Argus Client 0.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Argus Client 0.2.1 documentation" href="index.html" />
+    <link rel="next" title="argusclient – A minimal client library for Argus webservice" href="README.html" />
+    <link rel="prev" title="Welcome to Argus Client’s documentation!" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="argusclient-package">
+<h1>argusclient Package<a class="headerlink" href="#argusclient-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><code class="xref py py-mod docutils literal"><span class="pre">argusclient</span></code> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-argusclient.__init__"></span></div>
+<div class="section" id="module-argusclient.client">
+<span id="client-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">client</span></code> Module<a class="headerlink" href="#module-argusclient.client" title="Permalink to this headline">¶</a></h2>
+<p>This modules contains various client classes to interact with the Argus RESTful webservice endpoints.
+The implementation is based on API documentation from <code class="docutils literal"><span class="pre">/help</span></code> on various endpoints
+and <a class="reference external" href="https://github.com/SalesforceEng/Argus/wiki/Web%20Service%20API">web service reference</a>.</p>
+<dl class="class">
+<dt id="argusclient.client.AlertNotificationsServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">AlertNotificationsServiceClient</code><span class="sig-paren">(</span><em>argus</em>, <em>alert</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseUpdatableModelServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus alert notifications endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.AlertsServiceClient.notifications" title="argusclient.client.AlertsServiceClient.notifications"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.AlertsServiceClient.notifications</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.AlertNotificationsServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>notification</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the notification to this alert.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the added <a class="reference internal" href="#argusclient.model.Notification" title="argusclient.model.Notification"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Notification</span></code></a> with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertNotificationsServiceClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the item with specified id. This method retrieves it from Argus, if the object is not already available in the local collection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertNotificationsServiceClient.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertNotificationsServiceClient.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of ids, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertNotificationsServiceClient.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>id</em>, <em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the specified item on Argus as well as in the local collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the updated object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertNotificationsServiceClient.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertNotificationsServiceClient.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of objects, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.AlertTriggersServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">AlertTriggersServiceClient</code><span class="sig-paren">(</span><em>argus</em>, <em>alert</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseUpdatableModelServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus alert triggers endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.AlertsServiceClient.triggers" title="argusclient.client.AlertsServiceClient.triggers"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.AlertsServiceClient.triggers</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.AlertTriggersServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>trigger</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the trigger to this alert.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the added <a class="reference internal" href="#argusclient.model.Trigger" title="argusclient.model.Trigger"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Trigger</span></code></a> with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertTriggersServiceClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the item with specified id. This method retrieves it from Argus, if the object is not already available in the local collection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertTriggersServiceClient.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertTriggersServiceClient.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of ids, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertTriggersServiceClient.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>id</em>, <em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the specified item on Argus as well as in the local collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the updated object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertTriggersServiceClient.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertTriggersServiceClient.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of objects, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.AlertsServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">AlertsServiceClient</code><span class="sig-paren">(</span><em>argus</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseUpdatableModelServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus alerts endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.ArgusServiceClient.alerts" title="argusclient.client.ArgusServiceClient.alerts"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.ArgusServiceClient.alerts</span></code></a> attribute.</p>
+<dl class="attribute">
+<dt id="argusclient.client.AlertsServiceClient.triggers">
+<code class="descname">triggers</code><a class="headerlink" href="#argusclient.client.AlertsServiceClient.triggers" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.AlertTriggersServiceClient" title="argusclient.client.AlertTriggersServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.AlertTriggersServiceClient</span></code></a></p>
+<p>Interfaces with the Argus alert triggers endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.client.AlertsServiceClient.notifications">
+<code class="descname">notifications</code><a class="headerlink" href="#argusclient.client.AlertsServiceClient.notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.AlertNotificationsServiceClient" title="argusclient.client.AlertNotificationsServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.AlertNotificationsServiceClient</span></code></a></p>
+<p>Interfaces with the Argus alert notifications endpoint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>alert</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the alert.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.Alert" title="argusclient.model.Alert"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Alert</span></code></a> object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.add_notification_trigger">
+<code class="descname">add_notification_trigger</code><span class="sig-paren">(</span><em>alertid</em>, <em>notificationid</em>, <em>triggerid</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.add_notification_trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Associates the trigger with the specified notification.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.Trigger" title="argusclient.model.Trigger"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Trigger</span></code></a> with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the object from Argus service and also from this collection (if exists).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.delete_notification_trigger">
+<code class="descname">delete_notification_trigger</code><span class="sig-paren">(</span><em>alertid</em>, <em>notificationid</em>, <em>triggerid</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.delete_notification_trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disassociates the trigger with the specified notification. This method has no return value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the item with specified id. This method retrieves it from Argus, if the object is not already available in the local collection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.get_notification_trigger">
+<code class="descname">get_notification_trigger</code><span class="sig-paren">(</span><em>alertid</em>, <em>notificationid</em>, <em>triggerid</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.get_notification_trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the trigger only if it is associated with the specified notification.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.Trigger" title="argusclient.model.Trigger"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Trigger</span></code></a> object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.get_notification_triggers">
+<code class="descname">get_notification_triggers</code><span class="sig-paren">(</span><em>alertid</em>, <em>notificationid</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.get_notification_triggers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all triggers that are associated with the specified notification as a list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <code class="xref py py-class docutils literal"><span class="pre">list</span></code> of <a class="reference internal" href="#argusclient.model.Trigger" title="argusclient.model.Trigger"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Trigger</span></code></a> object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of ids, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>id</em>, <em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the specified item on Argus as well as in the local collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the updated object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of objects, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.AnnotationCollectionServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">AnnotationCollectionServiceClient</code><span class="sig-paren">(</span><em>argus</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AnnotationCollectionServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseCollectionServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus annotations collection endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.ArgusServiceClient.annotations" title="argusclient.client.ArgusServiceClient.annotations"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.ArgusServiceClient.annotations</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.AnnotationCollectionServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AnnotationCollectionServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends data to the collection service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#argusclient.model.AddListResult" title="argusclient.model.AddListResult"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.AddListResult</span></code></a> object with a summary of the operation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.AnnotationCollectionServiceClient.query">
+<code class="descname">query</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AnnotationCollectionServiceClient.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of data matching the given query.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.AnnotationQuery">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">AnnotationQuery</code><span class="sig-paren">(</span><em>scope</em>, <em>metric</em>, <em>source</em>, <em>tags=None</em>, <em>stTimeSpec=None</em>, <em>enTimeSpec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AnnotationQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseQuery</span></code></p>
+<p>This class is used to construct the query string for sending annotations queries to Argus.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">argusclient.client</span> <span class="k">import</span> <span class="n">AnnotationQuery</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mquery</span> <span class="o">=</span> <span class="n">AnnotationQuery</span><span class="p">(</span><span class="s2">&quot;test.scope&quot;</span><span class="p">,</span> <span class="s2">&quot;test.metric&quot;</span><span class="p">,</span> <span class="s2">&quot;test.source&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;test.tag&quot;</span><span class="p">:</span> <span class="s2">&quot;test.value&quot;</span> <span class="p">},</span> <span class="n">stTimeSpec</span><span class="o">=</span><span class="s2">&quot;-1d&quot;</span><span class="p">,</span> <span class="n">enTimeSpec</span><span class="o">=</span><span class="s2">&quot;-0d&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="nb">str</span><span class="p">(</span><span class="n">mquery</span><span class="p">)</span>
+<span class="go">-1d:-0d:test.scope:test.metric{test.tag=test.value}:test.source</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="argusclient.client.AnnotationQuery.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AnnotationQuery.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return string representation of the query that can be used with an Argus query. A metric query has the format:
+<code class="docutils literal"><span class="pre">-1d:-0d:scope:metric[{tagk=tagv,...}]:downsample[:aggregator][:namespace]</span></code>. An annotation query has the format
+<code class="docutils literal"><span class="pre">-1d:-0d:scope:metric[{tagk=tagv,...}]:source</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="argusclient.client.ArgusException">
+<em class="property">exception </em><code class="descclassname">argusclient.client.</code><code class="descname">ArgusException</code><a class="headerlink" href="#argusclient.client.ArgusException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>An exception type that is thrown for Argus service errors.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.ArgusServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">ArgusServiceClient</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>endpoint</em>, <em>timeout=(10</em>, <em>60)</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This is the main class to interact with the Argus webservice.</p>
+<p>An instance of this class comes with the below attributes to interact with the different Argus endpoints:</p>
+<dl class="attribute">
+<dt id="argusclient.client.ArgusServiceClient.metrics">
+<code class="descname">metrics</code><a class="headerlink" href="#argusclient.client.ArgusServiceClient.metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.MetricCollectionServiceClient" title="argusclient.client.MetricCollectionServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.MetricCollectionServiceClient</span></code></a></p>
+<p>Interfaces with the Argus metrics collection endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.client.ArgusServiceClient.annotations">
+<code class="descname">annotations</code><a class="headerlink" href="#argusclient.client.ArgusServiceClient.annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.AnnotationCollectionServiceClient" title="argusclient.client.AnnotationCollectionServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.AnnotationCollectionServiceClient</span></code></a></p>
+<p>Interfaces with the Argus annotations collection endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.client.ArgusServiceClient.dashboards">
+<code class="descname">dashboards</code><a class="headerlink" href="#argusclient.client.ArgusServiceClient.dashboards" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.DashboardsServiceClient" title="argusclient.client.DashboardsServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.DashboardsServiceClient</span></code></a></p>
+<p>Interfaces with the Argus dashboards endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.client.ArgusServiceClient.users">
+<code class="descname">users</code><a class="headerlink" href="#argusclient.client.ArgusServiceClient.users" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.UsersServiceClient" title="argusclient.client.UsersServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.UsersServiceClient</span></code></a></p>
+<p>Interfaces with the Argus users endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.client.ArgusServiceClient.namespaces">
+<code class="descname">namespaces</code><a class="headerlink" href="#argusclient.client.ArgusServiceClient.namespaces" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.NamespacesServiceClient" title="argusclient.client.NamespacesServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.NamespacesServiceClient</span></code></a></p>
+<p>Interfaces with the Argus namespaces endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.client.ArgusServiceClient.alerts">
+<code class="descname">alerts</code><a class="headerlink" href="#argusclient.client.ArgusServiceClient.alerts" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#argusclient.client.AlertsServiceClient" title="argusclient.client.AlertsServiceClient"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.AlertsServiceClient</span></code></a></p>
+<p>Interfaces with the Argus alerts endpoint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.ArgusServiceClient.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>endpoint</em>, <em>timeout=(10</em>, <em>60)</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new client object to interface with the Argus RESTful API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user</strong> (<em>str</em>) &#8211; The username for Argus account.</li>
+<li><strong>password</strong> (<em>str</em>) &#8211; The password for Argus account.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.ArgusServiceClient._request">
+<code class="descname">_request</code><span class="sig-paren">(</span><em>method</em>, <em>path</em>, <em>params=None</em>, <em>dataObj=None</em>, <em>encCls=&lt;class 'argusclient.model.JsonEncoder'&gt;</em>, <em>decCls=&lt;class 'argusclient.model.JsonDecoder'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient._request" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the low level method that all</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<em>str</em>) &#8211; The HTTP method name as a string. Some valid names are: <cite>get</cite>, <cite>post</cite>, <cite>put</cite> and <cite>delete</cite>.</li>
+<li><strong>path</strong> (<em>str</em>) &#8211; The Argus path on which the request needs to be made, e.g. <cite>/auth/login</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.ArgusServiceClient.login">
+<code class="descname">login</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs into the Argus service and establishes a session.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.User" title="argusclient.model.User"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.User</span></code></a> object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.ArgusServiceClient.logout">
+<code class="descname">logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs out of the Argus service and destroys the session.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.DashboardsServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">DashboardsServiceClient</code><span class="sig-paren">(</span><em>argus</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseUpdatableModelServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus dashboards endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.ArgusServiceClient.dashboards" title="argusclient.client.ArgusServiceClient.dashboards"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.ArgusServiceClient.dashboards</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>dashboard</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the dashboard.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.Dashboard" title="argusclient.model.Dashboard"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Dashboard</span></code></a> object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the object from Argus service and also from this collection (if exists).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the item with specified id. This method retrieves it from Argus, if the object is not already available in the local collection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.get_user_dashboard">
+<code class="descname">get_user_dashboard</code><span class="sig-paren">(</span><em>ownerName</em>, <em>dashboardName</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.get_user_dashboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Looks up a dashboard with its name and owner. Returns <cite>None</cite> if not found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.Dashboard" title="argusclient.model.Dashboard"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Dashboard</span></code></a> object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of ids, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>id</em>, <em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the specified item on Argus as well as in the local collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the updated object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.DashboardsServiceClient.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.DashboardsServiceClient.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of objects, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.MetricCollectionServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">MetricCollectionServiceClient</code><span class="sig-paren">(</span><em>argus</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.MetricCollectionServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseCollectionServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus metrics collection endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.ArgusServiceClient.metrics" title="argusclient.client.ArgusServiceClient.metrics"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.ArgusServiceClient.metrics</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.MetricCollectionServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.MetricCollectionServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends data to the collection service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#argusclient.model.AddListResult" title="argusclient.model.AddListResult"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.AddListResult</span></code></a> object with a summary of the operation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.MetricCollectionServiceClient.query">
+<code class="descname">query</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.MetricCollectionServiceClient.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of data matching the given query.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.MetricQuery">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">MetricQuery</code><span class="sig-paren">(</span><em>scope</em>, <em>metric</em>, <em>aggregator</em>, <em>tags=None</em>, <em>namespace=None</em>, <em>downsampler=None</em>, <em>stTimeSpec=None</em>, <em>enTimeSpec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.MetricQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseQuery</span></code></p>
+<p>This class is used to construct the query string for sending metric queries to Argus.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">argusclient.client</span> <span class="k">import</span> <span class="n">MetricQuery</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mquery</span> <span class="o">=</span> <span class="n">MetricQuery</span><span class="p">(</span><span class="s2">&quot;test.scope&quot;</span><span class="p">,</span> <span class="s2">&quot;test.metric&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;test.tag&quot;</span><span class="p">:</span> <span class="s2">&quot;test.value&quot;</span> <span class="p">},</span> <span class="n">stTimeSpec</span><span class="o">=</span><span class="s2">&quot;-1d&quot;</span><span class="p">,</span> <span class="n">enTimeSpec</span><span class="o">=</span><span class="s2">&quot;-0d&quot;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;test.namespace&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="nb">str</span><span class="p">(</span><span class="n">mquery</span><span class="p">)</span>
+<span class="go">-1d:-0d:test.scope:test.metric{test.tag=test.value}:sum:test.namespace</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="argusclient.client.MetricQuery.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.MetricQuery.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return string representation of the query that can be used with an Argus query. A metric query has the format:
+<code class="docutils literal"><span class="pre">-1d:-0d:scope:metric[{tagk=tagv,...}]:downsample[:aggregator][:namespace]</span></code>. An annotation query has the format
+<code class="docutils literal"><span class="pre">-1d:-0d:scope:metric[{tagk=tagv,...}]:source</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.NamespacesServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">NamespacesServiceClient</code><span class="sig-paren">(</span><em>argus</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseModelServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus namespaces endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.ArgusServiceClient.namespaces" title="argusclient.client.ArgusServiceClient.namespaces"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.ArgusServiceClient.namespaces</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the namespace.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the new <a class="reference internal" href="#argusclient.model.Namespace" title="argusclient.model.Namespace"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Namespace</span></code></a> with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object for the specified id. If the object is not already in the local collection, a one-time attempt would be made to load all objects from Argus.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of ids, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>id</em>, <em>namespace</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the specified namespace.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the updated <a class="reference internal" href="#argusclient.model.Namespace" title="argusclient.model.Namespace"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Namespace</span></code></a> with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.update_users">
+<code class="descname">update_users</code><span class="sig-paren">(</span><em>namespaceid</em>, <em>*users</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.update_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the namespace with the specified users.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the updated <a class="reference internal" href="#argusclient.model.Namespace" title="argusclient.model.Namespace"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Namespace</span></code></a> with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.NamespacesServiceClient.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.NamespacesServiceClient.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of objects, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.client.UsersServiceClient">
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">UsersServiceClient</code><span class="sig-paren">(</span><em>argus</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.UsersServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.client.BaseModelServiceClient</span></code></p>
+<p>Service class that interfaces with the Argus users endpoint.</p>
+<p>There is no need to instantiate this directly, as it is available as <a class="reference internal" href="#argusclient.client.ArgusServiceClient.users" title="argusclient.client.ArgusServiceClient.users"><code class="xref py py-attr docutils literal"><span class="pre">argusclient.client.ArgusServiceClient.users</span></code></a> attribute.</p>
+<dl class="method">
+<dt id="argusclient.client.UsersServiceClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.UsersServiceClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the User for the specified id/username. If the object is not already in the local collection, an attempt will be made to retrieve it from Argus.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.UsersServiceClient.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.UsersServiceClient.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.UsersServiceClient.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.UsersServiceClient.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of ids, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.client.UsersServiceClient.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.UsersServiceClient.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of objects, just like the corresponding method on a dict.
+Calling this method may result in sending a request to Argus to fetch all relevant objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-argusclient.dashboardtags">
+<span id="dashboardtags-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">dashboardtags</span></code> Module<a class="headerlink" href="#module-argusclient.dashboardtags" title="Permalink to this headline">¶</a></h2>
+<p>This module provides functions for generating dashboard tags. These functions are simple wrappers on top of the lxml <cite>ElementMaker</cite> API.
+These functions can be combined with additional HTML tags to produce the required XML to define dashboards.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">lxml.etree</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">argusclient.dashboardtags</span> <span class="k">import</span> <span class="n">E</span><span class="p">,</span> <span class="n">DASHBOARD</span><span class="p">,</span> <span class="n">CHART</span><span class="p">,</span> <span class="n">TITLE</span><span class="p">,</span> <span class="n">METRIC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h1</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">h1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hr</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">hr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dashboard</span> <span class="o">=</span> <span class="n">DASHBOARD</span><span class="p">(</span><span class="n">h1</span><span class="p">(</span><span class="s2">&quot;Test Dashboard&quot;</span><span class="p">),</span> <span class="n">hr</span><span class="p">(),</span> <span class="n">CHART</span><span class="p">(</span><span class="n">TITLE</span><span class="p">(</span><span class="s2">&quot;hdara.test&quot;</span><span class="p">),</span> <span class="n">METRIC</span><span class="p">(</span><span class="s2">&quot;-1d:-0d:test.scope:test.metric:sum&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hdara.test.metric&quot;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Chart&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">dashboard</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;ag-dashboard&gt;</span>
+<span class="go">  &lt;h1&gt;Test Dashboard&lt;/h1&gt;</span>
+<span class="go">  &lt;hr/&gt;</span>
+<span class="go">  &lt;ag-chart name=&quot;Chart&quot;&gt;</span>
+<span class="go">    &lt;ag-option name=&quot;title.text&quot; value=&quot;hdara.test&quot;/&gt;</span>
+<span class="go">    &lt;ag-metric name=&quot;hdara.test.metric&quot;&gt;-1d:-0d:test.scope:test.metric:sum&lt;/ag-metric&gt;</span>
+<span class="go">  &lt;/ag-chart&gt;</span>
+<span class="go">&lt;/ag-dashboard&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">dashboard</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="p">)</span>
+<span class="go">&lt;ag-dashboard&gt;&lt;h1&gt;Test Dashboard&lt;/h1&gt;&lt;hr/&gt;&lt;ag-chart name=&quot;Chart&quot;&gt;&lt;ag-option name=&quot;title.text&quot; value=&quot;hdara.test&quot;/&gt;&lt;ag-metric name=&quot;hdara.test.metric&quot;&gt;-1d:-0d:test.scope:test.metric:sum&lt;/ag-metric&gt;&lt;/ag-chart&gt;&lt;/ag-dashboard&gt;</span>
+</pre></div>
+</div>
+<p>Argus cant&#8217;t handle auto-closed XML tags, so using &#8220;html&#8221; <cite>method</cite> is recommended.</p>
+<dl class="function">
+<dt id="argusclient.dashboardtags.AREA_CHART">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">AREA_CHART</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.AREA_CHART" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-chart</cite> tag with <cite>type=&#8217;stackarea&#8217;</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.CHART">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">CHART</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.CHART" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-chart</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.DASHBOARD">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">DASHBOARD</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.DASHBOARD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-dashboard</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.DATE">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">DATE</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.DATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-date</cite> tag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.dashboardtags.E">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">E</code><a class="headerlink" href="#argusclient.dashboardtags.E" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this to create additional XML/HTML tags, e.g., <cite>E.h1</cite> will create the <cite>&lt;h1&gt;</cite> tag</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.END_DATE">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">END_DATE</code><span class="sig-paren">(</span><em>name='end'</em>, <em>label='End Date'</em>, <em>default='-0d'</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.END_DATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-date</cite> tag with sensible defaults for <cite>name</cite>, <cite>label</cite> and <cite>default</cite> for specifying end date.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.FLAGS">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">FLAGS</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.FLAGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-flags</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.METRIC">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">METRIC</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.METRIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-metric</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.OPTION">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">OPTION</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.OPTION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-option</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.START_DATE">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">START_DATE</code><span class="sig-paren">(</span><em>name='start'</em>, <em>label='Start Date'</em>, <em>default='-1d'</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.START_DATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-date</cite> tag with sensible defaults for <cite>name</cite>, <cite>label</cite> and <cite>default</cite> for specifying a start date.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.STATUS_INDICATOR">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">STATUS_INDICATOR</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.STATUS_INDICATOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-status-indicator</cite> tag with the passed in <cite>name</cite>,`hi`,`low` and METRIC attributes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.SUBMIT">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">SUBMIT</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.SUBMIT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-submit</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.SUB_TITLE">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">SUB_TITLE</code><span class="sig-paren">(</span><em>subTitle</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.SUB_TITLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-option</cite> tag with the specified <cite>subtitle</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.TABULAR">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">TABULAR</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.TABULAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-table</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.TEXT">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">TEXT</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.TEXT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an <cite>ag-text</cite> tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.TEXT_BOX">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">TEXT_BOX</code><span class="sig-paren">(</span><em>name</em>, <em>label=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.TEXT_BOX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-text</cite> tag with sensible defaults for <cite>type</cite>, <cite>name</cite>, <cite>label</cite> and <cite>default</cite> for specifying text field.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.TITLE">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">TITLE</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.TITLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-option</cite> tag with the specified <cite>title</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.XMAX">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">XMAX</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.XMAX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-option</cite> tag with the specified xaxis.max value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.XMIN">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">XMIN</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.XMIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-option</cite> tag with the specified xaxis.min value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.YMAX">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">YMAX</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.YMAX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-option</cite> tag with the specified yaxis.max value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="argusclient.dashboardtags.YMIN">
+<code class="descclassname">argusclient.dashboardtags.</code><code class="descname">YMIN</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.dashboardtags.YMIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a <cite>ag-option</cite> tag with the specified yaxis.min value.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-argusclient.model">
+<span id="model-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">model</span></code> Module<a class="headerlink" href="#module-argusclient.model" title="Permalink to this headline">¶</a></h2>
+<p>Module containing the classes that model the Argus base objects.</p>
+<dl class="class">
+<dt id="argusclient.model.AddListResult">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">AddListResult</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.AddListResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents the result of metric or annotation collection add request.</p>
+<p>Ex: {&#8220;Error Messages&#8221;:[],&#8221;Error&#8221;:&#8221;0 metrics&#8221;,&#8221;Success&#8221;:&#8221;1 metrics&#8221;}</p>
+<dl class="attribute">
+<dt id="argusclient.model.AddListResult.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.AddListResult.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.model.AddListResult.error_count">
+<code class="descname">error_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.AddListResult.error_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return error count from the result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.model.AddListResult.error_messages">
+<code class="descname">error_messages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.AddListResult.error_messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return any error messsages from the result.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.AddListResult.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.AddListResult.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="argusclient.model.AddListResult.success_count">
+<code class="descname">success_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.AddListResult.success_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return success count from the result.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Alert">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Alert</code><span class="sig-paren">(</span><em>name</em>, <em>expression</em>, <em>cronEntry</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Alert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents an Alert object in Argus.</p>
+<p>Alert name has to be unique across the alerts owned by the current user.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; The name of the alert</li>
+<li><strong>expression</strong> (<em>str</em>) &#8211; The metric query expression</li>
+<li><strong>cronEntry</strong> (<em>str</em>) &#8211; The cron expression</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>enabled</strong> (<em>bool</em>) &#8211; The enabled state of the alert</li>
+<li><strong>missingDataNotificationEnabled</strong> (<em>bool</em>) &#8211; The enabled state of missing data notification</li>
+<li><strong>triggerIds</strong> (<em>list of int</em>) &#8211; The list of IDs for the triggers owned by this alert.</li>
+<li><strong>notificationIds</strong> (<em>list of int</em>) &#8211; The list of IDs for the notifications owned by this alert.</li>
+<li><strong>shared</strong> &#8211; The shared state of the alert</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="argusclient.model.Alert.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Alert.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Alert.notification">
+<code class="descname">notification</code><a class="headerlink" href="#argusclient.model.Alert.notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>A convenience property to be used when <a class="reference internal" href="#argusclient.model.Alert.notifications" title="argusclient.model.Alert.notifications"><code class="xref py py-attr docutils literal"><span class="pre">notifications</span></code></a> contains a single <a class="reference internal" href="#argusclient.model.Notification" title="argusclient.model.Notification"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Notification</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Alert.notifications">
+<code class="descname">notifications</code><a class="headerlink" href="#argusclient.model.Alert.notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property to get and set notifications on the alert.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Alert.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Alert.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Alert.trigger">
+<code class="descname">trigger</code><a class="headerlink" href="#argusclient.model.Alert.trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>A convenience property to be used when <a class="reference internal" href="#argusclient.model.Alert.triggers" title="argusclient.model.Alert.triggers"><code class="xref py py-attr docutils literal"><span class="pre">triggers</span></code></a> contains a single <a class="reference internal" href="#argusclient.model.Trigger" title="argusclient.model.Trigger"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Trigger</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Alert.triggers">
+<code class="descname">triggers</code><a class="headerlink" href="#argusclient.model.Alert.triggers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property to get and set triggers on the alert.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Annotation">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Annotation</code><span class="sig-paren">(</span><em>source</em>, <em>scope</em>, <em>metric</em>, <em>id</em>, <em>timestamp</em>, <em>type</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Annotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents an Annotation object in Argus.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>source</strong> (<em>str</em>) &#8211; The source of the annotation</li>
+<li><strong>scope</strong> (<em>str</em>) &#8211; The scope for the annotation</li>
+<li><strong>metric</strong> (<em>str</em>) &#8211; The metric name of the annotation</li>
+<li><strong>timestamp</strong> (<em>int</em>) &#8211; The timestamp of the annotation</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; An external id for the annotation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tags</strong> (<em>dict of str:str</em>) &#8211; A dictionary of tags. Both keys and values should be valid strings.</li>
+<li><strong>fields</strong> (<em>dict of str:str</em>) &#8211; A dictionary of fields. Both keys and values should be valid strings.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="argusclient.model.Annotation.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Annotation.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string representation of the annotation that can be directly used as the annotation expresson in an annotation query and has the format:
+<code class="docutils literal"><span class="pre">scope:metric[{tagk=tagv,...}]:source</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Annotation.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Annotation.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Annotation.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Annotation.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Dashboard">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Dashboard</code><span class="sig-paren">(</span><em>name</em>, <em>content</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Dashboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents a Dashboard object in Argus.</p>
+<p>Dashboard name has to be unique across the dashboards owned by the current user.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; The name of the dashboard</li>
+<li><strong>content</strong> (<em>str</em>) &#8211; The XML content</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>description</strong> (<em>str</em>) &#8211; A description for the dashboard</li>
+<li><strong>shared</strong> (<em>bool</em>) &#8211; The shared state of the dashboard.</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; The Argus id of the dashboard</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="argusclient.model.Dashboard.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Dashboard.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Dashboard.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Dashboard.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Metric">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Metric</code><span class="sig-paren">(</span><em>scope</em>, <em>metric</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents a Metric object in Argus.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scope</strong> (<em>str</em>) &#8211; The scope for the annotation</li>
+<li><strong>metric</strong> (<em>str</em>) &#8211; The metric name of the annotation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>namespace</strong> (<em>str</em>) &#8211; The namespace for the metric</li>
+<li><strong>displayName</strong> (<em>str</em>) &#8211; The display name of the metric</li>
+<li><strong>unitType</strong> (<em>str</em>) &#8211; The unit type of the metric value</li>
+<li><strong>datapoints</strong> (<em>dict of int:object</em>) &#8211; The actual metric data points as a dictionary of values with epoc timestamp as the keys.</li>
+<li><strong>tags</strong> (<em>dict of str:str</em>) &#8211; A dictionary of tags. Both keys and values should be valid strings.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="argusclient.model.Metric.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Metric.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string representation of the metric that can be directly used as the metric expressoin in a metric query and has the format:
+<code class="docutils literal"><span class="pre">scope:metric[{tagk=tagv,...}][:namespace]</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Metric.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Metric.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Metric.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Metric.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Namespace">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Namespace</code><span class="sig-paren">(</span><em>qualifier</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents a Namespace object in Argus.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qualifier</strong> (<em>str</em>) &#8211; The namespace qualifier</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>usernames</strong> (<em>list of str</em>) &#8211; The list of usernames that are authorized to post metrics to the namespace.</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; The Argus id of this namespace</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="argusclient.model.Namespace.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Namespace.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Namespace.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Namespace.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Notification">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Notification</code><span class="sig-paren">(</span><em>name</em>, <em>notifierName</em>, <em>metricsToAnnotate=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents a Notification object in Argus.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; The name of the notification</li>
+<li><strong>notifierName</strong> (<em>str</em>) &#8211; The name of the notifier implementation. Must be one of <a class="reference internal" href="#argusclient.model.Notification.EMAIL" title="argusclient.model.Notification.EMAIL"><code class="xref py py-attr docutils literal"><span class="pre">EMAIL</span></code></a>, <a class="reference internal" href="#argusclient.model.Notification.AUDIT" title="argusclient.model.Notification.AUDIT"><code class="xref py py-attr docutils literal"><span class="pre">AUDIT</span></code></a>, <a class="reference internal" href="#argusclient.model.Notification.GOC" title="argusclient.model.Notification.GOC"><code class="xref py py-attr docutils literal"><span class="pre">GOC</span></code></a>, <a class="reference internal" href="#argusclient.model.Notification.GUS" title="argusclient.model.Notification.GUS"><code class="xref py py-attr docutils literal"><span class="pre">GUS</span></code></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subscriptions</strong> (<em>list of str</em>) &#8211; The subscriptions for the notifier implementation, such as email ids in case of <a class="reference internal" href="#argusclient.model.Notification.EMAIL" title="argusclient.model.Notification.EMAIL"><code class="xref py py-attr docutils literal"><span class="pre">EMAIL</span></code></a>.</li>
+<li><strong>cooldownPeriod</strong> (<em>float</em>) &#8211; The cooldown period</li>
+<li><strong>cooldownExpiration</strong> (<em>float</em>) &#8211; The cooldown expiration</li>
+<li><strong>triggerIds</strong> (<em>list of int</em>) &#8211; List of IDs of triggers that this notification is associated with.</li>
+<li><strong>alertId</strong> (<em>int</em>) &#8211; ID of the alert that this trigger belongs to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="argusclient.model.Notification.AUDIT">
+<code class="descname">AUDIT</code><em class="property"> = 'com.salesforce.dva.argus.service.alert.notifier.AuditNotifier'</em><a class="headerlink" href="#argusclient.model.Notification.AUDIT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Notification.EMAIL">
+<code class="descname">EMAIL</code><em class="property"> = 'com.salesforce.dva.argus.service.alert.notifier.EmailNotifier'</em><a class="headerlink" href="#argusclient.model.Notification.EMAIL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Notification.GOC">
+<code class="descname">GOC</code><em class="property"> = 'com.salesforce.dva.argus.service.alert.notifier.GOCNotifier'</em><a class="headerlink" href="#argusclient.model.Notification.GOC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Notification.GUS">
+<code class="descname">GUS</code><em class="property"> = 'com.salesforce.dva.argus.service.alert.notifier.GusNotifier'</em><a class="headerlink" href="#argusclient.model.Notification.GUS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Notification.VALID_NOTIFIERS">
+<code class="descname">VALID_NOTIFIERS</code><em class="property"> = frozenset(['com.salesforce.dva.argus.service.alert.notifier.AuditNotifier', 'com.salesforce.dva.argus.service.alert.notifier.EmailNotifier', 'com.salesforce.dva.argus.service.alert.notifier.GOCNotifier', 'com.salesforce.dva.argus.service.alert.notifier.GusNotifier'])</em><a class="headerlink" href="#argusclient.model.Notification.VALID_NOTIFIERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of all valid notifier implementation names.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Notification.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Notification.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Notification.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Notification.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.Trigger">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">Trigger</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>threshold</em>, <em>inertia</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.Trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents a Trigger object in Argus.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; Name of the trigger</li>
+<li><strong>type</strong> (<em>str</em>) &#8211; Type of the trigger. Must be one of these: <a class="reference internal" href="#argusclient.model.Trigger.GREATER_THAN" title="argusclient.model.Trigger.GREATER_THAN"><code class="xref py py-attr docutils literal"><span class="pre">GREATER_THAN</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.GREATER_THAN_OR_EQ" title="argusclient.model.Trigger.GREATER_THAN_OR_EQ"><code class="xref py py-attr docutils literal"><span class="pre">GREATER_THAN_OR_EQ</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.LESS_THAN" title="argusclient.model.Trigger.LESS_THAN"><code class="xref py py-attr docutils literal"><span class="pre">LESS_THAN</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.LESS_THAN_OR_EQ" title="argusclient.model.Trigger.LESS_THAN_OR_EQ"><code class="xref py py-attr docutils literal"><span class="pre">LESS_THAN_OR_EQ</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.EQUAL" title="argusclient.model.Trigger.EQUAL"><code class="xref py py-attr docutils literal"><span class="pre">EQUAL</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.NOT_EQUAL" title="argusclient.model.Trigger.NOT_EQUAL"><code class="xref py py-attr docutils literal"><span class="pre">NOT_EQUAL</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.BETWEEN" title="argusclient.model.Trigger.BETWEEN"><code class="xref py py-attr docutils literal"><span class="pre">BETWEEN</span></code></a>, <a class="reference internal" href="#argusclient.model.Trigger.NOT_BETWEEN" title="argusclient.model.Trigger.NOT_BETWEEN"><code class="xref py py-attr docutils literal"><span class="pre">NOT_BETWEEN</span></code></a>.</li>
+<li><strong>threshold</strong> (<em>float</em>) &#8211; Threshold for the trigger</li>
+<li><strong>inertia</strong> (<em>int</em>) &#8211; Inertia for the trigger</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>secondaryThreshold</strong> (<em>float</em>) &#8211; Secondary threshold.</li>
+<li><strong>notificationIds</strong> (<em>list of int</em>) &#8211; List of IDs of notifications that this trigger is associated with.</li>
+<li><strong>alertId</strong> (<em>int</em>) &#8211; ID of the alert that this trigger belongs to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.BETWEEN">
+<code class="descname">BETWEEN</code><em class="property"> = 'BETWEEN'</em><a class="headerlink" href="#argusclient.model.Trigger.BETWEEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.EQUAL">
+<code class="descname">EQUAL</code><em class="property"> = 'EQUAL'</em><a class="headerlink" href="#argusclient.model.Trigger.EQUAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.GREATER_THAN">
+<code class="descname">GREATER_THAN</code><em class="property"> = 'GREATER_THAN'</em><a class="headerlink" href="#argusclient.model.Trigger.GREATER_THAN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.GREATER_THAN_OR_EQ">
+<code class="descname">GREATER_THAN_OR_EQ</code><em class="property"> = 'GREATER_THAN_OR_EQ'</em><a class="headerlink" href="#argusclient.model.Trigger.GREATER_THAN_OR_EQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.LESS_THAN">
+<code class="descname">LESS_THAN</code><em class="property"> = 'LESS_THAN'</em><a class="headerlink" href="#argusclient.model.Trigger.LESS_THAN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.LESS_THAN_OR_EQ">
+<code class="descname">LESS_THAN_OR_EQ</code><em class="property"> = 'LESS_THAN_OR_EQ'</em><a class="headerlink" href="#argusclient.model.Trigger.LESS_THAN_OR_EQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.NOT_BETWEEN">
+<code class="descname">NOT_BETWEEN</code><em class="property"> = 'NOT_BETWEEN'</em><a class="headerlink" href="#argusclient.model.Trigger.NOT_BETWEEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.NOT_EQUAL">
+<code class="descname">NOT_EQUAL</code><em class="property"> = 'NOT_EQUAL'</em><a class="headerlink" href="#argusclient.model.Trigger.NOT_EQUAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.VALID_TYPES">
+<code class="descname">VALID_TYPES</code><em class="property"> = frozenset(['LESS_THAN_OR_EQ', 'NOT_EQUAL', 'GREATER_THAN_OR_EQ', 'EQUAL', 'NOT_BETWEEN', 'BETWEEN', 'GREATER_THAN', 'LESS_THAN'])</em><a class="headerlink" href="#argusclient.model.Trigger.VALID_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of all valid trigger types.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.Trigger.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.Trigger.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.Trigger.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="argusclient.model.User">
+<em class="property">class </em><code class="descclassname">argusclient.model.</code><code class="descname">User</code><span class="sig-paren">(</span><em>userName</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.model.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">argusclient.model.BaseEncodable</span></code></p>
+<p>Represents a User object in Argus.</p>
+<p><strong>Required parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>userName</strong> (<em>str</em>) &#8211; The username of the Argus user</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional parameters to the constructor:</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>email</strong> (<em>str</em>) &#8211; The email address of the Argus user</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="argusclient.model.User.argus_id">
+<code class="descname">argus_id</code><a class="headerlink" href="#argusclient.model.User.argus_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The property that gives access to the Argus ID. This is <code class="docutils literal"><span class="pre">None</span></code> for new objects.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="argusclient.model.User.owner_id">
+<code class="descname">owner_id</code><a class="headerlink" href="#argusclient.model.User.owner_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of the object that owns this object or <code class="docutils literal"><span class="pre">None</span></code>. Only applicable to a few types that are not first-class objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">argusclient Package</a><ul>
+<li><a class="reference internal" href="#id1"><code class="docutils literal"><span class="pre">argusclient</span></code> Package</a></li>
+<li><a class="reference internal" href="#module-argusclient.client"><code class="docutils literal"><span class="pre">client</span></code> Module</a></li>
+<li><a class="reference internal" href="#module-argusclient.dashboardtags"><code class="docutils literal"><span class="pre">dashboardtags</span></code> Module</a></li>
+<li><a class="reference internal" href="#module-argusclient.model"><code class="docutils literal"><span class="pre">model</span></code> Module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Argus Client&#8217;s documentation!</a></li>
+      <li>Next: <a href="README.html" title="next chapter">argusclient &#8211; A minimal client library for Argus webservice</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/argusclient.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Hari Krishna Dara.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/argusclient.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
