@@ -12,7 +12,7 @@ Special thanks to `Demian Brecht <https://github.com/demianbrecht>`__
 for giving a lot of feedback early and helping to shape the API and the
 project.
 
-You can also browse the Python API documentation online at: `https://salesforce.github.io/python-argusclient/`__
+You can also browse the Python API documentation online at: `<https://salesforce.github.io/python-argusclient/>`__
 
 A quick primer to using argusclient
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
