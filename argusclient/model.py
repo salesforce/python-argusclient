@@ -407,7 +407,7 @@ class Notification(BaseEncodable):
 
     EMAIL = "com.salesforce.dva.argus.service.alert.notifier.EmailNotifier"
     AUDIT = "com.salesforce.dva.argus.service.alert.notifier.AuditNotifier"
-    GOC = "com.salesforce.dva.argus.service.alert.notifier.gocnotifier"
+    GOC = "com.salesforce.dva.argus.service.alert.notifier.GOCNotifier"
     GUS = "com.salesforce.dva.argus.service.alert.notifier.GusNotifier"
 
     #: Set of all valid notifier implementation names.

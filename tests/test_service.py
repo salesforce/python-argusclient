@@ -270,6 +270,7 @@ class TestAlertTrigger(TestServiceBase):
         self.assertTrue(isinstance(res, Trigger))
         self.assertTrue(hasattr(res, "id"))
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers"),), tuple(mockPost.call_args))
+        self.assertEquals(self.alert.triggers[testId].argus_id, testId)
 
     @mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(trigger_D), 200))
     def testUpdateTrigger(self, mockPut):
@@ -318,6 +319,7 @@ class TestAlertNotification(TestServiceBase):
         self.assertTrue(isinstance(res, Notification))
         self.assertTrue(hasattr(res, "id"))
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications"),), tuple(mockPost.call_args))
+        self.assertEquals(self.alert.notifications[testId].argus_id, testId)
 
     @mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(notification_D), 200))
     def testUpdateNotification(self, mockPut):
