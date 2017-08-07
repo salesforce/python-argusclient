@@ -435,7 +435,7 @@ class JsonDecoder(json.JSONDecoder):
         super(JsonDecoder, self).__init__(*args, **kwargs)
 
     def from_json(self, jsonObj):
-        if not isinstance(jsonObj, dict):
+        if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
         for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification):
             obj = cls.from_dict(jsonObj)

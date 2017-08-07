@@ -13,14 +13,27 @@ from argusclient.client import JsonEncoder, JsonDecoder, check_success
 from test_data import *
 
 
+class MockRequest(object):
+    def __init__(self, url):
+        self.url = url
+
+
 class MockResponse(object):
-    def __init__(self, json_text, status_code):
+    def __init__(self, json_text, status_code, request=None):
         self.text = json_text
         self.status_code = status_code
         self.cookies = cookies
+        self.request = request
 
     def json(self, **kwargs):
         return json.loads(self.text, **kwargs)
+
+
+def called_endpoints(mockObj):
+    return tuple(a[0][0] for a in mockObj.call_args_list)
+
+def expected_endpoints(*args):
+    return tuple(os.path.join(endpoint, p) for p in args)
 
 
 class TestCheckSuccess(unittest.TestCase):
@@ -42,22 +55,176 @@ class TestServiceBase(unittest.TestCase):
 
     def setUp(self):
         self.argus = ArgusServiceClient(userName, password, endpoint=endpoint)
+        self.argus.accessToken = "something"
 
 
 class TestLogin(TestServiceBase):
+    def setUp(self):
+        super(TestLogin, self).setUp()
+        TestLogin.argus = self.argus # For access by mock
+        self.argus.accessToken = None
 
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(user_D), 200))
-    def testOnSuccess(self, mockPost):
-        res = self.argus.login()
-        self.assertTrue(isinstance(res, User))
-        self.assertEquals(res.to_dict(), user_D)
-        # Just checking to make sure the post is happening on the right endpoint.
-        self.assertIn((os.path.join(endpoint, "auth/login"),), tuple(mockPost.call_args))
+    def testAuthSuccess(self):
+        """A straight-forward login with valid username/password"""
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(user_D), 200)) as mockGet:
+            with mock.patch('requests.Session.post', return_value=MockResponse('{"refreshToken": "refresh", "accessToken": "access"}', 200)) as mockPost:
+                res = self.argus.login()
+                self.assertTrue(isinstance(res, User))
+                self.assertEquals(res.to_dict(), user_D)
+                # Just checking to make sure the post is happening on the right endpoint.
+                self.assertEquals((os.path.join(endpoint, "v2/auth/login"),), called_endpoints(mockPost))
+                self.assertEquals((os.path.join(endpoint, "users/username/test.user"),), called_endpoints(mockGet))
+                self.assertEquals(self.argus.refreshToken, "refresh")
+                self.assertEquals(self.argus.accessToken, "access")
+                self.argus.logout()
+                self.assertEquals(self.argus.refreshToken, None)
+                self.assertEquals(self.argus.accessToken, None)
 
-    @mock.patch('requests.Session.post', return_value=MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401))
+    def testAuthImplicit(self):
+        """A straight-forward implicit login with valid username/password"""
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([namespace_D]), 200)) as mockGet:
+            with mock.patch('requests.Session.post', return_value=MockResponse('{"refreshToken": "refresh", "accessToken": "access"}', 200)) as mockPost:
+                self.argus.namespaces.values()
+                self.assertEquals((os.path.join(endpoint, "v2/auth/login"),), called_endpoints(mockPost))
+                self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockGet))
+                self.assertEquals(self.argus.refreshToken, "refresh")
+                self.assertEquals(self.argus.accessToken, "access")
+
+    @mock.patch('requests.Session.post', return_value=MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("v2/auth/login")))
     def testUnauthorized(self, mockPost):
-        self.failUnlessRaises(ArgusException, lambda: self.argus.login())
+        """A stright-forward login failure with invalid username/password"""
+        self.failUnlessRaises(ArgusAuthException, lambda: self.argus.login())
 
+    def testAuthWithDirectRefreshToken(self):
+        """Initialize directly with a valid refresh token but no access token or password"""
+        self.argus.refreshToken = "refresh"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse('{"accessToken": "access"}', 200)
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(1, mockConn.post.call_count)
+
+    def testAuthWithDirectAccessToken(self):
+        """Initialize directly with a valid access token but no password or refresh token to refresh"""
+        self.argus.accessToken = "access"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(return_value=MockResponse(json.dumps([namespace_D]), 200))
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+
+    def testAuthRefreshAccessToken(self):
+        """Test ability to refresh access token from refresh token"""
+        self.argus.accessToken = "access"
+        self.argus.refreshToken = "refresh"
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse(json.dumps([namespace_D]), 200)
+            ])
+            mockConn.post = mock.Mock(return_value=MockResponse('{"accessToken": "access2"}', 200))
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(1, mockConn.post.call_count)
+            self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(2, mockConn.get.call_count)
+            self.assertEquals(self.argus.refreshToken, "refresh")
+            self.assertEquals(self.argus.accessToken, "access2")
+
+    def testAuthRefreshRefreshToken(self):
+        """Test ability to refresh refresh token from username/password"""
+        self.argus.accessToken = "access"
+        self.argus.refreshToken = "refresh"
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse(json.dumps([namespace_D]), 200)
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("v2/auth/refresh/token")),
+                MockResponse('{"refreshToken": "refresh2", "accessToken": "access2"}', 200)
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),os.path.join(endpoint, "v2/auth/login"),), called_endpoints(mockConn.post))
+            self.assertEquals(2, mockConn.post.call_count)
+            self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(2, mockConn.get.call_count)
+            self.assertEquals(self.argus.refreshToken, "refresh2")
+            self.assertEquals(self.argus.accessToken, "access2")
+
+    def testInvalidRefreshTokenWithDirectAccessToken(self):
+        """Test inability to refresh access token if refresh token is invalid and there is no password"""
+        self.argus.accessToken = "access"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+            self.argus.namespaces._retrieved_all = False
+            self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
+            self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(3, mockConn.get.call_count)
+
+    def testInvalidPasswordWithDirectRefreshToken(self):
+        """Test inability to refresh refresh token as there is no password"""
+        self.argus.refreshToken = "refresh"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse('{"accessToken": "access"}', 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(1, mockConn.post.call_count)
+            self.argus.namespaces._retrieved_all = False
+            self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"), os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(2, mockConn.post.call_count)
+
+    def testExpiredPassword(self):
+        """Test inability to refresh tokens due to expired password"""
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse('{"refreshToken": "refresh", "accessToken": "access"}', 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals(1, mockConn.get.call_count)
+            self.assertEquals(expected_endpoints("namespace"), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.post.call_count)
+            self.assertEquals(expected_endpoints("v2/auth/login"), called_endpoints(mockConn.post))
+            self.argus.namespaces._retrieved_all = False
+            self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
+            self.assertEquals(2, mockConn.get.call_count)
+            self.assertEquals(expected_endpoints("namespace", "namespace"), called_endpoints(mockConn.get))
+            self.assertEquals(3, mockConn.post.call_count)
+            self.assertEquals(expected_endpoints("v2/auth/login", "v2/auth/token/refresh", "v2/auth/login"), called_endpoints(mockConn.post))
 
 class TestMetrics(TestServiceBase):
     def testAddInvalidMetrics(self):

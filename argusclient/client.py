@@ -17,6 +17,7 @@ import os
 import logging
 import collections
 import httplib
+from functools import wraps
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder
 
@@ -24,6 +25,12 @@ from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Not
 class ArgusException(Exception):
     """
     An exception type that is thrown for Argus service errors.
+    """
+    pass
+
+class ArgusAuthException(ArgusException):
+    """
+    An exception type that is thrown for Argus authentication errors.
     """
     pass
 
@@ -523,6 +530,54 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
         self.alert.notificationIds = [n.argus_id for n in self._coll.items()]
 
 
+def retry_auth(f):
+    @wraps(f)
+    def with_retry(*args, **kwargs):
+        try_cnt = 0
+        while True:
+            try_cnt += 1
+            try:
+                return f(*args, **kwargs)
+            except ArgusAuthException as ex:
+                if try_cnt >= 2:
+                    raise
+                else:
+                    logging.debug("Got auth exception, but will retry", exc_info=True)
+
+    return with_retry
+
+
+def auto_auth(f):
+    @wraps(f)
+    def with_auth_token(*args, **kwargs):
+        argus = args[0]
+        if not argus.accessToken and argus.refreshToken:
+            try:
+                res = argus._request_no_auth("post",
+                                     "v2/auth/token/refresh",
+                                     dataObj=dict(refreshToken=argus.refreshToken))
+                argus.accessToken = res["accessToken"]
+            except ArgusAuthException:
+                if argus.password:
+                    logging.debug("Token refresh failed, will attempt a fresh login", exc_info=True)
+                else:
+                    raise
+        if not argus.accessToken and argus.password:
+            argus.refreshToken = None
+            res = argus._request_no_auth("post",
+                                 "v2/auth/login",
+                                 dataObj=dict(username=argus.user, password=argus.password))
+            argus.refreshToken, argus.accessToken = res["refreshToken"], res["accessToken"]
+
+        try:
+            return f(*args, **kwargs)
+        except ArgusAuthException:
+            argus.accessToken = None
+            raise
+
+    return with_auth_token
+
+
 class ArgusServiceClient(object):
     """
     This is the main class to interact with the Argus webservice.
@@ -567,22 +622,36 @@ class ArgusServiceClient(object):
 
     """
 
-    def __init__(self, user, password, endpoint, timeout=(10, 60)):
+    def __init__(self, user, password, endpoint, timeout=(10, 60), refreshToken=None, accessToken=None):
         """
         Creates a new client object to interface with the Argus RESTful API.
 
         :param user: The username for Argus account.
         :type user: str
-        :param password: The password for Argus account.
+        :param password: The password for Argus account. This is optional, unless a valid ``refreshToken`` or ``accessToken`` is specified. The password will be used to generate a ``refreshToken`` and ``accessToken``.
         :type password: str
+        :param endpoint: The Argus endpoint to be used
+        :type endpoint: str
+        :param timeout: The timeout(s) to be applied for connection and read. This is passed as is to the calls to ``requests``. For more information, see `Requests Timeout <http://docs.python-requests.org/en/latest/user/advanced/#timeouts>`__
+        :type timeout: int or float or tuple
+        :param refreshToken: A token that can be used to generate an ``accessToken`` as and when needed. When the ``refreshToken`` expires, the ``password`` (if specified) will be used to generate a new token.
+        :type refreshToken: str
+        :param accessToken: A token that can be used to authenticate with Argus. If a ``refreshToken`` or ``password`` is specified, the ``accessToken`` will be refreshed as and when it is needed.
+        :type refreshToken: str
         """
+        if not user:
+            raise ValueError("A valid user must be specified")
+        if not any((password, refreshToken, accessToken)):
+            raise ValueError("One of these parameters must be specified: (password, refreshToken, accessToken)")
+        if not endpoint:
+            raise ValueError("Need a valid Argus endpoint URL")
+
         self.user = user
         self.password = password
         self.endpoint = endpoint
         self.timeout = timeout
-
-        if not self.endpoint:
-            raise ValueError("Need a valid Argus endpoint URL")
+        self.refreshToken = refreshToken
+        self.accessToken = accessToken
 
         self.metrics = MetricCollectionServiceClient(self)
         self.annotations = AnnotationCollectionServiceClient(self)
@@ -594,21 +663,38 @@ class ArgusServiceClient(object):
 
     def login(self):
         """
-        Logs into the Argus service and establishes a session.
+        Logs into the Argus service and establishes required tokens.
+        The call to ``login()`` is optional, as a session will be established the first time it is required.
 
         :return: the :class:`argusclient.model.User` object.
         """
-        return self._request("post", "auth/login", dataObj=dict(username=self.user, password=self.password))
+        # Simply make a request and let it handle the authentication implicitly.
+        return self._request("get", "users/username/{user}".format(user=self.user))
 
     def logout(self):
         """
         Logs out of the Argus service and destroys the session.
         """
-        self._request("get", "auth/logout")
+        # The new V2 auth doesn't support a logout, so just clear the tokens.
+        #self._request("get", "auth/logout")
+        self.refreshToken = self.accessToken = None
 
+    @retry_auth
+    @auto_auth
     def _request(self, method, path, params=None, dataObj=None, encCls=JsonEncoder, decCls=JsonDecoder):
         """
-        This is the low level method that all
+        This is the low level method used to make the underlying Argus requests. This ensures that all requests are fully authenticated.
+
+        :param method: The HTTP method name as a string. Some valid names are: `get`, `post`, `put` and `delete`.
+        :type method: str
+        :param path: The Argus path on which the request needs to be made, e.g. `/auth/login`
+        :type path: str
+        """
+        return self._request_no_auth(method, path, params, dataObj, encCls, decCls)
+
+    def _request_no_auth(self, method, path, params=None, dataObj=None, encCls=JsonEncoder, decCls=JsonDecoder):
+        """
+        This is the low level method used to make the underlying Argus requests. It is preferable to use :meth:`_request` method instead.
 
         :param method: The HTTP method name as a string. Some valid names are: `get`, `post`, `put` and `delete`.
         :type method: str
@@ -620,8 +706,11 @@ class ArgusServiceClient(object):
         data = dataObj and json.dumps(dataObj, cls=encCls) or None
         logging.debug("%s request with params: %s data length %s on: %s", method.upper(), params, data and len(data) or 0, url) # Mainly for the sake of data length
         # Argus seems to recognized "Accept" header for "application/json" and "application/ms-excel", but the former is the default.
+        headers = {"Content-Type": "application/json"}
+        if self.accessToken:
+            headers["Authorization"] = "Bearer "+self.accessToken
         resp = req_method(url, data=data, params=params,
-                          headers={"Content-Type": "application/json"},
+                          headers=headers,
                           timeout=self.timeout)
         res = check_success(resp, decCls)
         return res
@@ -638,6 +727,8 @@ def check_success(resp, decCls):
         return res
     elif resp.status_code == httplib.NOT_FOUND:
         raise ArgusException("Object not found at endpoint: %s message: %s" % (resp.request.url, resp.text))
+    elif resp.status_code == httplib.UNAUTHORIZED:
+        raise ArgusAuthException("Failed to authenticate at endpoint: %s message: %s" % (resp.request.url, resp.text))
     else:
         # TODO handle this differently, as this is typically a more severe exception (see W-2830904)
         raise ArgusException(resp.text)
