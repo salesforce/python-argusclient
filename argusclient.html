@@ -355,6 +355,13 @@ Calling this method may result in sending a request to Argus to fetch all releva
 </dd></dl>
 
 <dl class="exception">
+<dt id="argusclient.client.ArgusAuthException">
+<em class="property">exception </em><code class="descclassname">argusclient.client.</code><code class="descname">ArgusAuthException</code><a class="headerlink" href="#argusclient.client.ArgusAuthException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#argusclient.client.ArgusException" title="argusclient.client.ArgusException"><code class="xref py py-class docutils literal"><span class="pre">argusclient.client.ArgusException</span></code></a></p>
+<p>An exception type that is thrown for Argus authentication errors.</p>
+</dd></dl>
+
+<dl class="exception">
 <dt id="argusclient.client.ArgusException">
 <em class="property">exception </em><code class="descclassname">argusclient.client.</code><code class="descname">ArgusException</code><a class="headerlink" href="#argusclient.client.ArgusException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
@@ -363,7 +370,7 @@ Calling this method may result in sending a request to Argus to fetch all releva
 
 <dl class="class">
 <dt id="argusclient.client.ArgusServiceClient">
-<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">ArgusServiceClient</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>endpoint</em>, <em>timeout=(10</em>, <em>60)</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">argusclient.client.</code><code class="descname">ArgusServiceClient</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>endpoint</em>, <em>timeout=(10</em>, <em>60)</em>, <em>refreshToken=None</em>, <em>accessToken=None</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This is the main class to interact with the Argus webservice.</p>
 <p>An instance of this class comes with the below attributes to interact with the different Argus endpoints:</p>
@@ -411,7 +418,7 @@ Calling this method may result in sending a request to Argus to fetch all releva
 
 <dl class="method">
 <dt id="argusclient.client.ArgusServiceClient.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>endpoint</em>, <em>timeout=(10</em>, <em>60)</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>endpoint</em>, <em>timeout=(10</em>, <em>60)</em>, <em>refreshToken=None</em>, <em>accessToken=None</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new client object to interface with the Argus RESTful API.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -419,7 +426,11 @@ Calling this method may result in sending a request to Argus to fetch all releva
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>user</strong> (<em>str</em>) &#8211; The username for Argus account.</li>
-<li><strong>password</strong> (<em>str</em>) &#8211; The password for Argus account.</li>
+<li><strong>password</strong> (<em>str</em>) &#8211; The password for Argus account. This is optional, unless a valid <code class="docutils literal"><span class="pre">refreshToken</span></code> or <code class="docutils literal"><span class="pre">accessToken</span></code> is specified. The password will be used to generate a <code class="docutils literal"><span class="pre">refreshToken</span></code> and <code class="docutils literal"><span class="pre">accessToken</span></code>.</li>
+<li><strong>endpoint</strong> (<em>str</em>) &#8211; The Argus endpoint to be used</li>
+<li><strong>timeout</strong> (<em>int or float or tuple</em>) &#8211; The timeout(s) to be applied for connection and read. This is passed as is to the calls to <code class="docutils literal"><span class="pre">requests</span></code>. For more information, see <a class="reference external" href="http://docs.python-requests.org/en/latest/user/advanced/#timeouts">Requests Timeout</a></li>
+<li><strong>refreshToken</strong> (<em>str</em>) &#8211; A token that can be used to generate an <code class="docutils literal"><span class="pre">accessToken</span></code> as and when needed. When the <code class="docutils literal"><span class="pre">refreshToken</span></code> expires, the <code class="docutils literal"><span class="pre">password</span></code> (if specified) will be used to generate a new token.</li>
+<li><strong>accessToken</strong> &#8211; A token that can be used to authenticate with Argus. If a <code class="docutils literal"><span class="pre">refreshToken</span></code> or <code class="docutils literal"><span class="pre">password</span></code> is specified, the <code class="docutils literal"><span class="pre">accessToken</span></code> will be refreshed as and when it is needed.</li>
 </ul>
 </td>
 </tr>
@@ -429,8 +440,8 @@ Calling this method may result in sending a request to Argus to fetch all releva
 
 <dl class="method">
 <dt id="argusclient.client.ArgusServiceClient._request">
-<code class="descname">_request</code><span class="sig-paren">(</span><em>method</em>, <em>path</em>, <em>params=None</em>, <em>dataObj=None</em>, <em>encCls=&lt;class 'argusclient.model.JsonEncoder'&gt;</em>, <em>decCls=&lt;class 'argusclient.model.JsonDecoder'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient._request" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the low level method that all</p>
+<code class="descname">_request</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient._request" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the low level method used to make the underlying Argus requests. This ensures that all requests are fully authenticated.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -448,7 +459,8 @@ Calling this method may result in sending a request to Argus to fetch all releva
 <dl class="method">
 <dt id="argusclient.client.ArgusServiceClient.login">
 <code class="descname">login</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.ArgusServiceClient.login" title="Permalink to this definition">¶</a></dt>
-<dd><p>Logs into the Argus service and establishes a session.</p>
+<dd><p>Logs into the Argus service and establishes required tokens.
+The call to <code class="docutils literal"><span class="pre">login()</span></code> is optional, as a session will be established the first time it is required.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
