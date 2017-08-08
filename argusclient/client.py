@@ -354,7 +354,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         self._coll[db.id] = db
         return db
 
-    def get_user_dashboard(self, ownerName, dashboardName):
+    def get_user_dashboard(self, ownerName, dashboardName, shared=True):
         """
         Looks up a dashboard with its name and owner. Returns `None` if not found.
 
@@ -362,7 +362,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         """
         assert dashboardName, "Expected a dashboard name"
         assert ownerName, "Expected a owner name"
-        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName))
+        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
         if not dashboards:
             return None
         else:
