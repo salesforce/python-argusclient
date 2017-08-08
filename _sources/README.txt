@@ -140,7 +140,7 @@ Update or Create dashboard
 ::
 
     logging.info("Looking up existing dashboard with name: %s", dashboard_name)
-    dashbobj = argus.dashboards.get_user_dashboard(user, dashboard_name)
+    dashbobj = argus.dashboards.get_user_dashboard(user, dashboard_name, shared=False)
     if not dashbobj:
         logging.info("Creating new dashboard with name: %s", dashboard_name)
         dashbobj = Dashboard(dashboard_name, content, shared=True, description="A new dashboard")
