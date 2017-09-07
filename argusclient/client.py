@@ -28,6 +28,61 @@ class ArgusException(Exception):
     pass
 
 
+class BaseAuthenticator(object):
+    """
+    A basic auth implementation for credential passing to Argus,
+    I'm assuming further requests are serviced by passing the JSESSIONID or some other cookie.
+    """
+    def __init__(self):
+        pass
+
+    def login(self, req_method, dataObj):
+        res = req_method("post", "auth/login", dataObj=dataObj)
+        return res
+
+    def refresh(self, req_method, dataObj):
+        res = req_method("post", "auth/refresh", dataObj=dataObj)
+        return res
+
+    def logout(self, req_method):
+        req_method("get", "auth/logout")
+
+    def inject(self, headers=None, params=None, data=None):
+        # This is a NOOP in BasicAuth
+        pass
+
+
+class TokenAuthenticator(BaseAuthenticator):
+    """
+    Argus V2 service supports auth token which sends basic auth credentials as before
+    but returns an auth token that can be refreshed similar to SAML behaviors.
+    """
+    def __init__(self):
+        self.auth_token = None
+        super(TokenAuthenticator, self).__init__()
+
+    def login(self, req_method, dataObj):
+        res = req_method("post", "v2/auth/login", dataObj=dataObj)
+        if res['accessToken']:
+            self.auth_token = res['accessToken']
+        else:
+            raise ArgusException("Access token not in response, unable to login.")
+
+    def refresh(self, req_method, dataObj):
+        res = req_method("post", "v2/auth/refresh", dataObj=dataObj)
+        if res['accessToken']:
+            self.auth_token = res['accessToken']
+        else:
+            raise ArgusException("Access token not in response, unable to login.")
+
+    def inject(self, headers=None, params=None, data=None):
+        if not headers:
+            raise ArgusException("TokenAuth injection requires headers dict reference.")
+        
+        headers.update({'Authorization': 'Bearer ' + str(self.auth_token)})
+
+
+
 class BaseQuery(object):
     def __init__(self, baseExpr, *tailParams, **kwargs):
         self.baseExpr = baseExpr
@@ -567,7 +622,7 @@ class ArgusServiceClient(object):
 
     """
 
-    def __init__(self, user, password, endpoint, timeout=(10, 60)):
+    def __init__(self, user, password, endpoint, auth_obj=BaseAuthenticator, timeout=(10, 60)):
         """
         Creates a new client object to interface with the Argus RESTful API.
 
@@ -591,6 +646,8 @@ class ArgusServiceClient(object):
         self.namespaces = NamespacesServiceClient(self)
         self.alerts = AlertsServiceClient(self)
         self.conn = requests.Session()
+        self.auth_obj = auth_obj()
+
 
     def login(self):
         """
@@ -598,13 +655,22 @@ class ArgusServiceClient(object):
 
         :return: the :class:`argusclient.model.User` object.
         """
-        return self._request("post", "auth/login", dataObj=dict(username=self.user, password=self.password))
+        res = self.auth_obj.login(self._request, dataObj=dict(username=self.user, password=self.password))
+        return res
+
+    def refresh(self):
+        """
+        Logs into the Argus service and refreshed the auth token.
+        :return: the :class:`argusclient.model.User` object.
+        """
+        res = self.auth_obj.refresh(self._request, dataObj=dict(username=self.user, password=self.password))
+        return res
 
     def logout(self):
         """
         Logs out of the Argus service and destroys the session.
         """
-        self._request("get", "auth/logout")
+        res = self.auth_obj.logout(self._request)
 
     def _request(self, method, path, params=None, dataObj=None, encCls=JsonEncoder, decCls=JsonDecoder):
         """
@@ -618,10 +684,18 @@ class ArgusServiceClient(object):
         url = os.path.join(self.endpoint, path)
         req_method = getattr(self.conn, method)
         data = dataObj and json.dumps(dataObj, cls=encCls) or None
-        logging.debug("%s request with params: %s data length %s on: %s", method.upper(), params, data and len(data) or 0, url) # Mainly for the sake of data length
+
         # Argus seems to recognized "Accept" header for "application/json" and "application/ms-excel", but the former is the default.
+        headers = {"Content-Type": "application/json"}
+
+        logging.debug("%s request with params: %s data length %s on: %s", method.upper(), params, data and len(data) or 0, url) # Mainly for the sake of data length
+
+        # Call the auth object to inject authentication content into the request data
+        if self.auth_obj:
+            self.auth_obj.inject(headers=headers, data=data, params=params)
+
         resp = req_method(url, data=data, params=params,
-                          headers={"Content-Type": "application/json"},
+                          headers=headers,
                           timeout=self.timeout)
         res = check_success(resp, decCls)
         return res
