@@ -146,26 +146,31 @@ def parse_csv_into_metrics(csvfile):
             # Assign cols from the first row, the header in the CSV
             if not cols:
                 cols = row
-                continue
 
-            # Validate parameters against incoming column headers
-            if not opts.timestampcolumn in cols:
-                logging.error("Error: Timestamp column \"" + opts.timestampcolumn + "\" not present in header row.")
-                return None
-        if tagNames:
-                for tagName in tagNames:
-                    if not tagName in cols:
-                            logging.error("Error: tagName \"" + tagName + "\" not in column headers.")
-                            return None
-        if keyNames:
-                for keyName in keyNames:
-                    if not keyName in cols:
-                            logging.error("Error: keyName \"" + keyName + "\" not in column headers.")
-                            return None
-            for metricName in metricNames:
-                if not metricName in cols:
-                    logging.error("Error: metricName \"" + metricName + "\" not in column headers.")
+                # Validate parameters against incoming column headers
+                if not opts.timestampcolumn in cols:
+                    logging.error("Error: Timestamp column \"" + opts.timestampcolumn + "\" not present in header row.")
                     return None
+
+                if tagNames:
+                    for tagName in tagNames:
+                        if not tagName in cols:
+                                logging.error("Error: tagName \"" + tagName + "\" not in column headers.")
+                                return None
+
+                if keyNames:
+                    for keyName in keyNames:
+                        if not keyName in cols:
+                                logging.error("Error: keyName \"" + keyName + "\" not in column headers.")
+                                return None
+
+                if metricNames:
+                    for metricName in metricNames:
+                        if not metricName in cols:
+                            logging.error("Error: metricName \"" + metricName + "\" not in column headers.")
+                            return None
+
+                continue
 
             # Append rows to data
             data.append(dict(zip(cols, row)))
