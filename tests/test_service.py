@@ -418,6 +418,24 @@ class TestAlert(TestServiceBase):
         self.argus.alerts.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId)),), tuple(mockDelete.call_args))
 
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D]), 200))
+    def testGetUserAlert(self, mockGet):
+        res = self.argus.alerts.get_user_alert(testId, testId)
+        self.assertTrue(isinstance(res, Alert))
+        self.assertEquals(res.to_dict(), alert_D)
+        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([]), 200))
+    def testGetUserAlertNoMatch(self, mockGet):
+        res = self.argus.alerts.get_user_alert(testId, testId)
+        self.assertEquals(res, None)
+        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D, alert_D]), 200))
+    def testGetUserAlertUnexpectedMultiple(self, mockGet):
+        self.failUnlessRaises(AssertionError, lambda: self.argus.alerts.get_user_alert(testId, testId))
+        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+
 
 class TestAlertTrigger(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(alert_D), 200))

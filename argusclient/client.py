@@ -462,6 +462,21 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         # TODO: Update self._coll
         self.argus._request("delete", "alerts/%s/notifications/%s/triggers/%s" % (alertid, notificationid, triggerid))
 
+    def get_user_alert(self, ownerName, alertName, shared=True):
+        """
+        Looks up an alert with its name and owner. Returns `None` if not found.
+
+        :return: the :class:`argusclient.model.Alert` object with all fields populated.
+        """
+        assert alertName, "Expected an alert name"
+        assert ownerName, "Expected a owner name"
+        alerts = self.argus._request("get", "alerts", params=dict(alertName=alertName, owner=ownerName, shared=shared))
+        if not alerts:
+            return None
+        else:
+            assert len(alerts) == 1, "Expected a single alert as a result, but got: %s" % [a.name for a in alerts]
+            return alerts[0]
+
 
 class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
     """
