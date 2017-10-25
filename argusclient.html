@@ -269,6 +269,20 @@ Calling this method may result in sending a request to Argus to fetch all releva
 </dd></dl>
 
 <dl class="method">
+<dt id="argusclient.client.AlertsServiceClient.get_user_alert">
+<code class="descname">get_user_alert</code><span class="sig-paren">(</span><em>ownerName</em>, <em>alertName</em>, <em>shared=True</em><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.get_user_alert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Looks up an alert with its name and owner. Returns <cite>None</cite> if not found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the <a class="reference internal" href="#argusclient.model.Alert" title="argusclient.model.Alert"><code class="xref py py-class docutils literal"><span class="pre">argusclient.model.Alert</span></code></a> object with all fields populated.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="argusclient.client.AlertsServiceClient.items">
 <code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#argusclient.client.AlertsServiceClient.items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of (id, object) pairs as tuples, works like the corresponding method on a dict.
