@@ -470,7 +470,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         """
         assert alertName, "Expected an alert name"
         assert ownerName, "Expected a owner name"
-        alerts = self.argus._request("get", "alerts", params=dict(alertName=alertName, owner=ownerName, shared=shared))
+        alerts = self.argus._request("get", "alerts/meta", params=dict(alertname=alertName, ownername=ownerName, shared=shared))
         if not alerts:
             return None
         else:

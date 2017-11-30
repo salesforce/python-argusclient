@@ -156,12 +156,8 @@ Look for an existing alert and delete it so that we can recreate it
 
 ::
 
-    logging.info("Looking up existing alerts with name: %s", alert_name)
-    alerts = dict(((alert.ownerName, alert.name), alert) for alert in argus.alerts.values())
-    alertobj = alerts.get((user, alert_name))
-    # Currently, this API has a performance issue and so can't be relied on.
-    #logging.info("Looking up existing alert with name: %s owned by user: %s", alert_name, user)
-    #alertobj = argus.alerts.get_user_alert(user, alert_name)
+    logging.info("Looking up existing alert with name: %s owned by user: %s", alert_name, user)
+    alertobj = argus.alerts.get_user_alert(user, alert_name, shared=False)
     if alertobj:
         logging.info("Deleting existing alert with name: %s id: %s", alert_name, alertobj.argus_id)
         argus.alerts.delete(alertobj.argus_id)
