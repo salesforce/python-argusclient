@@ -19,11 +19,12 @@ class MockRequest(object):
 
 
 class MockResponse(object):
-    def __init__(self, json_text, status_code, request=None):
+    def __init__(self, json_text, status_code, request=None,url=None):
         self.text = json_text
         self.status_code = status_code
         self.cookies = cookies
         self.request = request
+        self.url = url
 
     def json(self, **kwargs):
         return json.loads(self.text, **kwargs)
@@ -47,8 +48,11 @@ class TestCheckSuccess(unittest.TestCase):
     def testError(self):
         self.failUnlessRaises(ArgusException, lambda: check_success(MockResponse("", 500), decCls=JsonDecoder))
 
+    def testUnauthorized(self):
+        self.failUnlessRaises(ArgusAuthException, lambda: check_success(MockResponse("", 401), decCls=JsonDecoder))
+
     def testUnexpectedEndpoint(self):
-        self.failUnlessRaises(Exception, lambda: check_success(MockResponse("HTTP 404 Not Found", 404), decCls=JsonDecoder))
+        self.failUnlessRaises(ArgusObjectNotFoundException, lambda: check_success(MockResponse("HTTP 404 Not Found", 404), decCls=JsonDecoder))
 
 
 class TestServiceBase(unittest.TestCase):
@@ -92,7 +96,7 @@ class TestLogin(TestServiceBase):
 
     @mock.patch('requests.Session.post', return_value=MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("v2/auth/login")))
     def testUnauthorized(self, mockPost):
-        """A stright-forward login failure with invalid username/password"""
+        """A straight-forward login failure with invalid username/password"""
         self.failUnlessRaises(ArgusAuthException, lambda: self.argus.login())
 
     def testAuthWithDirectRefreshToken(self):
@@ -423,18 +427,18 @@ class TestAlert(TestServiceBase):
         res = self.argus.alerts.get_user_alert(testId, testId)
         self.assertTrue(isinstance(res, Alert))
         self.assertEquals(res.to_dict(), alert_D)
-        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
 
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([]), 200))
     def testGetUserAlertNoMatch(self, mockGet):
         res = self.argus.alerts.get_user_alert(testId, testId)
         self.assertEquals(res, None)
-        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
 
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D, alert_D]), 200))
     def testGetUserAlertUnexpectedMultiple(self, mockGet):
         self.failUnlessRaises(AssertionError, lambda: self.argus.alerts.get_user_alert(testId, testId))
-        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
 
 
 class TestAlertTrigger(TestServiceBase):

@@ -34,6 +34,11 @@ class ArgusAuthException(ArgusException):
     """
     pass
 
+class ArgusObjectNotFoundException(ArgusException):
+    """
+    An exception type that is thrown for Argus object not found errors.
+    """
+    pass
 
 class BaseQuery(object):
     def __init__(self, baseExpr, *tailParams, **kwargs):
@@ -741,9 +746,9 @@ def check_success(resp, decCls):
             raise ArgusException(resp.text)
         return res
     elif resp.status_code == httplib.NOT_FOUND:
-        raise ArgusException("Object not found at endpoint: %s message: %s" % (resp.request.url, resp.text))
+        raise ArgusObjectNotFoundException("Object not found at endpoint: %s message: %s" % (resp.url, resp.text))
     elif resp.status_code == httplib.UNAUTHORIZED:
-        raise ArgusAuthException("Failed to authenticate at endpoint: %s message: %s" % (resp.request.url, resp.text))
+        raise ArgusAuthException("Failed to authenticate at endpoint: %s message: %s" % (resp.url, resp.text))
     else:
         # TODO handle this differently, as this is typically a more severe exception (see W-2830904)
         raise ArgusException(resp.text)
