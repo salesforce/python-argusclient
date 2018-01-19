@@ -486,6 +486,7 @@ class TestAlertTrigger(TestServiceBase):
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteTrigger(self, mockDelete):
+        self.alert.triggers._coll[testId + 1] = Trigger.from_dict(trigger_D)
         self.alert.triggers.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers", str(testId)),), tuple(mockDelete.call_args))
 
@@ -535,6 +536,7 @@ class TestAlertNotification(TestServiceBase):
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteNotification(self, mockDelete):
+        self.alert.notifications._coll[testId + 1] = Notification.from_dict(notification_D)
         self.alert.notifications.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId)),), tuple(mockDelete.call_args))
 
