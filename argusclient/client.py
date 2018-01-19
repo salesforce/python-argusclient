@@ -7,7 +7,7 @@ and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Se
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
@@ -421,6 +421,14 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
             alertobj.notification.triggersIds = [alertobj.trigger.id]
             alertobj.trigger.notificationsIds = [alertobj.notification.id]
         return alertobj
+
+    def update(self, id, alert):
+        """
+        Updates the specified alert.
+
+        :return: the updated :class:`argusclient.model.Alert` object with all fields populated.
+        """
+        return self._fill(super(AlertsServiceClient, self).update(id, alert))
 
     def get_notification_triggers(self, alertid, notificationid):
         """
