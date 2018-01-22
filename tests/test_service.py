@@ -486,9 +486,17 @@ class TestAlertTrigger(TestServiceBase):
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteTrigger(self, mockDelete):
-        self.alert.triggers._coll[testId + 1] = Trigger.from_dict(trigger_D)
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([trigger_D]), 200)):
+            trigger = Trigger.from_dict(trigger_D)
+            delattr(trigger, "id")
+            self.alert.triggers.add(trigger)
         self.alert.triggers.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers", str(testId)),), tuple(mockDelete.call_args))
+        # With delete removing the entry from alert.triggers, the following lookup would result in
+        # a fresh get call.
+        with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
+            self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.alert.triggers[testId])
+            self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers", str(testId)),), tuple(mockGet.call_args))
 
 
 class TestAlertNotification(TestServiceBase):
@@ -536,9 +544,17 @@ class TestAlertNotification(TestServiceBase):
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteNotification(self, mockDelete):
-        self.alert.notifications._coll[testId + 1] = Notification.from_dict(notification_D)
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([notification_D]), 200)):
+            notification = Notification.from_dict(notification_D)
+            delattr(notification, "id")
+            self.alert.notifications.add(notification)
         self.alert.notifications.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId)),), tuple(mockDelete.call_args))
+        # With delete removing the entry from alert.notifications, the following lookup would result in
+        # a fresh get call.
+        with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
+            self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.alert.notifications[testId])
+            self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId)),), tuple(mockGet.call_args))
 
 
 class TestNotificationTrigger(TestServiceBase):
