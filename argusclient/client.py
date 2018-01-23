@@ -422,6 +422,14 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
             alertobj.trigger.notificationsIds = [alertobj.notification.id]
         return alertobj
 
+    def update(self, id, alert):
+        """
+        Updates the specified alert.
+
+        :return: the updated :class:`argusclient.model.Alert` object with all fields populated.
+        """
+        return self._fill(super(AlertsServiceClient, self).update(id, alert))
+
     def get_notification_triggers(self, alertid, notificationid):
         """
         Return all triggers that are associated with the specified notification as a list.

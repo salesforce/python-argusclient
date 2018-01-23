@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
@@ -393,13 +393,19 @@ class TestAlert(TestServiceBase):
         res = self.argus.alerts.add(alert)
         self.assertTrue(isinstance(res, Alert))
         self.assertTrue(hasattr(res, "id"))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res.triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res.notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(alert_D), 200))
     def testUpdateAlert(self, mockPut):
-        self.argus.alerts.update(testId, Alert.from_dict(alert_D))
+        res = self.argus.alerts.update(testId, Alert.from_dict(alert_D))
         self.assertTrue(isinstance(self.argus.alerts.get(testId), Alert))
         self.assertEquals(self.argus.alerts.get(testId).to_dict(), alert_D)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId)),), tuple(mockPut.call_args))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res.triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res.notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D]), 200))
     def testGetAlerts(self, mockGet):
@@ -409,6 +415,9 @@ class TestAlert(TestServiceBase):
         self.assertTrue(isinstance(res[0], Alert))
         self.assertEquals(res[0].to_dict(), alert_D)
         self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res[0].triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res[0].notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(alert_D), 200))
     def testGetAlert(self, mockGet):
@@ -416,6 +425,9 @@ class TestAlert(TestServiceBase):
         self.assertTrue(isinstance(res, Alert))
         self.assertEquals(res.to_dict(), alert_D)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId)),), tuple(mockGet.call_args))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res.triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res.notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteAlert(self, mockDelete):
