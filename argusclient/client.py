@@ -522,7 +522,7 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
 
     def delete(self, id):
         super(AlertTriggersServiceClient, self).delete(id)
-        self.alert.triggerIds = [n.argus_id for n in self._coll.items()]
+        self.alert.triggerIds = list(self._coll.keys())
 
 
 class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
@@ -555,7 +555,7 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
 
     def delete(self, id):
         super(AlertNotificationsServiceClient, self).delete(id)
-        self.alert.notificationIds = [n.argus_id for n in self._coll.items()]
+        self.alert.notificationIds = list(self._coll.keys())
 
 
 def retry_auth(f):
