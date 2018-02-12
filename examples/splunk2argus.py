@@ -18,6 +18,7 @@ from argusclient import ArgusServiceClient, Metric
 class MyOptionParser(OptionParser,object):
     def format_epilog(self, formatter):
         return self.epilog
+
     def check_values(self, values, args):
         opt, args = super(MyOptionParser, self).check_values(values, args)
         if not opt.password:
@@ -79,9 +80,9 @@ parser.add_option("--arguskeys", dest="arguskeys", default=None,
 parser.add_option("--argusscope", dest="argusscope", default=None,
                   help="The Argus scope name for posting metrics")
 parser.add_option("--argusmetrics", dest="argusmetrics", default=None,
-                  help="The Argus scope name for posting metrics")
+                  help="Comma separated Argus metric names for posting metrics")
 parser.add_option("--argustags", dest="argustags", default=None,
-                  help="The Argus scope name for posting metrics")
+                  help="Comma separated Argus tag names for posting metrics")
 (opts, args) = parser.parse_args()
 
 # Required command-option checks
@@ -100,11 +101,12 @@ if not opts.arguskeys:
 
 # build lists for multivalue options
 if opts.argustags:
-    tagNames= opts.argustags.split(",")
+    tagNames = opts.argustags.split(",")
 if opts.argusmetrics:
-    metricNames= opts.argusmetrics.split(",")
+    metricNames = opts.argusmetrics.split(",")
+
 if opts.arguskeys:
-    keyNames= opts.arguskeys.split(",")
+    keyNames = opts.arguskeys.split(",")
 
 # Create a logging object and set logging level based on command-line option or default
 logging.basicConfig()

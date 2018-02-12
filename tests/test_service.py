@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
@@ -13,14 +13,28 @@ from argusclient.client import JsonEncoder, JsonDecoder, check_success
 from test_data import *
 
 
+class MockRequest(object):
+    def __init__(self, url):
+        self.url = url
+
+
 class MockResponse(object):
-    def __init__(self, json_text, status_code):
+    def __init__(self, json_text, status_code, request=None,url=None):
         self.text = json_text
         self.status_code = status_code
         self.cookies = cookies
+        self.request = request
+        self.url = url
 
     def json(self, **kwargs):
         return json.loads(self.text, **kwargs)
+
+
+def called_endpoints(mockObj):
+    return tuple(a[0][0] for a in mockObj.call_args_list)
+
+def expected_endpoints(*args):
+    return tuple(os.path.join(endpoint, p) for p in args)
 
 
 class TestCheckSuccess(unittest.TestCase):
@@ -34,30 +48,187 @@ class TestCheckSuccess(unittest.TestCase):
     def testError(self):
         self.failUnlessRaises(ArgusException, lambda: check_success(MockResponse("", 500), decCls=JsonDecoder))
 
+    def testUnauthorized(self):
+        self.failUnlessRaises(ArgusAuthException, lambda: check_success(MockResponse("", 401), decCls=JsonDecoder))
+
     def testUnexpectedEndpoint(self):
-        self.failUnlessRaises(Exception, lambda: check_success(MockResponse("HTTP 404 Not Found", 404), decCls=JsonDecoder))
+        self.failUnlessRaises(ArgusObjectNotFoundException, lambda: check_success(MockResponse("HTTP 404 Not Found", 404), decCls=JsonDecoder))
 
 
 class TestServiceBase(unittest.TestCase):
 
     def setUp(self):
         self.argus = ArgusServiceClient(userName, password, endpoint=endpoint)
+        self.argus.accessToken = "something"
 
 
 class TestLogin(TestServiceBase):
+    def setUp(self):
+        super(TestLogin, self).setUp()
+        TestLogin.argus = self.argus # For access by mock
+        self.argus.accessToken = None
 
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(user_D), 200))
-    def testOnSuccess(self, mockPost):
-        res = self.argus.login()
-        self.assertTrue(isinstance(res, User))
-        self.assertEquals(res.to_dict(), user_D)
-        # Just checking to make sure the post is happening on the right endpoint.
-        self.assertIn((os.path.join(endpoint, "auth/login"),), tuple(mockPost.call_args))
+    def testAuthSuccess(self):
+        """A straight-forward login with valid username/password"""
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(user_D), 200)) as mockGet:
+            with mock.patch('requests.Session.post', return_value=MockResponse('{"refreshToken": "refresh", "accessToken": "access"}', 200)) as mockPost:
+                res = self.argus.login()
+                self.assertTrue(isinstance(res, User))
+                self.assertEquals(res.to_dict(), user_D)
+                # Just checking to make sure the post is happening on the right endpoint.
+                self.assertEquals((os.path.join(endpoint, "v2/auth/login"),), called_endpoints(mockPost))
+                self.assertEquals((os.path.join(endpoint, "users/username/test.user"),), called_endpoints(mockGet))
+                self.assertEquals(self.argus.refreshToken, "refresh")
+                self.assertEquals(self.argus.accessToken, "access")
+                self.argus.logout()
+                self.assertEquals(self.argus.refreshToken, None)
+                self.assertEquals(self.argus.accessToken, None)
 
-    @mock.patch('requests.Session.post', return_value=MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401))
+    def testAuthImplicit(self):
+        """A straight-forward implicit login with valid username/password"""
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([namespace_D]), 200)) as mockGet:
+            with mock.patch('requests.Session.post', return_value=MockResponse('{"refreshToken": "refresh", "accessToken": "access"}', 200)) as mockPost:
+                self.argus.namespaces.values()
+                self.assertEquals((os.path.join(endpoint, "v2/auth/login"),), called_endpoints(mockPost))
+                self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockGet))
+                self.assertEquals(self.argus.refreshToken, "refresh")
+                self.assertEquals(self.argus.accessToken, "access")
+
+    @mock.patch('requests.Session.post', return_value=MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("v2/auth/login")))
     def testUnauthorized(self, mockPost):
-        self.failUnlessRaises(ArgusException, lambda: self.argus.login())
+        """A straight-forward login failure with invalid username/password"""
+        self.failUnlessRaises(ArgusAuthException, lambda: self.argus.login())
 
+    def testAuthWithDirectRefreshToken(self):
+        """Initialize directly with a valid refresh token but no access token or password"""
+        self.argus.refreshToken = "refresh"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse('{"accessToken": "access"}', 200)
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(1, mockConn.post.call_count)
+
+    def testAuthWithDirectAccessToken(self):
+        """Initialize directly with a valid access token but no password or refresh token to refresh"""
+        self.argus.accessToken = "access"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(return_value=MockResponse(json.dumps([namespace_D]), 200))
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+
+    def testAuthRefreshAccessToken(self):
+        """Test ability to refresh access token from refresh token"""
+        self.argus.accessToken = "access"
+        self.argus.refreshToken = "refresh"
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse(json.dumps([namespace_D]), 200)
+            ])
+            mockConn.post = mock.Mock(return_value=MockResponse('{"accessToken": "access2"}', 200))
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(1, mockConn.post.call_count)
+            self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(2, mockConn.get.call_count)
+            self.assertEquals(self.argus.refreshToken, "refresh")
+            self.assertEquals(self.argus.accessToken, "access2")
+
+    def testAuthRefreshRefreshToken(self):
+        """Test ability to refresh refresh token from username/password"""
+        self.argus.accessToken = "access"
+        self.argus.refreshToken = "refresh"
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse(json.dumps([namespace_D]), 200)
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("v2/auth/refresh/token")),
+                MockResponse('{"refreshToken": "refresh2", "accessToken": "access2"}', 200)
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),os.path.join(endpoint, "v2/auth/login"),), called_endpoints(mockConn.post))
+            self.assertEquals(2, mockConn.post.call_count)
+            self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(2, mockConn.get.call_count)
+            self.assertEquals(self.argus.refreshToken, "refresh2")
+            self.assertEquals(self.argus.accessToken, "access2")
+
+    def testInvalidRefreshTokenWithDirectAccessToken(self):
+        """Test inability to refresh access token if refresh token is invalid and there is no password"""
+        self.argus.accessToken = "access"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+            self.argus.namespaces._retrieved_all = False
+            self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
+            self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(3, mockConn.get.call_count)
+
+    def testInvalidPasswordWithDirectRefreshToken(self):
+        """Test inability to refresh refresh token as there is no password"""
+        self.argus.refreshToken = "refresh"
+        self.argus.password = None
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse('{"accessToken": "access"}', 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals((os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.get.call_count)
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(1, mockConn.post.call_count)
+            self.argus.namespaces._retrieved_all = False
+            self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
+            self.assertEquals((os.path.join(endpoint, "v2/auth/token/refresh"), os.path.join(endpoint, "v2/auth/token/refresh"),), called_endpoints(mockConn.post))
+            self.assertEquals(2, mockConn.post.call_count)
+
+    def testExpiredPassword(self):
+        """Test inability to refresh tokens due to expired password"""
+        with mock.patch('test_service.TestLogin.argus.conn') as mockConn:
+            mockConn.get = mock.Mock(side_effect=[
+                MockResponse(json.dumps([namespace_D]), 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            mockConn.post = mock.Mock(side_effect=[
+                MockResponse('{"refreshToken": "refresh", "accessToken": "access"}', 200),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+                MockResponse("""{ "status": 401, "message": "Unauthorized" }""", 401, request=MockRequest("namespace")),
+            ])
+            self.argus.namespaces.values()
+            self.assertEquals(1, mockConn.get.call_count)
+            self.assertEquals(expected_endpoints("namespace"), called_endpoints(mockConn.get))
+            self.assertEquals(1, mockConn.post.call_count)
+            self.assertEquals(expected_endpoints("v2/auth/login"), called_endpoints(mockConn.post))
+            self.argus.namespaces._retrieved_all = False
+            self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
+            self.assertEquals(2, mockConn.get.call_count)
+            self.assertEquals(expected_endpoints("namespace", "namespace"), called_endpoints(mockConn.get))
+            self.assertEquals(3, mockConn.post.call_count)
+            self.assertEquals(expected_endpoints("v2/auth/login", "v2/auth/token/refresh", "v2/auth/login"), called_endpoints(mockConn.post))
 
 class TestMetrics(TestServiceBase):
     def testAddInvalidMetrics(self):
@@ -222,13 +393,19 @@ class TestAlert(TestServiceBase):
         res = self.argus.alerts.add(alert)
         self.assertTrue(isinstance(res, Alert))
         self.assertTrue(hasattr(res, "id"))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res.triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res.notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(alert_D), 200))
     def testUpdateAlert(self, mockPut):
-        self.argus.alerts.update(testId, Alert.from_dict(alert_D))
+        res = self.argus.alerts.update(testId, Alert.from_dict(alert_D))
         self.assertTrue(isinstance(self.argus.alerts.get(testId), Alert))
         self.assertEquals(self.argus.alerts.get(testId).to_dict(), alert_D)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId)),), tuple(mockPut.call_args))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res.triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res.notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D]), 200))
     def testGetAlerts(self, mockGet):
@@ -238,6 +415,9 @@ class TestAlert(TestServiceBase):
         self.assertTrue(isinstance(res[0], Alert))
         self.assertEquals(res[0].to_dict(), alert_D)
         self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res[0].triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res[0].notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(alert_D), 200))
     def testGetAlert(self, mockGet):
@@ -245,11 +425,32 @@ class TestAlert(TestServiceBase):
         self.assertTrue(isinstance(res, Alert))
         self.assertEquals(res.to_dict(), alert_D)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId)),), tuple(mockGet.call_args))
+        for method in ['get', 'add', 'update', 'delete']:
+            self.assertTrue(hasattr(res.triggers, method), msg='no alert.triggers.{}()'.format(method))
+            self.assertTrue(hasattr(res.notifications, method), msg='no alert.notifications.{}()'.format(method))
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteAlert(self, mockDelete):
         self.argus.alerts.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId)),), tuple(mockDelete.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D]), 200))
+    def testGetUserAlert(self, mockGet):
+        res = self.argus.alerts.get_user_alert(testId, testId)
+        self.assertTrue(isinstance(res, Alert))
+        self.assertEquals(res.to_dict(), alert_D)
+        self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([]), 200))
+    def testGetUserAlertNoMatch(self, mockGet):
+        res = self.argus.alerts.get_user_alert(testId, testId)
+        self.assertEquals(res, None)
+        self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D, alert_D]), 200))
+    def testGetUserAlertUnexpectedMultiple(self, mockGet):
+        self.failUnlessRaises(AssertionError, lambda: self.argus.alerts.get_user_alert(testId, testId))
+        self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
 
 
 class TestAlertTrigger(TestServiceBase):
@@ -270,6 +471,7 @@ class TestAlertTrigger(TestServiceBase):
         self.assertTrue(isinstance(res, Trigger))
         self.assertTrue(hasattr(res, "id"))
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers"),), tuple(mockPost.call_args))
+        self.assertEquals(self.alert.triggers[testId].argus_id, testId)
 
     @mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(trigger_D), 200))
     def testUpdateTrigger(self, mockPut):
@@ -296,8 +498,17 @@ class TestAlertTrigger(TestServiceBase):
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteTrigger(self, mockDelete):
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([trigger_D]), 200)):
+            trigger = Trigger.from_dict(trigger_D)
+            delattr(trigger, "id")
+            self.alert.triggers.add(trigger)
         self.alert.triggers.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers", str(testId)),), tuple(mockDelete.call_args))
+        # With delete removing the entry from alert.triggers, the following lookup would result in
+        # a fresh get call.
+        with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
+            self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.alert.triggers[testId])
+            self.assertIn((os.path.join(endpoint, "alerts", str(testId), "triggers", str(testId)),), tuple(mockGet.call_args))
 
 
 class TestAlertNotification(TestServiceBase):
@@ -318,6 +529,7 @@ class TestAlertNotification(TestServiceBase):
         self.assertTrue(isinstance(res, Notification))
         self.assertTrue(hasattr(res, "id"))
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications"),), tuple(mockPost.call_args))
+        self.assertEquals(self.alert.notifications[testId].argus_id, testId)
 
     @mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(notification_D), 200))
     def testUpdateNotification(self, mockPut):
@@ -344,8 +556,17 @@ class TestAlertNotification(TestServiceBase):
 
     @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
     def testDeleteNotification(self, mockDelete):
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([notification_D]), 200)):
+            notification = Notification.from_dict(notification_D)
+            delattr(notification, "id")
+            self.alert.notifications.add(notification)
         self.alert.notifications.delete(testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId)),), tuple(mockDelete.call_args))
+        # With delete removing the entry from alert.notifications, the following lookup would result in
+        # a fresh get call.
+        with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
+            self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.alert.notifications[testId])
+            self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId)),), tuple(mockGet.call_args))
 
 
 class TestNotificationTrigger(TestServiceBase):
@@ -380,3 +601,49 @@ class TestNotificationTrigger(TestServiceBase):
     def testDeleteNotificationTrigger(self, mockDelete):
         self.argus.alerts.delete_notification_trigger(testId, testId, testId)
         self.assertIn((os.path.join(endpoint, "alerts", str(testId), "notifications", str(testId), "triggers", str(testId)),), tuple(mockDelete.call_args))
+
+
+class TestAlertMultipleNotifications(TestServiceBase):
+
+    def setUp(self):
+        super(TestAlertMultipleNotifications, self).setUp()
+        self.alert_dict = dict(alert_D)
+        self.notif1_dict = dict(notification_D)
+        self.notif2_dict = dict(notification_D)
+        self.notif1_dict["id"] = 100
+        self.notif2_dict["id"] = 101
+        self.alert_dict["notificationIds"] = [100, 101]
+
+    def testGetAlertWithMultipleNotifications(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(self.alert_dict), 200)):
+            return self.argus.alerts.get(testId)
+        alert = get_alert()
+        self.assertEquals(alert.notificationIds, [100, 101])
+
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([self.notif1_dict, self.notif2_dict]), 200)):
+            self.assertEquals(len(alert.notifications), 2)
+        self.assertEquals(alert.notifications[100].argus_id, 100)
+        self.assertEquals(alert.notifications[101].argus_id, 101)
+
+
+class TestAlertMultipleTriggers(TestServiceBase):
+
+    def setUp(self):
+        super(TestAlertMultipleTriggers, self).setUp()
+        self.alert_dict = dict(alert_D)
+        self.trigr1_dict = dict(trigger_D)
+        self.trigr2_dict = dict(trigger_D)
+        self.trigr1_dict["id"] = 100
+        self.trigr2_dict["id"] = 101
+        self.alert_dict["triggerIds"] = [100, 101]
+
+    def testGetAlertWithMultipleTriggers(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(self.alert_dict), 200)):
+            return self.argus.alerts.get(testId)
+        alert = get_alert()
+        self.assertEquals(alert.triggerIds, [100, 101])
+
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([self.trigr1_dict, self.trigr2_dict]), 200)):
+            self.assertEquals(len(alert.triggers), 2)
+        self.assertEquals(alert.triggers[100].argus_id, 100)
+        self.assertEquals(alert.triggers[101].argus_id, 101)

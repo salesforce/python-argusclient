@@ -274,6 +274,8 @@ class Alert(BaseEncodable):
     :type triggerIds: list of int
     :param notificationIds: The list of IDs for the notifications owned by this alert.
     :type notificationIds: list of int
+    :param shared: The shared state of the alert
+    :type enabled: bool
     """
 
     id_fields = ("expression", "cronEntry",)
@@ -302,6 +304,7 @@ class Alert(BaseEncodable):
     @triggers.setter
     def triggers(self, value):
         if not isinstance(value, list): raise ValueError("value should be of list type, but is: %s" % type(value))
+        # This is a special case allowed only while adding new alerts, so ensure that argus_id of self and the objects is None.
         # TODO Check for item type also
         self._triggers = value
 
@@ -326,6 +329,8 @@ class Alert(BaseEncodable):
         if not isinstance(value, list): raise ValueError("value should be of list type, but is: %s" % type(value))
         for item in value:
             if not isinstance(item, Notification): raise ValueError("array member should be of Notification type, but is: %s" % type(item))
+        # This is a special case allowed only while adding new alerts, so ensure that argus_id of self and the objects is None.
+        # TODO Check for item type also
         self._notifications = value
 
 
@@ -404,7 +409,7 @@ class Notification(BaseEncodable):
 
     EMAIL = "com.salesforce.dva.argus.service.alert.notifier.EmailNotifier"
     AUDIT = "com.salesforce.dva.argus.service.alert.notifier.AuditNotifier"
-    GOC = "com.salesforce.dva.argus.service.alert.notifier.gocnotifier"
+    GOC = "com.salesforce.dva.argus.service.alert.notifier.GOCNotifier"
     GUS = "com.salesforce.dva.argus.service.alert.notifier.GusNotifier"
 
     #: Set of all valid notifier implementation names.
@@ -432,7 +437,7 @@ class JsonDecoder(json.JSONDecoder):
         super(JsonDecoder, self).__init__(*args, **kwargs)
 
     def from_json(self, jsonObj):
-        if not isinstance(jsonObj, dict):
+        if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
         for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification):
             obj = cls.from_dict(jsonObj)

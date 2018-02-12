@@ -12,6 +12,8 @@ Special thanks to `Demian Brecht <https://github.com/demianbrecht>`__
 for giving a lot of feedback early and helping to shape the API and the
 project.
 
+You can also browse the Python API documentation online at: `<https://salesforce.github.io/python-argusclient/>`__
+
 A quick primer to using argusclient
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -70,7 +72,7 @@ Login to the service and establish session
 ::
 
     argus = ArgusServiceClient(user,
-                               password or getpass.getpass("Password: "),
+                               password or getpass.getpass("SSO password for %s: " % user),
                                endpoint=endpoint)
     logging.info("Logging in")
     argus.login()
@@ -93,7 +95,7 @@ Generate some random metrics against hdara-ns:hdara:test and mark the start and 
 ::
 
     logging.info("Generating some metric and annotation data for the dashboard")
-    m = Metric("hdara", "test", tags=tags, namespace=ns_name)
+    m = Metric(scope_name, metric_name, tags=tags, namespace=ns_name)
     for t in xrange(10, 0, -1):
         # Warden requires 1 minute gap between successive data points.
         ts = curtm-t*60*1000
@@ -109,11 +111,11 @@ Send metrics and annotations to Argus
     logging.info("Adding metrics data to Argus")
     am_resp = argus.metrics.add([m]);
     if am_resp.error_count():
-        logging.info("Errors reported in metric data: errorCount: %s errorMessages: %s", am_resp.error_count(), am_resp.error_messages())
+        logging.error("Errors reported in metric data: errorCount: %s errorMessages: %s", am_resp.error_count(), am_resp.error_messages())
     logging.info("Adding annotation data to Argus")
     an_resp = argus.annotations.add(ans)
     if an_resp.error_count():
-        logging.info("Errors reported in annotation data: errorCount: %s errorMessages: %s", an_resp.error_count(), an_resp.error_messages())
+        logging.error("Errors reported in annotation data: errorCount: %s errorMessages: %s", an_resp.error_count(), an_resp.error_messages())
 
 Generate dashboard content
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -138,7 +140,7 @@ Update or Create dashboard
 ::
 
     logging.info("Looking up existing dashboard with name: %s", dashboard_name)
-    dashbobj = argus.dashboards.get_user_dashboard(user, dashboard_name)
+    dashbobj = argus.dashboards.get_user_dashboard(user, dashboard_name, shared=False)
     if not dashbobj:
         logging.info("Creating new dashboard with name: %s", dashboard_name)
         dashbobj = Dashboard(dashboard_name, content, shared=True, description="A new dashboard")
@@ -154,9 +156,8 @@ Look for an existing alert and delete it so that we can recreate it
 
 ::
 
-    logging.info("Looking up existing alerts with name: %s", alert_name)
-    alerts = dict(((alert.ownerName, alert.name), alert) for alert in argus.alerts.values())
-    alertobj = alerts.get((user, alert_name))
+    logging.info("Looking up existing alert with name: %s owned by user: %s", alert_name, user)
+    alertobj = argus.alerts.get_user_alert(user, alert_name, shared=False)
     if alertobj:
         logging.info("Deleting existing alert with name: %s id: %s", alert_name, alertobj.argus_id)
         argus.alerts.delete(alertobj.argus_id)
@@ -169,4 +170,5 @@ Finally, create alert with a trigger and a notification
     logging.info("Creating new alert with alert name: %s", alert_name)
     alertobj = argus.alerts.add(Alert(alert_name, mquery, "* */1 * * *",
                                       trigger=Trigger("hdara.test.trigger", Trigger.GREATER_THAN, 100000, 600000),
-                                      notification=Notification("hdara.test.notification", Notification.EMAIL, subscriptions=["hdara@salesforce.com"])))
+                                      notification=Notification("hdara.test.notification", Notification.EMAIL, subscriptions=["hdara@salesforce.com"]),
+                                      shared=True))
