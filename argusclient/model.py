@@ -11,10 +11,10 @@ Module containing the classes that model the Argus base objects.
 
 import json
 
-try:               # Python 2
-    basestring
-except NameError:  # Python 3
-    basestring = string
+try:
+    basestring        # Python 2
+except NameError:
+    basestring = str  # Python 3
 
 
 class BaseEncodable(object):
