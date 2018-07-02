@@ -16,7 +16,10 @@ import json
 import os
 import logging
 import collections
-import httplib
+try:
+    import http.client as httplib  # Python 3
+except ImportError:
+    import httplib                 # Python 2
 from functools import wraps
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder
