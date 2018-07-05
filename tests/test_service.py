@@ -5,12 +5,17 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-import unittest, mock, json, os
+import unittest, json, os
 
 from argusclient import *
 from argusclient.client import JsonEncoder, JsonDecoder, check_success
 
 from test_data import *
+
+try:
+    import mock      # Python 2
+except ImportError:  # Python 3
+    from unittest import mock
 
 
 class MockRequest(object):

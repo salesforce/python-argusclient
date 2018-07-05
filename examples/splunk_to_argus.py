@@ -58,7 +58,7 @@ if not opts.pattern:
     parser.error("Please specify a Splunk pattern to search for")
 if not opts.argusws:
     parser.error("Need the URL to the Argus endpoint")
-if not opts.splunkapi
+if not opts.splunkapi:
     parser.error("Need the URL to the Splunk endpoint")
 
 logging.basicConfig()
