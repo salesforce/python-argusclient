@@ -345,7 +345,7 @@ class Trigger(BaseEncodable):
 
     :param name: Name of the trigger
     :type name: str
-    :param type: Type of the trigger. Must be one of these: :attr:`GREATER_THAN`, :attr:`GREATER_THAN_OR_EQ`, :attr:`LESS_THAN`, :attr:`LESS_THAN_OR_EQ`, :attr:`EQUAL`, :attr:`NOT_EQUAL`, :attr:`BETWEEN`, :attr:`NOT_BETWEEN`.
+    :param type: Type of the trigger. Must be one of these: :attr:`GREATER_THAN`, :attr:`GREATER_THAN_OR_EQ`, :attr:`LESS_THAN`, :attr:`LESS_THAN_OR_EQ`, :attr:`EQUAL`, :attr:`NOT_EQUAL`, :attr:`BETWEEN`, :attr:`NOT_BETWEEN`, :attr:`NO_DATA`.
     :type type: str
     :param threshold: Threshold for the trigger
     :type threshold: float
@@ -373,9 +373,10 @@ class Trigger(BaseEncodable):
     NOT_EQUAL = "NOT_EQUAL"
     BETWEEN = "BETWEEN"
     NOT_BETWEEN = "NOT_BETWEEN"
+    NO_DATA = "NO_DATA"
 
     #: Set of all valid trigger types.
-    VALID_TYPES = frozenset((GREATER_THAN, GREATER_THAN_OR_EQ, LESS_THAN, LESS_THAN_OR_EQ, EQUAL, NOT_EQUAL, BETWEEN, NOT_BETWEEN))
+    VALID_TYPES = frozenset((GREATER_THAN, GREATER_THAN_OR_EQ, LESS_THAN, LESS_THAN_OR_EQ, EQUAL, NOT_EQUAL, BETWEEN, NOT_BETWEEN, NO_DATA))
 
     def __init__(self, name, type, threshold, inertia, **kwargs):
         assert type in Trigger.VALID_TYPES, "type is not valid: %s" % type
