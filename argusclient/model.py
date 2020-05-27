@@ -415,9 +415,13 @@ class Notification(BaseEncodable):
     AUDIT = "com.salesforce.dva.argus.service.alert.notifier.AuditNotifier"
     GOC = "com.salesforce.dva.argus.service.alert.notifier.GOCNotifier"
     GUS = "com.salesforce.dva.argus.service.alert.notifier.GusNotifier"
+    CALLBACK = "com.salesforce.dva.argus.service.alert.notifier.CallbackNotifier"
+    PAGER_DUTY = "com.salesforce.dva.argus.service.alert.notifier.PagerDutyNotifier"
+    REFOCUS_BOOLEAN = "com.salesforce.dva.argus.service.alert.notifier.RefocusBooleanNotifier"
+    REFOCUS_VALUE = "com.salesforce.dva.argus.service.alert.notifier.RefocusValueNotifier"
 
     #: Set of all valid notifier implementation names.
-    VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS))
+    VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY, REFOCUS_BOOLEAN, REFOCUS_VALUE))
 
     def __init__(self, name, notifierName, metricsToAnnotate=None, **kwargs):
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
