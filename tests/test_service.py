@@ -457,6 +457,14 @@ class TestAlert(TestServiceBase):
         self.failUnlessRaises(AssertionError, lambda: self.argus.alerts.get_user_alert(testId, testId))
         self.assertIn((os.path.join(endpoint, "alerts/meta"),), tuple(mockGet.call_args))
 
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_D, alert_D]), 200))
+    def testGetAlertsAllInfo(self, mockGet):
+        res = self.argus.alerts.get_alerts_allinfo(userName)
+        if res:
+            for obj in res:
+                self.assertTrue(isinstance(obj, Alert))
+        self.assertIn((os.path.join(endpoint, "alerts/allinfo"),), tuple(mockGet.call_args))
+
 
 class TestAlertTrigger(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(alert_D), 200))
