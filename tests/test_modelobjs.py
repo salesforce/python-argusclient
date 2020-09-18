@@ -198,6 +198,21 @@ class TestEncoding(unittest.TestCase):
     def testEncNotification(self):
         self._testFor(notification_D, Notification)
 
+    def testDecAlert(self):
+        jsonStr = json.dumps(alert_all_info_D)
+        o = json.loads(jsonStr, cls=JsonDecoder)
+        self._assertType(o, Alert)
+
+        assert o.triggers
+        assert len(o.triggers) == 2
+        for trigger in o.triggers:
+            self._assertType(trigger, Trigger)
+
+        assert o.notifications
+        assert len(o.notifications) == 3
+        for notif in o.notifications:
+            self._assertType(notif, Notification)
+
     def testNonModel(self):
         D = dict(someRandomField="1", anotherRandomField="2")
         jsonStr = json.dumps(D)
@@ -221,9 +236,12 @@ class TestEncoding(unittest.TestCase):
                 self.assertEquals(c.from_dict(D), None, "Expected None for class: %s" % c)
         jsonStr = json.dumps(D)
         o = json.loads(jsonStr, cls=JsonDecoder)
-        self.assertTrue(isinstance(o, objClass), "Encoded obj of type: %s is not of expected type: %s" % (type(o), objClass))
+        self._assertType(o, objClass)
         self.assertEquals(json.loads(jsonStr), D)
 
+    def _assertType(self, obj, objClass):
+        self.assertTrue(isinstance(obj, objClass),
+                "Encoded obj of type: %s is not of expected type: %s" % (type(obj), objClass))
 
 class TestW_2816614(unittest.TestCase):
     def test_namespace_qualifier(self):
