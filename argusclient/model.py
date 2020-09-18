@@ -391,7 +391,8 @@ class Notification(BaseEncodable):
 
     :param name: The name of the notification
     :type name: str
-    :param notifierName: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`, :attr:`GOC`, :attr:`GUS`
+    :param notifierName: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`, :attr:`GOC`,
+            :attr:`GUS`, :attr:`CALLBACK`, :attr:`PAGER_DUTY`, :attr:`REFOCUS_BOOLEAN`, :attr:`REFOCUS_VALUE`, :attr:`SLACK`
     :type notifierName: str
 
     **Optional parameters to the constructor:**
