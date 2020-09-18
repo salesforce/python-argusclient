@@ -419,9 +419,11 @@ class Notification(BaseEncodable):
     PAGER_DUTY = "com.salesforce.dva.argus.service.alert.notifier.PagerDutyNotifier"
     REFOCUS_BOOLEAN = "com.salesforce.dva.argus.service.alert.notifier.RefocusBooleanNotifier"
     REFOCUS_VALUE = "com.salesforce.dva.argus.service.alert.notifier.RefocusValueNotifier"
+    SLACK = "com.salesforce.dva.argus.service.alert.notifier.SlackNotifier"
 
     #: Set of all valid notifier implementation names.
-    VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY, REFOCUS_BOOLEAN, REFOCUS_VALUE))
+    VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY,
+                                 REFOCUS_BOOLEAN, REFOCUS_VALUE, SLACK))
 
     def __init__(self, name, notifierName, metricsToAnnotate=None, **kwargs):
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
