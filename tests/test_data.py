@@ -114,22 +114,6 @@ addannotationresult_D = {
     "Success": "1 annotations"
 }
 
-alert_D = {
-    "id": testId,
-    "createdById": 101997,
-    "createdDate": 1459857033871,
-    "modifiedById": 101997,
-    "modifiedDate": 1459857033871,
-    "name": alertName,
-    "expression": "-1d:hdara:test:sum",
-    "cronEntry": "*/15 * * * *",
-    "enabled": False,
-    "missingDataNotificationEnabled": False,
-    "notificationsIds": [],
-    "triggersIds": [],
-    "ownerName": userName
-}
-
 trigger_D = {
     "id": testId,
     "createdById": 101997,
@@ -161,4 +145,38 @@ notification_D = {
     "cooldownExpiration": 0,
     "triggersIds": [],
     "alertId": 304255
+}
+
+alert_D = {
+    "id": testId,
+    "createdById": 101997,
+    "createdDate": 1459857033871,
+    "modifiedById": 101997,
+    "modifiedDate": 1459857033871,
+    "name": alertName,
+    "expression": "-1d:hdara:test:sum",
+    "cronEntry": "*/15 * * * *",
+    "enabled": False,
+    "missingDataNotificationEnabled": False,
+    "notificationsIds": [],
+    "triggersIds": [],
+    "ownerName": userName
+}
+
+alert_all_info_D = {
+    "id": testId,
+    "createdById": 101997,
+    "createdDate": 1459857033871,
+    "modifiedById": 101997,
+    "modifiedDate": 1459857033871,
+    "name": alertName,
+    "expression": "-1d:hdara:test:sum",
+    "cronEntry": "*/15 * * * *",
+    "enabled": False,
+    "missingDataNotificationEnabled": False,
+    "notificationsIds": [testId, testId, testId],
+    "triggersIds": [testId, testId],
+    "triggers": [trigger_D, trigger_D],
+    "notifications": [notification_D, notification_D, notification_D],
+    "ownerName": userName
 }
