@@ -391,8 +391,7 @@ class Notification(BaseEncodable):
 
     :param name: The name of the notification
     :type name: str
-    :param notifierName: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`, :attr:`GOC`,
-            :attr:`GUS`, :attr:`CALLBACK`, :attr:`PAGER_DUTY`, :attr:`REFOCUS_BOOLEAN`, :attr:`REFOCUS_VALUE`, :attr:`SLACK`
+    :param notifierName: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`, :attr:`GOC`, :attr:`GUS`
     :type notifierName: str
 
     **Optional parameters to the constructor:**
@@ -420,11 +419,9 @@ class Notification(BaseEncodable):
     PAGER_DUTY = "com.salesforce.dva.argus.service.alert.notifier.PagerDutyNotifier"
     REFOCUS_BOOLEAN = "com.salesforce.dva.argus.service.alert.notifier.RefocusBooleanNotifier"
     REFOCUS_VALUE = "com.salesforce.dva.argus.service.alert.notifier.RefocusValueNotifier"
-    SLACK = "com.salesforce.dva.argus.service.alert.notifier.SlackNotifier"
 
     #: Set of all valid notifier implementation names.
-    VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY,
-                                 REFOCUS_BOOLEAN, REFOCUS_VALUE, SLACK))
+    VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY, REFOCUS_BOOLEAN, REFOCUS_VALUE))
 
     def __init__(self, name, notifierName, metricsToAnnotate=None, **kwargs):
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
