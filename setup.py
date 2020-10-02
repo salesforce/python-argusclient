@@ -9,17 +9,27 @@ from setuptools import setup, find_packages
 
 version = '0.5'
 
+with open("README.rst", 'r') as fin:
+    README = fin.read()
+
+
 setup(name='argusclient',
       version=version,
       description="Minimal client library for Argus webservice REST API",
-      long_description="""\
-""",
-      classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      long_description=README,
+      long_description_content_type="text/x-rst",
+      classifiers=[
+          "Development Status :: 5 - Production/Stable",
+          "Programming Language :: Python :: 2.7",
+          "License :: OSI Approved :: BSD License",
+          "Intended Audience :: Developers",
+          "Topic :: System :: Monitoring",
+      ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='argus',
       author='Hari Krishna Dara',
       author_email='hdara@salesforce.com',
       url='https://github.com/SalesforceEng/argusclient',
-      license='',
+      license="BSD-3-Clause",
       packages=find_packages(exclude=['ez_setup', 'tests']),
       include_package_data=True,
       zip_safe=True,
