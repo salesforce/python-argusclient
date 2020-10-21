@@ -347,6 +347,19 @@ class TestDashboard(TestServiceBase):
     def testGetUserDashboardMultipleUnexpected(self, mockGet):
         self.failUnlessRaises(AssertionError, lambda: self.argus.dashboards.get_user_dashboard(userName, dashboardName))
 
+class TestPermission(TestServiceBase):
+    def testGetPermissionsNoIds(self):
+        self.failUnlessRaises(ValueError, lambda: self.argus.dashboards.get(None))
+
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(permission_D), 200))
+    def testGetPermissions1Id(self, mockPost):
+        perm = Permission.from_dict(permission_D)
+        # delattr(dashboard, "id")
+        res = self.argus.dashboards.add(dashboard)
+        self.assertTrue(isinstance(res, Dashboard))
+        self.assertTrue(hasattr(res, "id"))
+        self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockPost.call_args))
+
 
 class TestNamespace(TestServiceBase):
     def testAddInvalidNamespace(self):
