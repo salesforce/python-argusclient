@@ -377,6 +377,30 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
             assert len(dashboards) == 1, "Expected a single dashboard as a result, but got: %s" % len(dashboards)
             return dashboards[0]
 
+class PermissionsServiceClient(BaseUpdatableModelServiceClient):
+    """
+    Service class that interfaces with the Argus permissions endpoint.
+
+    There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
+    """
+    def __init__(self, argus):
+        super(PermissionsServiceClient, self).__init__(Dashboard, argus, "dashboards", "dashboards/%s")
+
+    def get_permissions_for_entities(self, ownerName, dashboardName, shared=True):
+        """
+        Looks up a dashboard with its name and owner. Returns `None` if not found.
+
+        :return: the :class:`argusclient.model.Dashboard` object with all fields populated.
+        """
+        assert dashboardName, "Expected a dashboard name"
+        assert ownerName, "Expected a owner name"
+        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
+        if not dashboards:
+            return None
+        else:
+            assert len(dashboards) == 1, "Expected a single dashboard as a result, but got: %s" % len(dashboards)
+            return dashboards[0]
+
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
     """
@@ -643,6 +667,12 @@ class ArgusServiceClient(object):
 
          Interfaces with the Argus dashboards endpoint.
 
+    .. attribute:: permissions
+
+         :class:`argusclient.client.PermissionsServiceClient`
+
+         Interfaces with the Argus permissions endpoint.
+
     .. attribute:: users
 
          :class:`argusclient.client.UsersServiceClient`
@@ -697,6 +727,7 @@ class ArgusServiceClient(object):
         self.metrics = MetricCollectionServiceClient(self)
         self.annotations = AnnotationCollectionServiceClient(self)
         self.dashboards = DashboardsServiceClient(self)
+        self.permissions = PermissionsServiceClient(self)
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
         self.alerts = AlertsServiceClient(self)
