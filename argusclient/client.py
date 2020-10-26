@@ -379,7 +379,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
 
     def get_user_dashboards(self, ownerName, shared=True, limit=None, version=None):
         """
-        Gets dashboards owned by ownerName. Returns `None` if none found.
+        Gets dashboards owned by ownerName.
 
         :return: a list of :class:`argusclient.model.Dashboard` objects with all fields populated.
         """
