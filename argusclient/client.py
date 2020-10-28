@@ -384,7 +384,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         :return: a list of :class:`argusclient.model.Dashboard` objects with all fields populated.
         """
         assert ownerName, "Expected a owner name"
-        return self.argus._request("get", "dashboards", params=dict(ownerName=ownerName, shared=shared, limit=limit, version=version))
+        return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
     """
