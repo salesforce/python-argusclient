@@ -386,7 +386,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         assert ownerName, "Expected a owner name"
         return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
-class PermissionsServiceClient(BaseUpdatableModelServiceClient):
+class PermissionsServiceClient(object):
     """
     Service class that interfaces with the Argus permissions endpoint.
 
