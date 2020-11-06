@@ -393,22 +393,15 @@ class PermissionsServiceClient(object):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
     """
     def __init__(self, argus):
-        super(PermissionsServiceClient, self).__init__(Dashboard, argus, "dashboards", "dashboards/%s")
+        self.argus = argus
 
-    def get_permissions_for_entities(self, ownerName, dashboardName, shared=True):
+    def get_permissions_for_entities(self, entityIds):
         """
-        Looks up a dashboard with its name and owner. Returns `None` if not found.
+        Looks up a permission with its name and owner. Returns `None` if not found.
 
-        :return: the :class:`argusclient.model.Dashboard` object with all fields populated.
+        :return: the :class:`argusclient.model.Permission` object with all fields populated.
         """
-        assert dashboardName, "Expected a dashboard name"
-        assert ownerName, "Expected a owner name"
-        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
-        if not dashboards:
-            return None
-        else:
-            assert len(dashboards) == 1, "Expected a single dashboard as a result, but got: %s" % len(dashboards)
-            return dashboards[0]
+        return self.argus._request("post", "permission/entityIds", dataObj=entityIds)
 
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
