@@ -229,6 +229,34 @@ class Dashboard(BaseEncodable):
     def __init__(self, name, content, **kwargs):
         super(Dashboard, self).__init__(name=name, content=content, **kwargs)
 
+class Permission(BaseEncodable):
+    """
+    Represents a Permission object in Argus.
+
+    **Required parameters to the constructor:**
+
+    :param type: the type of permission - "user" or "group"
+    :type type: str
+    :param permissionNames: permissions (like "VIEW", "EDIT", "DELETE")
+    :type permissionNames: list of str
+
+    **Optional parameters to the constructor:**
+
+    :param groupId: id of the group that has the associated permissions
+    :type groupId: str
+    :param username: name of the user that has the associated permissions
+    :type username: str
+    :param permissionIds: id's of the permissions (0, 1, 2)
+    :type permissionIds: list of int
+    :param entityId: id of the associated entity
+    :type entityId: int
+    """
+
+    id_fields = ("permissionNames",)
+
+    def __init__(self, type, permissionNames, **kwargs):
+        super(Permission, self).__init__(type=type, permissionNames=permissionNames, **kwargs)
+
 
 class Namespace(BaseEncodable):
     """
