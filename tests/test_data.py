@@ -15,6 +15,8 @@ displayName = "test.displayName"
 unitType = "test.unitType"
 source = "test.source"
 testId = 10
+testId2 = 11
+testId3 = 12
 timestamp = 10
 testType = "testType"
 dashboardName = "test.dashboard"
@@ -31,6 +33,10 @@ alertQuery = "-1d:test.scope:test.metric:sum"
 alertCron = "* */1 * * *"
 triggerName = "test.trigger"
 notificationName = "test.notification"
+groupPermissionIdentifier = "group"
+userPermissionIdentifier = "user"
+permissionNames = ["VIEW", "EDIT", "DELETE"]
+permissionGroupId = '24231-52321-43523-64353-23111'
 
 metric_D = {
     "scope": scope,
@@ -88,6 +94,19 @@ dashboard_D = {
     "ownerName": userName,
     "shared": True,
     "description": "Test description"
+}
+
+
+groupPermission_D = {
+    "type": groupPermissionIdentifier,
+    "permissionNames": permissionNames,
+    "groupId": permissionGroupId
+}
+
+userPermission_D = {
+    "type": userPermissionIdentifier,
+    "permissionNames": permissionNames,
+    "username": userName
 }
 
 namespace_D = {

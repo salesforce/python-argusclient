@@ -4,12 +4,13 @@
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
-
-import unittest, json, os
+import json
+import os
+import unittest
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success
-
+from argusclient.client import JsonDecoder, check_success
+from argusclient.model import Permission
 from test_data import *
 
 try:
@@ -358,16 +359,28 @@ class TestDashboard(TestServiceBase):
 
 class TestPermission(TestServiceBase):
     def testGetPermissionsNoIds(self):
-        self.failUnlessRaises(ValueError, lambda: self.argus.dashboards.get(None))
+        self.failUnlessRaises(ValueError, lambda: self.argus.permissions.get_permissions_for_entities(None))
 
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(permission_D), 200))
-    def testGetPermissions1Id(self, mockPost):
-        perm = Permission.from_dict(permission_D)
-        # delattr(dashboard, "id")
-        res = self.argus.dashboards.add(dashboard)
-        self.assertTrue(isinstance(res, Dashboard))
-        self.assertTrue(hasattr(res, "id"))
-        self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockPost.call_args))
+    @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
+    def testGetPermissionsBadId(self, mockPost):
+        res = self.argus.permissions.get_permissions_for_entities(testId)
+        self.assertIsNone(res)
+        self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
+
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
+                                                                               testId2: [userPermission_D],
+                                                                               testId3: []}), 200))
+    def testGetPermissions(self, mockPost):
+        res = self.argus.permissions.get_permissions_for_entities(testId)
+        for obj in res[unicode(testId)]:
+            self.assertTrue(isinstance(obj, Permission))
+            self.assertEquals(obj.to_dict(), groupPermission_D)
+        for obj in res[unicode(testId2)]:
+            self.assertTrue(isinstance(obj, Permission))
+            self.assertEquals(obj.to_dict(), userPermission_D)
+        self.assertTrue(unicode(testId3) in res)
+        self.assertEquals(len(res[unicode(testId3)]), 0)
+        self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
 
 class TestNamespace(TestServiceBase):
     def testAddInvalidNamespace(self):
