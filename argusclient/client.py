@@ -397,9 +397,9 @@ class PermissionsServiceClient(object):
 
     def get_permissions_for_entities(self, entityIds):
         """
-        Looks up a permission with its name and owner. Returns `None` if not found.
+        Gets permissions that are associated with the given entity id's.
 
-        :return: the :class:`argusclient.model.Permission` object with all fields populated.
+        :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
         return self.argus._request("post", "permission/entityIds", dataObj=entityIds)
 
