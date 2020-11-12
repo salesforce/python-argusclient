@@ -377,13 +377,13 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
             assert len(dashboards) == 1, "Expected a single dashboard as a result, but got: %s" % len(dashboards)
             return dashboards[0]
 
-    def get_user_dashboards(self, ownerName, shared=True, limit=None, version=None):
+    def get_user_dashboards(self, ownerName=None, shared=True, limit=None, version=None):
         """
         Gets dashboards owned by ownerName.
+        If ownerName is not passed in, the username used during login is used.
 
         :return: a list of :class:`argusclient.model.Dashboard` objects with all fields populated.
         """
-        assert ownerName, "Expected a owner name"
         return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
