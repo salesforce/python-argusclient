@@ -10,6 +10,7 @@ and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Se
 # Licensed under the BSD 3-Clause license. 
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
+import unicodedata
 
 import requests
 import json
@@ -401,7 +402,42 @@ class PermissionsServiceClient(object):
 
         :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
-        return self.argus._request("post", "permission/entityIds", dataObj=entityIds)
+        res = self.argus._request("post", "permission/entityIds", dataObj=entityIds)
+
+        return convert(res)
+        # return res
+
+def convert(input):
+    if isinstance(input, collections.Mapping):
+        # print 'calling dict conversion on: ', dict
+        return {convert(key): convert(value) for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        # print 'calling list conversion on: ', input
+        return [convert(element) for element in input]
+    elif isinstance(input, basestring):
+        # print 'calling string conversion on: ', input
+        ret = str(input)
+        # utf = input.encode('utf-8')
+        if ret.isnumeric():
+            ret =
+        return
+    else:
+        # print 'none of the types match ', input
+        return input
+
+# def convert(data):
+#     if isinstance(data, basestring):
+#         print 'calling string conversion'
+#         return str(data)
+#     elif isinstance(data, collections.Mapping):
+#         print 'calling map conversion'
+#         print data.iteritems()
+#         return dict(map(convert, data.iteritems()))
+#     elif isinstance(data, collections.Iterable):
+#         print 'calling list conversion on data: ', data
+#         return type(data)(map(convert, data))
+#     else:
+#         return data
 
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
