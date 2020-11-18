@@ -139,17 +139,19 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
 
 class BaseModelServiceClient(object):
-    def __init__(self, argus, get_all_path=None):
+    def __init__(self, argus, get_all_path=None, get_all_params=None):
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
         self.get_all_path = get_all_path
+        self.get_all_params = get_all_params
 
     def _init_all(self, coll=None):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
-            self._coll = dict((obj.argus_id, self._fill(obj)) for obj in coll or self.argus._request("get", self.get_all_path))
+            self._coll = dict((obj.argus_id, self._fill(obj))
+                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_params))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -193,6 +195,12 @@ class BaseModelServiceClient(object):
         """
         self._init_all()
         return self._coll.values()
+
+    def set_get_all_path(self, path):
+        self.get_all_path = path
+
+    def set_get_all_params(self, params):
+        self.get_all_params = params
 
     def __iter__(self):
         """
@@ -405,8 +413,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus):
-        super(AlertsServiceClient, self).__init__(Alert, argus, "alerts", "alerts/%s")
+    def __init__(self, argus, get_all_path="alerts"):
+        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s")
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
@@ -524,6 +532,8 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
         assert alert.id, "Alert expected to have an id at this point"
         super(AlertTriggersServiceClient, self).__init__(Trigger, argus, "alerts/%s/triggers" % alert.id, "alerts/%s/triggers/%%s" % alert.id)
         self.alert = alert
+        if alert.triggers:
+            self._init_all(alert.triggers)
 
     def add(self, trigger):
         """
@@ -557,6 +567,8 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
         assert alert.id, "Alert expected to have an id at this point"
         super(AlertNotificationsServiceClient, self).__init__(Notification, argus, "alerts/%s/notifications" % alert.id, "alerts/%s/notifications/%%s" % alert.id)
         self.alert = alert
+        if alert.notifications:
+            self._init_all(alert.notifications)
 
     def add(self, notification):
         """
