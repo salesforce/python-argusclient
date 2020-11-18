@@ -8,7 +8,7 @@
 import unittest, json, os
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient
+from argusclient.client import JsonEncoder, JsonDecoder, check_success
 
 from test_data import *
 
