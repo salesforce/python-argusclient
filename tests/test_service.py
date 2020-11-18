@@ -43,11 +43,11 @@ def expected_endpoints(*args):
 
 def determineResponse(url, data, params, headers, timeout):
     if 'triggers' in url:
-        return MockResponse(json_text=json.dumps([trigger_D, trigger_2_D]), status_code=200)
+        return MockResponse(json.dumps([trigger_D, trigger_2_D]), 200)
     if 'notifications' in url:
-        return MockResponse(json_text=json.dumps([notification_D, notification_2_D, notification_3_D]), status_code=200)
+        return MockResponse(json.dumps([notification_D, notification_2_D, notification_3_D]), 200)
     else:
-        return MockResponse(json_text=json.dumps([alert_D, alert_2_D]), status_code=200)
+        return MockResponse(json.dumps([alert_D, alert_2_D]), 200)
 
 class TestCheckSuccess(unittest.TestCase):
 
