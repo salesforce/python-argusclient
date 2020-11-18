@@ -483,6 +483,7 @@ class TestAlert(TestServiceBase):
     # Test items() where get_all_path is the allinfo one
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_all_info_D, alert_all_info_2_D]), 200))
     def testGetItemsAllInfo(self, mockGet):
+        self.assertEquals(len(mockGet.call_args_list), 0)
         alertClient = self.argus.alerts
         alertClient.set_get_all_path("alerts/allinfo")
         alertClient.set_get_all_params(dict(shared=False))
@@ -490,8 +491,9 @@ class TestAlert(TestServiceBase):
         # Act
         res = alertClient.items()
         # Assert
-        self.assertEquals(len(res), 2)
+        self.assertEquals(len(mockGet.call_args_list), 1)
         self.assertIn((os.path.join(endpoint, "alerts/allinfo"),), tuple(mockGet.call_args))
+        self.assertEquals(len(res), 2)
 
         for element in res:
             # Assert
@@ -517,6 +519,7 @@ class TestAlert(TestServiceBase):
     # Test items() where get_all_path is default
     @mock.patch('requests.Session.get', side_effect=determineResponse)
     def testGetItems(self, mockGet):
+        self.assertEquals(len(mockGet.call_args_list), 0)
         alertClient = self.argus.alerts
 
         # Act
