@@ -450,6 +450,12 @@ class JsonDecoder(json.JSONDecoder):
     def from_json(self, jsonObj):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
+
+        # temp workaround to argus bug
+        if jsonObj.has_key('notifier'):
+            jsonObj['notifierName'] = jsonObj['notifier']
+            del jsonObj['notifier']
+
         for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification):
             obj = cls.from_dict(jsonObj)
             if obj:
