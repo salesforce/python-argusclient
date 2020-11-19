@@ -254,7 +254,7 @@ class Permission(BaseEncodable):
 
     id_fields = ("permissionNames",)
 
-    def __init__(self, type, permissionNames, **kwargs):
+    def __init__(self, permissionType, permissionNames, **kwargs):
         super(Permission, self).__init__(type=type, permissionNames=permissionNames, **kwargs)
 
 
