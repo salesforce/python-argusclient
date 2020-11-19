@@ -451,7 +451,11 @@ class JsonDecoder(json.JSONDecoder):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
 
-        # temp workaround to argus bug
+        '''
+        Temp workaround to this argus bug - https://gus.my.salesforce.com/a07B0000008jFJrIAM, 
+        where 2 different endpoints return 'notifier' and 'notifierName' in the notifications. Issue is that this decoder 
+        method does not recognize objects with the 'notifier' field as Notification objects.
+        '''
         if jsonObj.has_key('notifier'):
             jsonObj['notifierName'] = jsonObj['notifier']
             del jsonObj['notifier']
