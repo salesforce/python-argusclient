@@ -237,7 +237,9 @@ class Permission(BaseEncodable):
 
     :param type: the type of permission - "user" or "group"
     :type type: str
-    :param permissionNames: permissions (like "VIEW", "EDIT", "DELETE")
+    :param permissionNames: List of permissions that this user or group
+                            has on the associated entity (id is put in the entityId field).
+                            Permissions in this list are in the form of strings: like "VIEW", "EDIT", and "DELETE".
     :type permissionNames: list of str
 
     **Optional parameters to the constructor:**
@@ -246,7 +248,10 @@ class Permission(BaseEncodable):
     :type groupId: str
     :param username: name of the user that has the associated permissions
     :type username: str
-    :param permissionIds: id's of the permissions (0, 1, 2)
+    :param permissionIds: List of permissions that this user or group
+                            has on the associated entity (id is put in the entityId field).
+                            Permissions in this list are in the form of integers: like 0, 1, and 2.
+                            0, 1, and 2 correspond to "VIEW", "EDIT", and "DELETE" respectively.
     :type permissionIds: list of int
     :param entityId: id of the associated entity
     :type entityId: int
