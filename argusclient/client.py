@@ -509,7 +509,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
             assert len(alerts) == 1, "Expected a single alert as a result, but got: %s" % [a.name for a in alerts]
             return alerts[0]
 
-    def get_alerts_allinfo(self, ownerName=None, alertname=None, shared=False, limit=None):
+    def get_alerts_allinfo(self, ownerName=None, alertNameContains=None, shared=False, limit=None):
         """
         If ownerName is not passed in, the username used during login is used.
         Calls the GET /alerts/allinfo endpoint.
@@ -517,7 +517,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: the list of :class:`argusclient.model.Alert` objects, with all fields populated, including triggers and notifications
         """
-        return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertname=alertname, shared=shared, limit=limit))
+        return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared, limit=limit))
 
 
 class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
