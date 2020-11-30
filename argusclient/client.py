@@ -139,19 +139,19 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
 
 class BaseModelServiceClient(object):
-    def __init__(self, argus, get_all_path=None, get_all_params=None):
+    def __init__(self, argus, get_all_path=None, get_all_path_params=None):
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
         self.get_all_path = get_all_path
-        self.get_all_params = get_all_params
+        self.get_all_path_params = get_all_path_params
 
     def _init_all(self, coll=None):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
             self._coll = dict((obj.argus_id, self._fill(obj))
-                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_params))
+                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_path_params))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -199,8 +199,8 @@ class BaseModelServiceClient(object):
     def set_get_all_path(self, path):
         self.get_all_path = path
 
-    def set_get_all_params(self, params):
-        self.get_all_params = params
+    def set_get_all_path_params(self, params):
+        self.get_all_path_params = params
 
     def __iter__(self):
         """

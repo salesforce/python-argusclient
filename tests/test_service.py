@@ -486,7 +486,7 @@ class TestAlert(TestServiceBase):
         self.assertEquals(len(mockGet.call_args_list), 0)
         alertClient = self.argus.alerts
         alertClient.set_get_all_path("alerts/allinfo")
-        alertClient.set_get_all_params(dict(shared=False))
+        alertClient.set_get_all_path_params(dict(shared=False))
 
         # Act
         res = alertClient.items()
