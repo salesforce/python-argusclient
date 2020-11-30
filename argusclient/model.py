@@ -30,7 +30,12 @@ class BaseEncodable(object):
     @classmethod
     def from_dict(cls, D):
         for f in cls.id_fields:
-            if f not in D:
+            if isinstance(f, tuple):
+                if any(alias in D for alias in f):
+                    continue
+                else:
+                    return None
+            elif f not in D:
                 return None
         else:
             return cls(**D)
@@ -409,7 +414,7 @@ class Notification(BaseEncodable):
     :type alertId: int
     """
 
-    id_fields = ("notifierName",)
+    id_fields = (("notifierName", "notifier"),)
     owner_id_field = "alertId"
 
     EMAIL = "com.salesforce.dva.argus.service.alert.notifier.EmailNotifier"
@@ -426,7 +431,8 @@ class Notification(BaseEncodable):
     VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY,
                                  REFOCUS_BOOLEAN, REFOCUS_VALUE, SLACK))
 
-    def __init__(self, name, notifierName, metricsToAnnotate=None, **kwargs):
+    def __init__(self, name, metricsToAnnotate=None, **kwargs):
+        notifierName = kwargs.get("notifierName") or kwargs.get("notifier")
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
         super(Notification, self).__init__(name=name, notifierName=notifierName, metricsToAnnotate=metricsToAnnotate or [], **kwargs)
 
@@ -450,16 +456,6 @@ class JsonDecoder(json.JSONDecoder):
     def from_json(self, jsonObj):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
-
-        '''
-        Temp workaround to this argus bug - https://gus.my.salesforce.com/a07B0000008jFJrIAM, 
-        where 2 different endpoints return 'notifier' and 'notifierName' in the notifications. Issue is that this decoder 
-        method does not recognize objects with the 'notifier' field as Notification objects.
-        '''
-        if jsonObj.has_key('notifier'):
-            jsonObj['notifierName'] = jsonObj['notifier']
-            del jsonObj['notifier']
-
         for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification):
             obj = cls.from_dict(jsonObj)
             if obj:
