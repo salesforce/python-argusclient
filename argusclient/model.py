@@ -434,7 +434,7 @@ class Notification(BaseEncodable):
     def __init__(self, name, metricsToAnnotate=None, **kwargs):
         notifierName = kwargs.get("notifierName") or kwargs.get("notifier")
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
-        super(Notification, self).__init__(name=name, notifierName=notifierName, metricsToAnnotate=metricsToAnnotate or [], **kwargs)
+        super(Notification, self).__init__(name=name, metricsToAnnotate=metricsToAnnotate or [], **kwargs)
 
 
 class JsonEncoder(json.JSONEncoder):
