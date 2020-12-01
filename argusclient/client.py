@@ -434,20 +434,6 @@ def convert(input):
         # print 'none of the types match ', input
         return input
 
-# def convert(data):
-#     if isinstance(data, basestring):
-#         print 'calling string conversion'
-#         return str(data)
-#     elif isinstance(data, collections.Mapping):
-#         print 'calling map conversion'
-#         print data.iteritems()
-#         return dict(map(convert, data.iteritems()))
-#     elif isinstance(data, collections.Iterable):
-#         print 'calling list conversion on data: ', data
-#         return type(data)(map(convert, data))
-#     else:
-#         return data
-
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
     """
