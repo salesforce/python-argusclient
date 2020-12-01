@@ -29,6 +29,7 @@ endpoint = "http://test.host:12345/argusws"
 cookies = dict(JSESSIONID="abcd")
 aggregator = "test.aggregator"
 alertName = "test.alert"
+alertName_2 = "test.alert.2"
 alertQuery = "-1d:test.scope:test.metric:sum"
 alertCron = "* */1 * * *"
 triggerName = "test.trigger"
@@ -149,8 +150,39 @@ alert_D = {
     "ownerName": userName
 }
 
+alert_2_D = {
+    "id": testId2,
+    "createdById": 101997,
+    "createdDate": 1459857033871,
+    "modifiedById": 101997,
+    "modifiedDate": 1459857033871,
+    "name": alertName_2,
+    "expression": "-1d:hdara:test:sum",
+    "cronEntry": "*/15 * * * *",
+    "enabled": False,
+    "missingDataNotificationEnabled": False,
+    "notificationsIds": [],
+    "triggersIds": [],
+    "ownerName": userName
+}
+
 trigger_D = {
     "id": testId,
+    "createdById": 101997,
+    "createdDate": 1459917155968,
+    "modifiedById": 101997,
+    "modifiedDate": 1459917155968,
+    "type": "GREATER_THAN",
+    "name": triggerName,
+    "threshold": 10000,
+    "secondaryThreshold": 0,
+    "inertia": 600000,
+    "alertId": 304255,
+    "notificationIds": []
+}
+
+trigger_2_D = {
+    "id": testId2,
     "createdById": 101997,
     "createdDate": 1459917155968,
     "modifiedById": 101997,
@@ -182,6 +214,42 @@ notification_D = {
     "alertId": 304255
 }
 
+notification_2_D = {
+    "id": testId2,
+    "createdById": 101997,
+    "createdDate": 1459917506873,
+    "modifiedById": 101997,
+    "modifiedDate": 1459917506873,
+    "name": notificationName,
+    "notifierName": "com.salesforce.dva.argus.service.alert.notifier.EmailNotifier",
+    "subscriptions": [
+        email
+    ],
+    "metricsToAnnotate": [],
+    "cooldownPeriod": 0,
+    "cooldownExpiration": 0,
+    "triggersIds": [],
+    "alertId": 304255
+}
+
+notification_3_D = {
+    "id": testId3,
+    "createdById": 101997,
+    "createdDate": 1459917506873,
+    "modifiedById": 101997,
+    "modifiedDate": 1459917506873,
+    "name": notificationName,
+    "notifierName": "com.salesforce.dva.argus.service.alert.notifier.EmailNotifier",
+    "subscriptions": [
+        email
+    ],
+    "metricsToAnnotate": [],
+    "cooldownPeriod": 0,
+    "cooldownExpiration": 0,
+    "triggersIds": [],
+    "alertId": 304255
+}
+
 alert_all_info_D = {
     "id": testId,
     "createdById": 101997,
@@ -195,7 +263,25 @@ alert_all_info_D = {
     "missingDataNotificationEnabled": False,
     "notificationsIds": [testId, testId, testId],
     "triggersIds": [testId, testId],
-    "triggers": [trigger_D, trigger_D],
-    "notifications": [notification_D, notification_D, notification_D],
+    "triggers": [trigger_D, trigger_2_D],
+    "notifications": [notification_D, notification_2_D, notification_3_D],
+    "ownerName": userName
+}
+
+alert_all_info_2_D = {
+    "id": testId2,
+    "createdById": 101997,
+    "createdDate": 1459857033871,
+    "modifiedById": 101997,
+    "modifiedDate": 1459857033871,
+    "name": alertName_2,
+    "expression": "-1d:hdara:test:sum",
+    "cronEntry": "*/15 * * * *",
+    "enabled": False,
+    "missingDataNotificationEnabled": False,
+    "notificationsIds": [testId, testId, testId],
+    "triggersIds": [testId, testId],
+    "triggers": [trigger_D, trigger_2_D],
+    "notifications": [notification_D, notification_2_D, notification_3_D],
     "ownerName": userName
 }
