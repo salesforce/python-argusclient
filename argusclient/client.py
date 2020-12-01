@@ -414,7 +414,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         return convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
 
 def convert(input):
-    if isinstance(input, collections.Mapping):
+    if isinstance(input, Mapping):
         # print 'calling dict conversion on: ', dict
         return {convert(key): convert(value) for key, value in input.iteritems()}
     elif isinstance(input, list):
@@ -424,9 +424,9 @@ def convert(input):
         # print 'calling string conversion on: ', input
         ret = str(input)
         # utf = input.encode('utf-8')
-        if ret.isnumeric():
-            ret =
-        return
+        if ret.isdigit():
+            ret = int(ret)
+        return ret
     else:
         # print 'none of the types match ', input
         return input
