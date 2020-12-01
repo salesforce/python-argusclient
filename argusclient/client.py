@@ -11,6 +11,7 @@ and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Se
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 import unicodedata
+from collections import Mapping
 
 import requests
 import json
