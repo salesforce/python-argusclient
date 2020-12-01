@@ -413,19 +413,11 @@ class TestPermission(TestServiceBase):
                                                                                testId2: [userPermission_D],
                                                                                testId3: []}), 200))
     def testGetPermissions(self, mockPost):
-        res = self.argus.permissions.get_permissions_for_entities(testId)
-        print 'res:' ,res
-
-        for obj in res[testId]:
-        # for obj in res[unicode(testId)]:
-            self.assertTrue(isinstance(obj, Permission))
-            self.assertEquals(obj.to_dict(), groupPermission_D)
-        # for obj in res[unicode(testId2)]:
-        #     self.assertTrue(isinstance(obj, Permission))
-        #     self.assertEquals(obj.to_dict(), userPermission_D)
-        # self.assertTrue(unicode(testId3) in res)
-        # self.assertEquals(len(res[unicode(testId3)]), 0)
-        # self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
+        resp = self.argus.permissions.get_permissions_for_entities([testId, testId2, testId3])
+        for id, perms in resp.items():
+            for p in perms:
+                self.assertTrue(isinstance(p, Permission))
+        self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
 
 class TestNamespace(TestServiceBase):
     def testAddInvalidNamespace(self):
