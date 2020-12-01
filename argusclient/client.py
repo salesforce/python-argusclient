@@ -23,7 +23,8 @@ except ImportError:
     import httplib                 # Python 2
 from functools import wraps
 
-from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder
+from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
+    Permission
 
 
 class ArgusException(Exception):
@@ -387,14 +388,14 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         """
         return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
-class PermissionsServiceClient(object):
+class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus permissions endpoint.
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
     """
     def __init__(self, argus):
-        self.argus = argus
+        super(PermissionsServiceClient, self).__init__(Permission, argus, "permission", "permission/%s")
 
     def get_permissions_for_entities(self, entityIds):
         """
