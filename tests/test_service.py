@@ -374,6 +374,44 @@ class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
                                                                                testId2: [userPermission_D],
                                                                                testId3: []}), 200))
+    def testGetItems(self, mockPost):
+        # Check
+        self.assertEquals(len(mockPost.call_args_list), 0)
+
+        # Arrange
+        client = self.argus.permissions
+        path = "permission/entityIds"
+        client.set_get_all_path(path)
+        client.set_get_all_path_request_type("post")
+        client.set_get_all_path_body([testId, testId2, testId3])
+
+        # Act
+        res = client.items()
+
+        # Assert
+        self.assertEquals(len(mockPost.call_args_list), 1)
+        self.assertIn((os.path.join(endpoint, path),), tuple(mockPost.call_args))
+        self.assertEquals(len(res), 3)
+
+        for element in res:
+            self.assertTrue(isinstance(element[1], list))
+
+            if element[0] == testId:
+                self.assertEquals(len(element[1]), 2)
+            elif element[0] == testId2:
+                self.assertEquals(len(element[1]), 1)
+            elif element[0] == testId3:
+                self.assertEquals(len(element[1]), 0)
+
+            for perm in element[1]:
+                self.assertTrue(isinstance(perm, Permission))
+
+        self.assertEquals(len(mockPost.call_args_list), 1)
+
+
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
+                                                                               testId2: [userPermission_D],
+                                                                               testId3: []}), 200))
     def testGetPermissions(self, mockPost):
         res = self.argus.permissions.get_permissions_for_entities(testId)
         print 'res:' ,res
