@@ -852,7 +852,7 @@ def check_success(resp, decCls):
             raise ArgusException(resp.text)
         return res
     elif resp.status_code == httplib.NOT_FOUND:
-        raise ArgusObjectNotFoundException("Object not found at endpoint: %s message: %s" % (resp.url, resp.text))
+        raise ArgusObjectNotFoundException("Object not found at endpoint: {} message: {}".format(resp.url, resp.text))
     elif resp.status_code == httplib.UNAUTHORIZED:
         raise ArgusAuthException("Failed to authenticate at endpoint: %s message: %s" % (resp.url, resp.text))
     else:
