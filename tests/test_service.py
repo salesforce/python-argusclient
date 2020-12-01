@@ -365,9 +365,6 @@ class TestDashboard(TestServiceBase):
         self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockGet.call_args))
 
 class TestPermission(TestServiceBase):
-    def testGetPermissionsNoIds(self):
-        self.failUnlessRaises(ValueError, lambda: self.argus.permissions.get_permissions_for_entities(None))
-
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
     def testGetPermissionsBadId(self, mockPost):
         res = self.argus.permissions.get_permissions_for_entities(testId)
