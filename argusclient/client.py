@@ -411,10 +411,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
-        res = self.argus._request("post", "permission/entityIds", dataObj=entityIds)
-
-        return convert(res)
-        # return res
+        return convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
 
 def convert(input):
     if isinstance(input, collections.Mapping):
