@@ -435,20 +435,15 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
 
 def convert(input):
     if isinstance(input, Mapping):
-        # print 'calling dict conversion on: ', dict
         return {convert(key): convert(value) for key, value in input.iteritems()}
     elif isinstance(input, list):
-        # print 'calling list conversion on: ', input
         return [convert(element) for element in input]
     elif isinstance(input, basestring):
-        # print 'calling string conversion on: ', input
         ret = str(input)
-        # utf = input.encode('utf-8')
         if ret.isdigit():
             ret = int(ret)
         return ret
     else:
-        # print 'none of the types match ', input
         return input
 
 
