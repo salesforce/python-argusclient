@@ -196,12 +196,6 @@ class BaseModelServiceClient(object):
         self._init_all()
         return self._coll.values()
 
-    def set_get_all_path(self, path):
-        self.get_all_path = path
-
-    def set_get_all_path_params(self, params):
-        self.get_all_path_params = params
-
     def __iter__(self):
         """
         Returns an iterator of the keys, just like the corresponding method on a dict.
@@ -414,7 +408,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
     """
     def __init__(self, argus, get_all_path="alerts", get_all_path_params=None):
-        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s", get_all_path_params=get_all_path_params)
+        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s",
+                                                  get_all_path_params=get_all_path_params)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
