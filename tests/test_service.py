@@ -8,7 +8,7 @@
 import unittest, json, os
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success
+from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient
 
 from test_data import *
 
@@ -484,9 +484,12 @@ class TestAlert(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_all_info_D, alert_all_info_2_D]), 200))
     def testGetItemsAllInfo(self, mockGet):
         self.assertEquals(len(mockGet.call_args_list), 0)
+        # self.argus.alerts = AlertsServiceClient(self.argus)
+        self.argus.alerts = AlertsServiceClient(self.argus, get_all_path="alerts/allinfo",
+                                                            get_all_path_params=dict(shared=False))
         alertClient = self.argus.alerts
-        alertClient.set_get_all_path("alerts/allinfo")
-        alertClient.set_get_all_path_params(dict(shared=False))
+        # alertClient.set_get_all_path("alerts/allinfo")
+        # alertClient.set_get_all_path_params(dict(shared=False))
 
         # Act
         res = alertClient.items()

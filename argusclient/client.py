@@ -308,8 +308,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
 
 class BaseUpdatableModelServiceClient(BaseModelServiceClient):
-    def __init__(self, objType, argus, get_all_path, id_path):
-        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path)
+    def __init__(self, objType, argus, get_all_path, id_path, get_all_path_params=None):
+        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path, get_all_path_params=get_all_path_params)
         self.objType = objType
         self.id_path = id_path
 
@@ -413,8 +413,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus, get_all_path="alerts"):
-        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s")
+    def __init__(self, argus, get_all_path="alerts", get_all_path_params=None):
+        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s", get_all_path_params=get_all_path_params)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
