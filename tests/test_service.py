@@ -484,8 +484,8 @@ class TestAlert(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_all_info_D, alert_all_info_2_D]), 200))
     def testGetItemsAllInfo(self, mockGet):
         self.assertEquals(len(mockGet.call_args_list), 0)
-        self.argus.alerts = AlertsServiceClient(self.argus, get_all_path="alerts/allinfo",
-                                                get_all_params=dict(shared=False))
+        self.argus.alerts = AlertsServiceClient(self.argus, all_alerts_path="alerts/allinfo",
+                                                all_alerts_params=dict(shared=False))
         alertClient = self.argus.alerts
 
         # Act
