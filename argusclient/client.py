@@ -139,19 +139,19 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
 
 class BaseModelServiceClient(object):
-    def __init__(self, argus, get_all_path=None, get_all_path_params=None):
+    def __init__(self, argus, get_all_path=None, get_all_params=None):
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
         self.get_all_path = get_all_path
-        self.get_all_path_params = get_all_path_params
+        self.get_all_params = get_all_params
 
     def _init_all(self, coll=None):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
             self._coll = dict((obj.argus_id, self._fill(obj))
-                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_path_params))
+                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_params))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -302,8 +302,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
 
 class BaseUpdatableModelServiceClient(BaseModelServiceClient):
-    def __init__(self, objType, argus, get_all_path, id_path, get_all_path_params=None):
-        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path, get_all_path_params=get_all_path_params)
+    def __init__(self, objType, argus, get_all_path, id_path, get_all_params=None):
+        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path, get_all_params=get_all_params)
         self.objType = objType
         self.id_path = id_path
 
@@ -407,9 +407,9 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus, get_all_path="alerts", get_all_path_params=None):
+    def __init__(self, argus, get_all_path="alerts", get_all_params=None):
         super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s",
-                                                  get_all_path_params=get_all_path_params)
+                                                  get_all_params=get_all_params)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)

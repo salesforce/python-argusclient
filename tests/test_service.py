@@ -485,7 +485,7 @@ class TestAlert(TestServiceBase):
     def testGetItemsAllInfo(self, mockGet):
         self.assertEquals(len(mockGet.call_args_list), 0)
         self.argus.alerts = AlertsServiceClient(self.argus, get_all_path="alerts/allinfo",
-                                                            get_all_path_params=dict(shared=False))
+                                                get_all_params=dict(shared=False))
         alertClient = self.argus.alerts
 
         # Act
