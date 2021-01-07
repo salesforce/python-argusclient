@@ -407,9 +407,12 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus, get_all_path="alerts", get_all_params=None):
-        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s",
-                                                  get_all_params=get_all_params)
+    # def __init__(self, argus, get_all_path="alerts", get_all_params=None):
+    #     super(AlertsServiceClient, self).__init__(Alert, argus, get_all_path, "alerts/%s",
+    #                                               get_all_params=get_all_params)
+    def __init__(self, argus, all_alerts_path=None, all_alerts_params=None):
+        get_all_alerts_path = all_alerts_path or "alerts"
+        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_alerts_path, "alerts/%s",                                                  get_all_params=all_alerts_params)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
