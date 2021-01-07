@@ -302,7 +302,7 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
 
 class BaseUpdatableModelServiceClient(BaseModelServiceClient):
-    def __init__(self, objType, argus, get_all_path, id_path, get_all_params=None):
+    def __init__(self, objType, argus, id_path, get_all_path, get_all_params=None):
         super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path, get_all_params=get_all_params)
         self.objType = objType
         self.id_path = id_path
@@ -350,7 +350,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.dashboards` attribute.
     """
     def __init__(self, argus):
-        super(DashboardsServiceClient, self).__init__(Dashboard, argus, "dashboards", "dashboards/%s")
+        super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s", get_all_path="dashboards")
 
     def add(self, dashboard):
         """
@@ -409,7 +409,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
     """
     def __init__(self, argus, all_alerts_path=None, all_alerts_params=None):
         get_all_alerts_path = all_alerts_path or "alerts"
-        super(AlertsServiceClient, self).__init__(Alert, argus, get_all_alerts_path, "alerts/%s",                                                  get_all_params=all_alerts_params)
+        super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_path=get_all_alerts_path,
+                                                  get_all_params=all_alerts_params)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
@@ -525,7 +526,8 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        super(AlertTriggersServiceClient, self).__init__(Trigger, argus, "alerts/%s/triggers" % alert.id, "alerts/%s/triggers/%%s" % alert.id)
+        super(AlertTriggersServiceClient, self).__init__(Trigger, argus, id_path="alerts/%s/triggers/%%s" % alert.id,
+                                                                    get_all_path="alerts/%s/triggers" % alert.id)
         self.alert = alert
         if alert.triggers:
             self._init_all(alert.triggers)
@@ -560,7 +562,8 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        super(AlertNotificationsServiceClient, self).__init__(Notification, argus, "alerts/%s/notifications" % alert.id, "alerts/%s/notifications/%%s" % alert.id)
+        super(AlertNotificationsServiceClient, self).__init__(Notification, argus, id_path="alerts/%s/notifications/%%s" % alert.id,
+                                                              get_all_path="alerts/%s/notifications" % alert.id)
         self.alert = alert
         if alert.notifications:
             self._init_all(alert.notifications)
