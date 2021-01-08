@@ -139,17 +139,19 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
 
 class BaseModelServiceClient(object):
-    def __init__(self, argus, get_all_path=None):
+    def __init__(self, argus, get_all_path=None, get_all_params=None):
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
         self.get_all_path = get_all_path
+        self.get_all_params = get_all_params
 
     def _init_all(self, coll=None):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
-            self._coll = dict((obj.argus_id, self._fill(obj)) for obj in coll or self.argus._request("get", self.get_all_path))
+            self._coll = dict((obj.argus_id, self._fill(obj))
+                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_params))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -300,8 +302,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
 
 class BaseUpdatableModelServiceClient(BaseModelServiceClient):
-    def __init__(self, objType, argus, get_all_path, id_path):
-        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path)
+    def __init__(self, objType, argus, id_path, get_all_path, get_all_params=None):
+        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path, get_all_params=get_all_params)
         self.objType = objType
         self.id_path = id_path
 
@@ -348,7 +350,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.dashboards` attribute.
     """
     def __init__(self, argus):
-        super(DashboardsServiceClient, self).__init__(Dashboard, argus, "dashboards", "dashboards/%s")
+        super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s", get_all_path="dashboards")
 
     def add(self, dashboard):
         """
@@ -405,8 +407,10 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus):
-        super(AlertsServiceClient, self).__init__(Alert, argus, "alerts", "alerts/%s")
+    def __init__(self, argus, all_alerts_path=None, all_alerts_params=None):
+        get_all_alerts_path = all_alerts_path and "alerts/" + all_alerts_path or "alerts"
+        super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_path=get_all_alerts_path,
+                                                  get_all_params=all_alerts_params)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
@@ -501,7 +505,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
             assert len(alerts) == 1, "Expected a single alert as a result, but got: %s" % [a.name for a in alerts]
             return alerts[0]
 
-    def get_alerts_allinfo(self, ownerName=None, alertname=None, shared=False, limit=None):
+    def get_alerts_allinfo(self, ownerName=None, alertNameContains=None, shared=False, limit=None):
         """
         If ownerName is not passed in, the username used during login is used.
         Calls the GET /alerts/allinfo endpoint.
@@ -509,7 +513,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: the list of :class:`argusclient.model.Alert` objects, with all fields populated, including triggers and notifications
         """
-        return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertname=alertname, shared=shared, limit=limit))
+        return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared, limit=limit))
 
 
 class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
@@ -522,8 +526,11 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        super(AlertTriggersServiceClient, self).__init__(Trigger, argus, "alerts/%s/triggers" % alert.id, "alerts/%s/triggers/%%s" % alert.id)
+        super(AlertTriggersServiceClient, self).__init__(Trigger, argus, id_path="alerts/%s/triggers/%%s" % alert.id,
+                                                                    get_all_path="alerts/%s/triggers" % alert.id)
         self.alert = alert
+        if alert.triggers:
+            self._init_all(alert.triggers)
 
     def add(self, trigger):
         """
@@ -555,8 +562,11 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        super(AlertNotificationsServiceClient, self).__init__(Notification, argus, "alerts/%s/notifications" % alert.id, "alerts/%s/notifications/%%s" % alert.id)
+        super(AlertNotificationsServiceClient, self).__init__(Notification, argus, id_path="alerts/%s/notifications/%%s" % alert.id,
+                                                              get_all_path="alerts/%s/notifications" % alert.id)
         self.alert = alert
+        if alert.notifications:
+            self._init_all(alert.notifications)
 
     def add(self, notification):
         """
@@ -671,7 +681,7 @@ class ArgusServiceClient(object):
 
     """
 
-    def __init__(self, user, password, endpoint, timeout=(10, 60), refreshToken=None, accessToken=None):
+    def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None):
         """
         Creates a new client object to interface with the Argus RESTful API.
 

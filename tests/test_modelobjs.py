@@ -139,7 +139,7 @@ class ObjTest(unittest.TestCase):
         self.failUnlessRaises(AssertionError, lambda: Trigger(triggerName, "abc", 100, 200))
 
     def testCreateNotification(self):
-        n = Notification(notificationName, Notification.EMAIL, subscriptions=[email])
+        n = Notification(notificationName, notifierName=Notification.EMAIL, subscriptions=[email])
         self.assertEquals(n.name, notificationName)
         self.assertEquals(n.notifierName, Notification.EMAIL)
         self.assertEquals(n.subscriptions, [email])
@@ -149,7 +149,7 @@ class ObjTest(unittest.TestCase):
 
     def testCreateAlertDeep(self):
         trigger = Trigger(triggerName, Trigger.EQUAL, 100, 200)
-        notification = Notification(notificationName, Notification.EMAIL, subscriptions=[email])
+        notification = Notification(notificationName, notifierName=Notification.EMAIL, subscriptions=[email])
         a = Alert(alertName, alertQuery, alertCron, trigger=trigger, notification=notification)
         self.assertEquals(a.trigger, trigger)
         self.assertEquals(a.notification, notification)

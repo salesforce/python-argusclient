@@ -8,7 +8,7 @@
 import unittest, json, os
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success
+from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient
 
 from test_data import *
 
@@ -41,6 +41,13 @@ def called_endpoints(mockObj):
 def expected_endpoints(*args):
     return tuple(os.path.join(endpoint, p) for p in args)
 
+def determineResponse(url, data, params, headers, timeout):
+    if 'triggers' in url:
+        return MockResponse(json.dumps([trigger_D, trigger_2_D]), 200)
+    if 'notifications' in url:
+        return MockResponse(json.dumps([notification_D, notification_2_D, notification_3_D]), 200)
+    else:
+        return MockResponse(json.dumps([alert_D, alert_2_D]), 200)
 
 class TestCheckSuccess(unittest.TestCase):
 
@@ -473,6 +480,77 @@ class TestAlert(TestServiceBase):
                 self.assertTrue(isinstance(obj, Alert))
         self.assertIn((os.path.join(endpoint, "alerts/allinfo"),), tuple(mockGet.call_args))
 
+    # Test items() where get_all_path is the allinfo one
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_all_info_D, alert_all_info_2_D]), 200))
+    def testGetItemsAllInfo(self, mockGet):
+        self.assertEquals(len(mockGet.call_args_list), 0)
+        self.argus.alerts = AlertsServiceClient(self.argus, all_alerts_path="allinfo",
+                                                all_alerts_params=dict(shared=False))
+        alertClient = self.argus.alerts
+
+        # Act
+        res = alertClient.items()
+        # Assert
+        self.assertEquals(len(mockGet.call_args_list), 1)
+        self.assertIn((os.path.join(endpoint, "alerts/allinfo"),), tuple(mockGet.call_args))
+        self.assertEquals(len(res), 2)
+
+        for element in res:
+            # Assert
+            self.assertTrue(isinstance(element[1], Alert))
+            alert = element[1]
+
+            # Act
+            items = alert.triggers.items()
+            # Assert
+            self.assertEquals(len(items), 2)
+            for item in items:
+                self.assertTrue(isinstance(item[1], Trigger))
+
+            # Act
+            items = alert.notifications.items()
+            # Assert
+            self.assertEquals(len(items), 3)
+            for item in items:
+                self.assertTrue(isinstance(item[1], Notification))
+
+        self.assertEquals(len(mockGet.call_args_list), 1)
+
+    # Test items() where get_all_path is default
+    @mock.patch('requests.Session.get', side_effect=determineResponse)
+    def testGetItems(self, mockGet):
+        self.assertEquals(len(mockGet.call_args_list), 0)
+        alertClient = self.argus.alerts
+
+        # Act
+        res = alertClient.items()
+        # Assert
+        self.assertEquals(len(res), 2)
+        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        self.assertEquals(len(mockGet.call_args_list), 1)
+
+        for element in res:
+            # Assert
+            self.assertTrue(isinstance(element[1], Alert))
+            alert = element[1]
+
+            # Act
+            items = alert.triggers.items()
+            # Assert
+            self.assertEquals(len(items), 2)
+            self.assertIn("triggers", mockGet.call_args[0][0])
+            for item in items:
+                self.assertTrue(isinstance(item[1], Trigger))
+
+            # Act
+            items = alert.notifications.items()
+            # Assert
+            self.assertEquals(len(items), 3)
+            self.assertIn("notifications", mockGet.call_args[0][0])
+            for item in items:
+                self.assertTrue(isinstance(item[1], Notification))
+
+        self.assertEquals(len(mockGet.call_args_list), 5)
 
 class TestAlertTrigger(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(alert_D), 200))

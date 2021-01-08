@@ -30,7 +30,12 @@ class BaseEncodable(object):
     @classmethod
     def from_dict(cls, D):
         for f in cls.id_fields:
-            if f not in D:
+            if isinstance(f, tuple):
+                if any(alias in D for alias in f):
+                    continue
+                else:
+                    return None
+            elif f not in D:
                 return None
         else:
             return cls(**D)
@@ -391,9 +396,9 @@ class Notification(BaseEncodable):
 
     :param name: The name of the notification
     :type name: str
-    :param notifierName: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`, :attr:`GOC`,
+    :param notifierName or notifier: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`, :attr:`GOC`,
             :attr:`GUS`, :attr:`CALLBACK`, :attr:`PAGER_DUTY`, :attr:`REFOCUS_BOOLEAN`, :attr:`REFOCUS_VALUE`, :attr:`SLACK`
-    :type notifierName: str
+    :type notifierName or notifier: str
 
     **Optional parameters to the constructor:**
 
@@ -409,7 +414,7 @@ class Notification(BaseEncodable):
     :type alertId: int
     """
 
-    id_fields = ("notifierName",)
+    id_fields = (("notifierName", "notifier"),)
     owner_id_field = "alertId"
 
     EMAIL = "com.salesforce.dva.argus.service.alert.notifier.EmailNotifier"
@@ -426,9 +431,11 @@ class Notification(BaseEncodable):
     VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY,
                                  REFOCUS_BOOLEAN, REFOCUS_VALUE, SLACK))
 
-    def __init__(self, name, notifierName, metricsToAnnotate=None, **kwargs):
+    def __init__(self, name, notifierName=None, metricsToAnnotate=None, **kwargs):
+        notifierName = notifierName or kwargs.get('notifier')
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
-        super(Notification, self).__init__(name=name, notifierName=notifierName, metricsToAnnotate=metricsToAnnotate or [], **kwargs)
+        super(Notification, self).__init__(name=name, notifierName=notifierName, metricsToAnnotate=metricsToAnnotate or [],
+                                           **kwargs)
 
 
 class JsonEncoder(json.JSONEncoder):
