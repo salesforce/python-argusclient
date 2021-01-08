@@ -408,7 +408,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
     """
     def __init__(self, argus, all_alerts_path=None, all_alerts_params=None):
-        get_all_alerts_path = all_alerts_path or "alerts"
+        get_all_alerts_path = all_alerts_path and "alerts/" + all_alerts_path or "alerts"
         super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_path=get_all_alerts_path,
                                                   get_all_params=all_alerts_params)
 
