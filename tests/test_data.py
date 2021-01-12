@@ -97,6 +97,18 @@ dashboard_D = {
     "description": "Test description"
 }
 
+dashboard_2_D = {
+    "id": testId2,
+    "createdById": 101402,
+    "createdDate": 1425598578661,
+    "modifiedById": 101402,
+    "modifiedDate": 1445273708714,
+    "name": "Oracle stats",
+    "content": content,
+    "ownerName": userName,
+    "shared": True,
+    "description": "Test description"
+}
 
 groupPermission_D = {
     "type": groupPermissionIdentifier,

@@ -9,7 +9,8 @@ import os
 import unittest
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient
+from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
+    DashboardsServiceClient
 from argusclient.model import Permission
 
 from test_data import *
@@ -365,6 +366,31 @@ class TestDashboard(TestServiceBase):
             self.assertEquals(obj.to_dict(), dashboard_D)
         self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockGet.call_args))
 
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([dashboard_D, dashboard_2_D]), 200))
+    def testGetItems(self, mockGet):
+        # Check
+        self.assertEquals(len(mockGet.call_args_list), 0)
+
+        # Arrange
+        self.argus.dashboards = DashboardsServiceClient(self.argus, all_dash_params=dict(shared=False))
+
+        # Act
+        res = self.argus.dashboards.items()
+
+        # Assert
+        self.assertTrue(res is not None)
+        self.assertEquals(len(res), 2)
+        for id, obj in res:
+            self.assertTrue(isinstance(obj, Dashboard))
+            if id == testId:
+                self.assertEquals(obj.to_dict(), dashboard_D)
+            elif id == testId2:
+                self.assertEquals(obj.to_dict(), dashboard_2_D)
+
+        self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockGet.call_args))
+        self.assertEquals(len(mockGet.call_args_list), 1)
+
+
 class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
     def testGetPermissionsBadId(self, mockPost):
@@ -380,31 +406,32 @@ class TestPermission(TestServiceBase):
         self.assertEquals(len(mockPost.call_args_list), 0)
 
         # Arrange
+        all_perms_path = "entityIds"
+        self.argus.permissions = PermissionsServiceClient(self.argus, all_perms_path=all_perms_path,
+                                                                        all_perms_params=dict(shared=False),
+                                                                        all_perms_request_type="post",
+                                                                        all_perms_body=[testId, testId2, testId3])
         client = self.argus.permissions
-        path = "permission/entityIds"
-        client.set_get_all_path(path)
-        client.set_get_all_path_request_type("post")
-        client.set_get_all_path_body([testId, testId2, testId3])
 
         # Act
         res = client.items()
 
         # Assert
         self.assertEquals(len(mockPost.call_args_list), 1)
-        self.assertIn((os.path.join(endpoint, path),), tuple(mockPost.call_args))
+        self.assertIn((os.path.join(endpoint, "permission/"+all_perms_path),), tuple(mockPost.call_args))
         self.assertEquals(len(res), 3)
 
-        for element in res:
-            self.assertTrue(isinstance(element[1], list))
+        for id, obj in res:
+            self.assertTrue(isinstance(obj, list))
 
-            if element[0] == testId:
-                self.assertEquals(len(element[1]), 2)
-            elif element[0] == testId2:
-                self.assertEquals(len(element[1]), 1)
-            elif element[0] == testId3:
-                self.assertEquals(len(element[1]), 0)
+            if id == testId:
+                self.assertEquals(len(obj), 2)
+            elif id == testId2:
+                self.assertEquals(len(obj), 1)
+            elif id == testId3:
+                self.assertEquals(len(obj), 0)
 
-            for perm in element[1]:
+            for perm in obj:
                 self.assertTrue(isinstance(perm, Permission))
 
         self.assertEquals(len(mockPost.call_args_list), 1)
@@ -552,10 +579,10 @@ class TestAlert(TestServiceBase):
         self.assertIn((os.path.join(endpoint, "alerts/allinfo"),), tuple(mockGet.call_args))
         self.assertEquals(len(res), 2)
 
-        for element in res:
+        for id, obj in res:
             # Assert
-            self.assertTrue(isinstance(element[1], Alert))
-            alert = element[1]
+            self.assertTrue(isinstance(obj, Alert))
+            alert = obj
 
             # Act
             items = alert.triggers.items()
@@ -586,10 +613,10 @@ class TestAlert(TestServiceBase):
         self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
         self.assertEquals(len(mockGet.call_args_list), 1)
 
-        for element in res:
+        for id, obj in res:
             # Assert
-            self.assertTrue(isinstance(element[1], Alert))
-            alert = element[1]
+            self.assertTrue(isinstance(obj, Alert))
+            alert = obj
 
             # Act
             items = alert.triggers.items()
