@@ -158,18 +158,11 @@ class BaseModelServiceClient(object):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
-            # res = self.argus._request(self.get_all_request_type,
-            #                                                            self.get_all_path,
-            #                                                            params=self.get_all_params,
-            #                                                            dataObj = self.get_all_body)
-            # print 'init() : res: ', res
-
             self._coll = dict((obj.argus_id, self._fill(obj))
                               for obj in (coll or self.argus._request(self.get_all_request_type,
                                                                        self.get_all_path,
                                                                        params=self.get_all_params,
                                                                        dataObj = self.get_all_body)))
-            print 'self._coll:',self._coll
             self._retrieved_all = True
 
     def _fill(self, obj):
