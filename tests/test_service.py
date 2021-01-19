@@ -10,7 +10,7 @@ import unittest
 
 from argusclient import *
 from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
-    DashboardsServiceClient
+    DashboardsServiceClient, REQ_PATH, REQ_PARAMS
 from argusclient.model import Permission
 
 from test_data import *
@@ -372,7 +372,7 @@ class TestDashboard(TestServiceBase):
         self.assertEquals(len(mockGet.call_args_list), 0)
 
         # Arrange
-        self.argus.dashboards = DashboardsServiceClient(self.argus, all_dash_params=dict(shared=False))
+        self.argus.dashboards = DashboardsServiceClient(self.argus, get_all_req_opts=dict(REQ_PARAMS=dict(shared=False)))
 
         # Act
         res = self.argus.dashboards.items()
@@ -518,7 +518,7 @@ class TestAlert(TestServiceBase):
         self.assertEquals(len(res), 1)
         self.assertTrue(isinstance(res[0], Alert))
         self.assertEquals(res[0].to_dict(), alert_D)
-        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        self.assertIn((os.path.join(endpoint, "alerts/"),), tuple(mockGet.call_args))
         for method in ['get', 'add', 'update', 'delete']:
             self.assertTrue(hasattr(res[0].triggers, method), msg='no alert.triggers.{}()'.format(method))
             self.assertTrue(hasattr(res[0].notifications, method), msg='no alert.notifications.{}()'.format(method))
@@ -568,8 +568,7 @@ class TestAlert(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_all_info_D, alert_all_info_2_D]), 200))
     def testGetItemsAllInfo(self, mockGet):
         self.assertEquals(len(mockGet.call_args_list), 0)
-        self.argus.alerts = AlertsServiceClient(self.argus, all_alerts_path="allinfo",
-                                                all_alerts_params=dict(shared=False))
+        self.argus.alerts = AlertsServiceClient(self.argus, get_all_req_opts={ REQ_PARAMS: dict(shared=False), REQ_PATH: "allinfo" })
         alertClient = self.argus.alerts
 
         # Act
@@ -610,7 +609,7 @@ class TestAlert(TestServiceBase):
         res = alertClient.items()
         # Assert
         self.assertEquals(len(res), 2)
-        self.assertIn((os.path.join(endpoint, "alerts"),), tuple(mockGet.call_args))
+        self.assertIn((os.path.join(endpoint, "alerts/"),), tuple(mockGet.call_args))
         self.assertEquals(len(mockGet.call_args_list), 1)
 
         for id, obj in res:

@@ -153,7 +153,7 @@ class BaseModelServiceClient(object):
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
-        self.get_all_req_opts = get_all_req_opts
+        self.get_all_req_opts = get_all_req_opts or {}
         self.get_all_path = get_all_path
         self.get_all_params = get_all_params
         self.get_all_request_type = get_all_request_type or "get"
@@ -162,6 +162,9 @@ class BaseModelServiceClient(object):
     def _init_all(self, coll=None):
         if not self.get_all_path:
             raise TypeError("Unsupported operation on: %s" % type(self))
+
+        print "self.get_all_req_opts.get(REQ_PARAMS, None): ", self.get_all_req_opts.get(REQ_PARAMS, None)
+        print "self.get_all_req_opts.get(REQ_PATH, None): ", self.get_all_req_opts.get(REQ_PATH, None)
         if not self._retrieved_all:
             self._coll = dict((obj.argus_id, self._fill(obj))
                               for obj in (coll or self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
@@ -284,7 +287,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.namespaces` attribute.
     """
     def __init__(self, argus):
-        super(NamespacesServiceClient, self).__init__(argus, "namespace")
+        get_all_req_opts = {REQ_PATH: "namespace"}
+        super(NamespacesServiceClient, self).__init__(argus, "namespace", get_all_req_opts=get_all_req_opts)
 
     def update(self, id, namespace):
         """
@@ -491,10 +495,18 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus, all_alerts_path=None, all_alerts_params=None):
+    def __init__(self, argus, all_alerts_path=None, all_alerts_params=None, get_all_req_opts=None):
         get_all_alerts_path = all_alerts_path and "alerts/" + all_alerts_path or "alerts"
+
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        # if get_all_req_opts:
+        get_all_req_opts[REQ_PATH] = "alerts/" + get_all_req_opts.get(REQ_PATH, "")
+        print 'alerts client init: ', get_all_req_opts.get(REQ_PARAMS, None)
+        print 'alerts client init: ', get_all_req_opts.get(REQ_PATH, None)
+
         super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_path=get_all_alerts_path,
-                                                  get_all_params=all_alerts_params)
+                                                  get_all_params=all_alerts_params, get_all_req_opts=get_all_req_opts)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
@@ -610,8 +622,10 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
+        get_all_req_opts = {REQ_PATH: "alerts/%s/triggers" % alert.id}
         super(AlertTriggersServiceClient, self).__init__(Trigger, argus, id_path="alerts/%s/triggers/%%s" % alert.id,
-                                                                    get_all_path="alerts/%s/triggers" % alert.id)
+                                                                    get_all_path="alerts/%s/triggers" % alert.id,
+                                                         get_all_req_opts=get_all_req_opts)
         self.alert = alert
         if alert.triggers:
             self._init_all(alert.triggers)
@@ -646,8 +660,10 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
+        get_all_req_opts = {REQ_PATH: "alerts/%s/notifications" % alert.id}
         super(AlertNotificationsServiceClient, self).__init__(Notification, argus, id_path="alerts/%s/notifications/%%s" % alert.id,
-                                                              get_all_path="alerts/%s/notifications" % alert.id)
+                                                              get_all_path="alerts/%s/notifications" % alert.id,
+                                                              get_all_req_opts=get_all_req_opts)
         self.alert = alert
         if alert.notifications:
             self._init_all(alert.notifications)
