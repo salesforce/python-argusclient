@@ -383,8 +383,9 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         # self.get_all_req_opts.get(REQ_PATH, None),
         # params = self.get_all_req_opts.get(REQ_PARAMS, None),
         # dataObj = self.get_all_req_opts.get(REQ_BODY, None)))
-        if get_all_req_opts:
-            get_all_req_opts[REQ_PATH] = get_all_req_opts.get(REQ_PATH, "dashboards")
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts[REQ_PATH] = get_all_req_opts.get(REQ_PATH, "dashboards")
         super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s",
                                                           get_all_path="dashboards",
                                                           get_all_params=all_dash_params,
@@ -435,21 +436,35 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, all_perms_path=None,
                                 all_perms_params=None,
                                 all_perms_request_type=None,
-                                all_perms_body=None):
+                                all_perms_body=None,
+                 get_all_req_opts=None):
         get_all_perms_path = all_perms_path and "permission/" + all_perms_path or "permission"
         get_all_perms_request_type = all_perms_request_type or "get"
+
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts[REQ_PATH] = "permission/" + get_all_req_opts.get(REQ_PATH, "")
+        print "get_all_req_opts[REQ_PATH]:",get_all_req_opts[REQ_PATH]
+        get_all_req_opts[REQ_METHOD] = get_all_req_opts.get(REQ_METHOD, "get")
+
         super(PermissionsServiceClient, self).__init__(Permission, argus, id_path="permission/%s",
                                                        get_all_path=get_all_perms_path,
                                                        get_all_params=all_perms_params,
                                                        get_all_request_type=get_all_perms_request_type,
-                                                       get_all_body=all_perms_body)
+                                                       get_all_body=all_perms_body,
+                                                       get_all_req_opts=get_all_req_opts)
 
     def _init_all(self, coll=None):
-        if not self.get_all_path:
+        if not self.get_all_path: # change
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
-            resp = convert(self.argus._request(self.get_all_request_type, self.get_all_path,
-                                                params=self.get_all_params, dataObj=self.get_all_body))
+            # resp = convert(self.argus._request(self.get_all_request_type, self.get_all_path,
+            #                                     params=self.get_all_params, dataObj=self.get_all_body))
+            resp = convert(self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
+                                                    self.get_all_req_opts.get(REQ_PATH, None),
+                                                    params=self.get_all_req_opts.get(REQ_PARAMS, None),
+                                                    dataObj=self.get_all_req_opts.get(REQ_BODY, None)))
+
             for id, perms in resp.items():
                 self._coll[id] = perms
             self._retrieved_all = True

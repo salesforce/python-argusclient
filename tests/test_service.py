@@ -10,7 +10,7 @@ import unittest
 
 from argusclient import *
 from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
-    DashboardsServiceClient, REQ_PATH, REQ_PARAMS
+    DashboardsServiceClient, REQ_PATH, REQ_PARAMS, REQ_METHOD, REQ_BODY
 from argusclient.model import Permission
 
 from test_data import *
@@ -407,10 +407,11 @@ class TestPermission(TestServiceBase):
 
         # Arrange
         all_perms_path = "entityIds"
-        self.argus.permissions = PermissionsServiceClient(self.argus, all_perms_path=all_perms_path,
-                                                                        all_perms_params=dict(shared=False),
-                                                                        all_perms_request_type="post",
-                                                                        all_perms_body=[testId, testId2, testId3])
+        self.argus.permissions = PermissionsServiceClient(self.argus,
+                                                          get_all_req_opts={REQ_PARAMS: dict(shared=False),
+                                                                              REQ_PATH: all_perms_path,
+                                                                              REQ_METHOD: "post",
+                                                                              REQ_BODY: [testId, testId2, testId3]})
         client = self.argus.permissions
 
         # Act
