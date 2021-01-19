@@ -27,6 +27,10 @@ from functools import wraps
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
     Permission
 
+REQ_METHOD = "req_method"
+REQ_PATH = "req_path"
+REQ_PARAMS = "req_params"
+REQ_BODY = "req_body"
 
 class ArgusException(Exception):
     """
@@ -145,10 +149,11 @@ class BaseModelServiceClient(object):
     def __init__(self, argus, get_all_path=None,
                                 get_all_params=None,
                                 get_all_request_type=None,
-                                get_all_body=None):
+                                get_all_body=None, get_all_req_opts=None):
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
+        self.get_all_req_opts = get_all_req_opts
         self.get_all_path = get_all_path
         self.get_all_params = get_all_params
         self.get_all_request_type = get_all_request_type or "get"
@@ -159,10 +164,15 @@ class BaseModelServiceClient(object):
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
             self._coll = dict((obj.argus_id, self._fill(obj))
-                              for obj in (coll or self.argus._request(self.get_all_request_type,
-                                                                       self.get_all_path,
-                                                                       params=self.get_all_params,
-                                                                       dataObj = self.get_all_body)))
+                              for obj in (coll or self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
+                                                                       self.get_all_req_opts.get(REQ_PATH, None),
+                                                                       params=self.get_all_req_opts.get(REQ_PARAMS, None),
+                                                                       dataObj=self.get_all_req_opts.get(REQ_BODY, None))))
+            # self._coll = dict((obj.argus_id, self._fill(obj))
+            #                   for obj in (coll or self.argus._request(self.get_all_request_type,
+            #                                                           self.get_all_path,
+            #                                                           params=self.get_all_params,
+            #                                                           dataObj=self.get_all_body)))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -313,11 +323,12 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
 
 class BaseUpdatableModelServiceClient(BaseModelServiceClient):
-    def __init__(self, objType, argus, id_path, get_all_path, get_all_params=None, get_all_request_type=None, get_all_body=None):
+    def __init__(self, objType, argus, id_path, get_all_path, get_all_params=None, get_all_request_type=None, get_all_body=None, get_all_req_opts=None):
         super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path,
                                                                       get_all_params=get_all_params,
                                                                       get_all_request_type=get_all_request_type,
-                                                                      get_all_body=get_all_body)
+                                                                      get_all_body=get_all_body,
+                                                                      get_all_req_opts=get_all_req_opts)
         self.objType = objType
         self.id_path = id_path
 
@@ -363,10 +374,17 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.dashboards` attribute.
     """
-    def __init__(self, argus, all_dash_params=None):
+    def __init__(self, argus, all_dash_params=None, get_all_req_opts=None):
+        # self.get_all_req_opts.get(REQ_METHOD, "get"),
+        # self.get_all_req_opts.get(REQ_PATH, None),
+        # params = self.get_all_req_opts.get(REQ_PARAMS, None),
+        # dataObj = self.get_all_req_opts.get(REQ_BODY, None)))
+        if get_all_req_opts:
+            get_all_req_opts[REQ_PATH] = get_all_req_opts.get(REQ_PATH, "dashboards")
         super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s",
                                                           get_all_path="dashboards",
-                                                          get_all_params=all_dash_params)
+                                                          get_all_params=all_dash_params,
+                                                          get_all_req_opts=get_all_req_opts)
 
     def add(self, dashboard):
         """
