@@ -361,7 +361,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, get_all_req_opts=None):
         if not get_all_req_opts:
             get_all_req_opts = {}
-        get_all_req_opts[REQ_PATH] = get_all_req_opts.get(REQ_PATH, "dashboards")
+        get_all_req_opts.setdefault(REQ_PATH, "dashboards")
         super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s",
                                                       get_all_req_opts=get_all_req_opts)
 
@@ -410,8 +410,8 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, get_all_req_opts=None):
         if not get_all_req_opts:
             get_all_req_opts = {}
+        get_all_req_opts.setdefault(REQ_METHOD, "get")
         get_all_req_opts[REQ_PATH] = "permission/" + get_all_req_opts.get(REQ_PATH, "")
-        get_all_req_opts[REQ_METHOD] = get_all_req_opts.get(REQ_METHOD, "get")
         super(PermissionsServiceClient, self).__init__(Permission, argus, id_path="permission/%s",
                                                        get_all_req_opts=get_all_req_opts)
 
