@@ -272,8 +272,7 @@ class NamespacesServiceClient(BaseModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.namespaces` attribute.
     """
     def __init__(self, argus):
-        get_all_req_opts = {REQ_PATH: "namespace"}
-        super(NamespacesServiceClient, self).__init__(argus, get_all_req_opts=get_all_req_opts)
+        super(NamespacesServiceClient, self).__init__(argus, get_all_req_opts={REQ_PATH: "namespace"})
 
     def update(self, id, namespace):
         """
@@ -589,9 +588,8 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        get_all_req_opts = {REQ_PATH: "alerts/%s/triggers" % alert.id}
         super(AlertTriggersServiceClient, self).__init__(Trigger, argus, id_path="alerts/%s/triggers/%%s" % alert.id,
-                                                         get_all_req_opts=get_all_req_opts)
+                                                         get_all_req_opts={REQ_PATH: "alerts/%s/triggers" % alert.id})
         self.alert = alert
         if alert.triggers:
             self._init_all(alert.triggers)
@@ -626,9 +624,8 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        get_all_req_opts = {REQ_PATH: "alerts/%s/notifications" % alert.id}
         super(AlertNotificationsServiceClient, self).__init__(Notification, argus, id_path="alerts/%s/notifications/%%s" % alert.id,
-                                                              get_all_req_opts=get_all_req_opts)
+                                                              get_all_req_opts={REQ_PATH: "alerts/%s/notifications" % alert.id})
         self.alert = alert
         if alert.notifications:
             self._init_all(alert.notifications)

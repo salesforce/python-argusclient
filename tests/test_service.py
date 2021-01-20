@@ -407,8 +407,7 @@ class TestPermission(TestServiceBase):
 
         # Arrange
         all_perms_path = "entityIds"
-        self.argus.permissions = PermissionsServiceClient(self.argus,
-                                                          get_all_req_opts={REQ_PARAMS: dict(shared=False),
+        self.argus.permissions = PermissionsServiceClient(self.argus, get_all_req_opts={REQ_PARAMS: dict(shared=False),
                                                                               REQ_PATH: all_perms_path,
                                                                               REQ_METHOD: "post",
                                                                               REQ_BODY: [testId, testId2, testId3]})
@@ -569,7 +568,8 @@ class TestAlert(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([alert_all_info_D, alert_all_info_2_D]), 200))
     def testGetItemsAllInfo(self, mockGet):
         self.assertEquals(len(mockGet.call_args_list), 0)
-        self.argus.alerts = AlertsServiceClient(self.argus, get_all_req_opts={ REQ_PARAMS: dict(shared=False), REQ_PATH: "allinfo" })
+        self.argus.alerts = AlertsServiceClient(self.argus, get_all_req_opts={REQ_PARAMS: dict(shared=False),
+                                                                              REQ_PATH: "allinfo"})
         alertClient = self.argus.alerts
 
         # Act
