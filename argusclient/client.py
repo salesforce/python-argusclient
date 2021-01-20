@@ -147,6 +147,11 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
 class BaseModelServiceClient(object):
     def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: Dict holding request details for a 'get-all alerts/dashboards/etc' request.
+                                Currently supported fields are REQ_METHOD, REQ_PATH, REQ_PARAMS, and REQ_BODY.
+        :type get_all_req_opts: dict
+        """
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
@@ -359,6 +364,9 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.dashboards` attribute.
     """
     def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+        """
         if not get_all_req_opts:
             get_all_req_opts = {}
         get_all_req_opts.setdefault(REQ_PATH, "dashboards")
@@ -408,6 +416,9 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
     """
     def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+        """
         if not get_all_req_opts:
             get_all_req_opts = {}
         get_all_req_opts.setdefault(REQ_METHOD, "get")
@@ -469,6 +480,9 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
     """
     def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+        """
         if not get_all_req_opts:
             get_all_req_opts = {}
         get_all_req_opts[REQ_PATH] = "alerts/" + get_all_req_opts.get(REQ_PATH, "")
