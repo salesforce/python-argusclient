@@ -66,6 +66,18 @@ class ObjTest(unittest.TestCase):
         self.assertEquals(d.content, content)
         self.assertEquals(d.id, testId)
 
+    def testCreateUserPermission(self):
+        p = Permission(userPermissionIdentifier, permissionNames, username=userName)
+        self.assertEquals(p.type, userPermissionIdentifier)
+        self.assertEquals(p.permissionNames, permissionNames)
+        self.assertEquals(p.username, userName)
+
+    def testCreateGroupPermission(self):
+        p = Permission(groupPermissionIdentifier, permissionNames, groupId=permissionGroupId)
+        self.assertEquals(p.type, groupPermissionIdentifier)
+        self.assertEquals(p.permissionNames, permissionNames)
+        self.assertEquals(p.groupId, permissionGroupId)
+
     def testCreateUser(self):
         u = User(userName, email=email, id=testId)
         self.assertEquals(u.userName, userName)
@@ -179,6 +191,12 @@ class TestEncoding(unittest.TestCase):
 
     def testEncDashboard(self):
         self._testFor(dashboard_D, Dashboard)
+
+    def testEncUserPermission(self):
+        self._testFor(userPermission_D, Permission)
+
+    def testEncGroupPermission(self):
+        self._testFor(groupPermission_D, Permission)
 
     def testEncNamespace(self):
         self._testFor(namespace_D, Namespace)

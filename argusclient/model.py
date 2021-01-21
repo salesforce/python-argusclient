@@ -234,6 +234,39 @@ class Dashboard(BaseEncodable):
     def __init__(self, name, content, **kwargs):
         super(Dashboard, self).__init__(name=name, content=content, **kwargs)
 
+class Permission(BaseEncodable):
+    """
+    Represents a Permission object in Argus.
+
+    **Required parameters to the constructor:**
+
+    :param type: the type of permission - "user" or "group"
+    :type type: str
+    :param permissionNames: List of permissions that this user or group
+                            has on the associated entity (id is put in the entityId field).
+                            Permissions in this list are in the form of strings: like "VIEW", "EDIT", and "DELETE".
+    :type permissionNames: list of str
+
+    **Optional parameters to the constructor:**
+
+    :param groupId: id of the group that has the associated permissions
+    :type groupId: str
+    :param username: name of the user that has the associated permissions
+    :type username: str
+    :param permissionIds: List of permissions that this user or group
+                            has on the associated entity (id is put in the entityId field).
+                            Permissions in this list are in the form of integers: like 0, 1, and 2.
+                            0, 1, and 2 correspond to "VIEW", "EDIT", and "DELETE" respectively.
+    :type permissionIds: list of int
+    :param entityId: id of the associated entity
+    :type entityId: int
+    """
+
+    id_fields = ("permissionNames",)
+
+    def __init__(self, type, permissionNames, **kwargs):
+        super(Permission, self).__init__(type=type, permissionNames=permissionNames, **kwargs)
+
 
 class Namespace(BaseEncodable):
     """
@@ -457,7 +490,7 @@ class JsonDecoder(json.JSONDecoder):
     def from_json(self, jsonObj):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
-        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification):
+        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification, Permission):
             obj = cls.from_dict(jsonObj)
             if obj:
                 return obj

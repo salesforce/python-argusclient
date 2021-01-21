@@ -10,6 +10,8 @@ and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Se
 # Licensed under the BSD 3-Clause license. 
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
+import unicodedata
+from collections import Mapping
 
 import requests
 import json
@@ -22,8 +24,13 @@ except ImportError:
     import httplib                 # Python 2
 from functools import wraps
 
-from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder
+from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
+    Permission
 
+REQ_METHOD = "req_method"
+REQ_PATH = "req_path"
+REQ_PARAMS = "req_params"
+REQ_BODY = "req_body"
 
 class ArgusException(Exception):
     """
@@ -139,19 +146,26 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
 
 class BaseModelServiceClient(object):
-    def __init__(self, argus, get_all_path=None, get_all_params=None):
+    def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: Dict holding request details for a 'get-all alerts/dashboards/etc' request.
+                                Currently supported fields are REQ_METHOD, REQ_PATH, REQ_PARAMS, and REQ_BODY.
+        :type get_all_req_opts: dict
+        """
         self.argus = argus
         self._retrieved_all = False
         self._coll = {}
-        self.get_all_path = get_all_path
-        self.get_all_params = get_all_params
+        self.get_all_req_opts = get_all_req_opts or {}
 
     def _init_all(self, coll=None):
-        if not self.get_all_path:
+        if not self.get_all_req_opts.get(REQ_PATH):
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
             self._coll = dict((obj.argus_id, self._fill(obj))
-                                for obj in coll or self.argus._request("get", self.get_all_path, params=self.get_all_params))
+                              for obj in (coll or self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
+                                                                       self.get_all_req_opts.get(REQ_PATH, None),
+                                                                       params=self.get_all_req_opts.get(REQ_PARAMS, None),
+                                                                       dataObj=self.get_all_req_opts.get(REQ_BODY, None))))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -223,7 +237,7 @@ class BaseModelServiceClient(object):
 
     def __contains__(self, key):
         self._init_all()
-        return key in self.self._coll
+        return key in self._coll
 
 
 class UsersServiceClient(BaseModelServiceClient):
@@ -263,7 +277,7 @@ class NamespacesServiceClient(BaseModelServiceClient):
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.namespaces` attribute.
     """
     def __init__(self, argus):
-        super(NamespacesServiceClient, self).__init__(argus, "namespace")
+        super(NamespacesServiceClient, self).__init__(argus, get_all_req_opts={REQ_PATH: "namespace"})
 
     def update(self, id, namespace):
         """
@@ -302,8 +316,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
 
 class BaseUpdatableModelServiceClient(BaseModelServiceClient):
-    def __init__(self, objType, argus, id_path, get_all_path, get_all_params=None):
-        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_path, get_all_params=get_all_params)
+    def __init__(self, objType, argus, id_path, get_all_req_opts=None):
+        super(BaseUpdatableModelServiceClient, self).__init__(argus, get_all_req_opts=get_all_req_opts)
         self.objType = objType
         self.id_path = id_path
 
@@ -349,8 +363,15 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.dashboards` attribute.
     """
-    def __init__(self, argus):
-        super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s", get_all_path="dashboards")
+    def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+        """
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts.setdefault(REQ_PATH, "dashboards")
+        super(DashboardsServiceClient, self).__init__(Dashboard, argus, id_path="dashboards/%s",
+                                                      get_all_req_opts=get_all_req_opts)
 
     def add(self, dashboard):
         """
@@ -388,6 +409,57 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         """
         return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
+class PermissionsServiceClient(BaseUpdatableModelServiceClient):
+    """
+    Service class that interfaces with the Argus permissions endpoint.
+
+    There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
+    """
+    def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+        """
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts.setdefault(REQ_METHOD, "get")
+        get_all_req_opts[REQ_PATH] = "permission/" + get_all_req_opts.get(REQ_PATH, "")
+        super(PermissionsServiceClient, self).__init__(Permission, argus, id_path="permission/%s",
+                                                       get_all_req_opts=get_all_req_opts)
+
+    def _init_all(self, coll=None):
+        if not self.get_all_req_opts.get(REQ_PATH):
+            raise TypeError("Unsupported operation on: %s" % type(self))
+        if not self._retrieved_all:
+            resp = convert(self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
+                                                    self.get_all_req_opts.get(REQ_PATH, None),
+                                                    params=self.get_all_req_opts.get(REQ_PARAMS, None),
+                                                    dataObj=self.get_all_req_opts.get(REQ_BODY, None)))
+            for id, perms in resp.items():
+                self._coll[id] = perms
+            self._retrieved_all = True
+
+    def get_permissions_for_entities(self, entityIds):
+        """
+        Gets permissions that are associated with the given entity id's.
+
+        :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
+        """
+        return convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
+
+def convert(input):
+    if isinstance(input, Mapping):
+        return {convert(key): convert(value) for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [convert(element) for element in input]
+    elif isinstance(input, basestring):
+        ret = str(input)
+        if ret.isdigit():
+            ret = int(ret)
+        return ret
+    else:
+        return input
+
+
 class AlertsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus alerts endpoint.
@@ -407,10 +479,14 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
-    def __init__(self, argus, all_alerts_path=None, all_alerts_params=None):
-        get_all_alerts_path = all_alerts_path and "alerts/" + all_alerts_path or "alerts"
-        super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_path=get_all_alerts_path,
-                                                  get_all_params=all_alerts_params)
+    def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+        """
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts[REQ_PATH] = "alerts/" + get_all_req_opts.get(REQ_PATH, "")
+        super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_req_opts=get_all_req_opts)
 
     def _fill(self, alert):
         alert._triggers = AlertTriggersServiceClient(self.argus, alert)
@@ -527,7 +603,7 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
         super(AlertTriggersServiceClient, self).__init__(Trigger, argus, id_path="alerts/%s/triggers/%%s" % alert.id,
-                                                                    get_all_path="alerts/%s/triggers" % alert.id)
+                                                         get_all_req_opts={REQ_PATH: "alerts/%s/triggers" % alert.id})
         self.alert = alert
         if alert.triggers:
             self._init_all(alert.triggers)
@@ -563,7 +639,7 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
         super(AlertNotificationsServiceClient, self).__init__(Notification, argus, id_path="alerts/%s/notifications/%%s" % alert.id,
-                                                              get_all_path="alerts/%s/notifications" % alert.id)
+                                                              get_all_req_opts={REQ_PATH: "alerts/%s/notifications" % alert.id})
         self.alert = alert
         if alert.notifications:
             self._init_all(alert.notifications)
@@ -661,6 +737,12 @@ class ArgusServiceClient(object):
 
          Interfaces with the Argus dashboards endpoint.
 
+    .. attribute:: permissions
+
+         :class:`argusclient.client.PermissionsServiceClient`
+
+         Interfaces with the Argus permissions endpoint.
+
     .. attribute:: users
 
          :class:`argusclient.client.UsersServiceClient`
@@ -715,6 +797,7 @@ class ArgusServiceClient(object):
         self.metrics = MetricCollectionServiceClient(self)
         self.annotations = AnnotationCollectionServiceClient(self)
         self.dashboards = DashboardsServiceClient(self)
+        self.permissions = PermissionsServiceClient(self)
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
         self.alerts = AlertsServiceClient(self)
@@ -785,7 +868,7 @@ def check_success(resp, decCls):
             raise ArgusException(resp.text)
         return res
     elif resp.status_code == httplib.NOT_FOUND:
-        raise ArgusObjectNotFoundException("Object not found at endpoint: %s message: %s" % (resp.url, resp.text))
+        raise ArgusObjectNotFoundException("Object not found at endpoint: {} message: {}".format(resp.url, resp.text))
     elif resp.status_code == httplib.UNAUTHORIZED:
         raise ArgusAuthException("Failed to authenticate at endpoint: %s message: %s" % (resp.url, resp.text))
     else:
