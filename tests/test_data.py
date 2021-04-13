@@ -39,6 +39,12 @@ userPermissionIdentifier = "user"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
 
+compAlertID = 6000
+childAlertID_1 = 6003
+childAlertID_2 = 6009
+triggerID_1 = 6005
+compAlert_notificationID = 6007
+
 metric_D = {
     "scope": scope,
     "metric": metric,
@@ -296,4 +302,58 @@ alert_all_info_2_D = {
     "triggers": [trigger_D, trigger_2_D],
     "notifications": [notification_D, notification_2_D, notification_3_D],
     "ownerName": userName
+}
+
+compalert_D = {
+    'id': compAlertID,
+    'alertType': 'COMPOSITE',
+    'name': 'CompAlertTest',
+    'triggerIds': [],
+    'enabled': False,
+    'cronEntry': '*/2 * * * *',
+    'notificationsIds': [],
+    'expression': {'expression': {'operator': 'AND', 'join': [], 'terms': []}, 'termDefinitions': []},
+    'childAlertsIds': []
+ }
+
+childAlert_1 = {
+    'id': childAlertID_1,
+    'triggersIds': [],
+    'alertType': 'COMPOSITE_CHILD',
+    'name': 'CompAlertTest-ChildAlert-1',
+    'cronEntry': '* * * * *',
+    'notificationsIds': [],
+    'enabled': False,
+    'expression': '-1h:-0m:tracer.api.XRD.NONE.none:requestsReceivedLastMin:avg:1m-avg'
+}
+
+childAlert_2 = {
+    'id': childAlertID_2,
+    'triggersIds': [],
+    'alertType': 'COMPOSITE_CHILD',
+    'name': 'CompAlertTest-ChildAlert-2',
+    'cronEntry': '* * * * *',
+    'notificationsIds': [],
+    'enabled': False,
+    'expression': '-1h:-0m:tracer.api.XRD.NONE.none:avgQueryTime:avg:1m-avg'
+}
+
+childAlert_trigger_1 = {
+    'id': triggerID_1,
+    'threshold': 1.0,
+    'type': 'GREATER_THAN',
+    'inertia': 0L,
+    'name': 'CompAlertTest/trigger1'
+}
+
+compAlert_notification = {
+    'id': compAlert_notificationID,
+    'severityLevel': 5,
+    'name': 'Email1',
+    'subscriptions': ['jdoe@example.com'],
+    'notifierName': 'com.salesforce.dva.argus.service.alert.notifier.EmailNotifier',
+    'metricsToAnnotate': [],
+    'cooldownPeriod': 0L,
+    'sractionable': False,
+    'customText': 'None'
 }
