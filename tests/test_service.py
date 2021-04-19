@@ -895,7 +895,7 @@ class TestCompAlert(TestServiceBase):
             self.assertIn((uri_path,), call_args)
 
         with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(compAlert_notification), 200)) as mock_notification:
-            notification = self.argus.alerts.add_notification(comp_alert, Notification.from_dict(compAlert_notification))
+            notification = self.argus.alerts.add_notification_to_composite_alert(comp_alert, Notification.from_dict(compAlert_notification))
             self.assertTrue(isinstance(notification, Notification))
             call_args = mock_notification.call_args
             uri_path = os.path.join(endpoint, "alerts/{}/notifications".format(comp_alert.id))
@@ -967,14 +967,14 @@ class TestCompAlert(TestServiceBase):
             self.assertIn((uri_path,), call_args)
 
         with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(compAlert_notification), 200)) as mock_notification:
-            notification = self.argus.alerts.add_notification(comp_alert, Notification.from_dict(compAlert_notification))
+            notification = self.argus.alerts.add_notification_to_composite_alert(comp_alert, Notification.from_dict(compAlert_notification))
             self.assertTrue(isinstance(notification, Notification))
             call_args = mock_notification.call_args
             uri_path = os.path.join(endpoint, "alerts/{}/notifications".format(comp_alert.id))
             self.assertIn((uri_path,), call_args)
 
         with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
-            self.argus.alerts.del_notification(comp_alert, notification.id)
+            self.argus.alerts.del_notification_from_composite_alert(comp_alert, notification.id)
             call_args = tuple(mock_delete.call_args)
             uri_path = os.path.join(endpoint, "alerts/{}/notifications/{}".format(comp_alert.id, notification.id))
             self.assertIn((uri_path,), call_args)

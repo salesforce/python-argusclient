@@ -643,7 +643,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         uri_path = "alerts/{}/triggers/{}".format(alert_id, trigger_id)
         return self.argus._request("delete", uri_path)
 
-    def add_notification(self, alert, notification):
+    def add_notification_to_composite_alert(self, alert, notification):
         if not isinstance(alert, Alert): raise TypeError("Need a Alert object, got: %s" % type(alert))
         if not isinstance(notification, Notification): raise TypeError(
             "Need a Notification object, got: %s" % type(notification))
@@ -651,7 +651,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         notification_obj = self.argus._request("post", uri_path, dataObj=notification)
         return notification_obj
 
-    def del_notification(self, alert, notification_id):
+    def del_notification_from_composite_alert(self, alert, notification_id):
         if not isinstance(alert, Alert): raise TypeError("Need a Alert object, got: %s" % type(alert))
         if not isinstance(notification_id, int): raise TypeError("Need a Notifications id, got: %s" % type(alert))
         uri_path = "alerts/{}/notifications/{}".format(alert.id, notification_id)
