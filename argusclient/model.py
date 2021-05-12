@@ -262,11 +262,12 @@ class Permission(BaseEncodable):
     :type entityId: int
     """
 
-    id_fields = ("permissionNames",)
+    id_fields = ("type",)
+    VALID_TYPES = frozenset(("user", "group"))
 
-    def __init__(self, type, permissionNames, **kwargs):
-        super(Permission, self).__init__(type=type, permissionNames=permissionNames, **kwargs)
-
+    def __init__(self, type, **kwargs):
+        assert type in Permission.VALID_TYPES, "permission type is not valid: %s" % type
+        super(Permission, self).__init__(type=type, **kwargs)
 
 class Namespace(BaseEncodable):
     """

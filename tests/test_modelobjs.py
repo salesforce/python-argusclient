@@ -159,6 +159,22 @@ class ObjTest(unittest.TestCase):
     def testCreateNotificationInvalidNotifier(self):
         self.failUnlessRaises(AssertionError, lambda: Notification(notificationName, "abc"))
 
+    def testCreateUserPermission(self):
+        permission = Permission(user_type, id=testId, permissionIds=permission_ids, username=username, entityId=testId)
+        self.assertEquals(permission.type, user_type)
+        self.assertEquals(permission.entityId, testId)
+        self.assertEquals(permission.permissionIds, permission_ids)
+        self.assertEquals(permission.username, username)
+
+    def testCreateGroupPermission(self):
+        permission = Permission(group_type, id=testId, groupId=group_id, entityId=testId)
+        self.assertEquals(permission.type, group_type)
+        self.assertEquals(permission.entityId, testId)
+        self.assertEquals(permission.groupId, group_id)
+
+    def testCreateInvalidPermission(self):
+        self.failUnlessRaises(AssertionError, lambda: Permission("abc", id=testId))
+
     def testCreateAlertDeep(self):
         trigger = Trigger(triggerName, Trigger.EQUAL, 100, 200)
         notification = Notification(notificationName, notifierName=Notification.EMAIL, subscriptions=[email])

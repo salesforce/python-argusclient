@@ -438,13 +438,66 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
                 self._coll[id] = perms
             self._retrieved_all = True
 
-    def get_permissions_for_entities(self, entityIds):
+    def get_permissions_for_entities(self, entity_ids):
         """
         Gets permissions that are associated with the given entity id's.
 
         :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
-        return convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
+        entityIds = []
+        for entity_id in entity_ids:
+            if entity_id not in self._coll:
+                entityIds.append(entity_id)
+
+        if entityIds:
+            response = convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
+            for id, perms in response.items():
+                self._coll[id] = perms
+        return self._coll
+
+
+    def add(self, entity_id, permission):
+        """
+        Associates a permission with an alert
+        :return: the :class:`argusclient.model.Permission` object with the entityId field set.
+        """
+        if not isinstance(permission, Permission):
+            raise TypeError("Need a Permission object, got: %s" % type(permission))
+        if permission.argus_id: raise ValueError("A new permission can't have an entity id associated with it")
+        updated_permission = self.argus._request("post", "permission/%s" % entity_id, dataObj=permission)
+
+        self._coll[updated_permission.entityId] = updated_permission
+
+        if updated_permission.entityId != entity_id:
+            raise ArgusException("This is unexpected... permission: %s not associated with entity after successfully"
+                                 " adding it" % permission)
+        return updated_permission
+
+    def delete(self, entity_id, permission):
+        if not isinstance(permission, Permission):
+            raise TypeError("Need a Permission object, got: %s" % type(permission))
+        if permission.type == "user" and permission.permissionIds == []:
+            raise ValueError("A user permission needs to have the permission that needs to be revoked")
+        updated_permission = self.argus._request("delete", "permission/%s" % entity_id, dataObj=permission)
+        if updated_permission.entityId in self._coll:
+            del self._coll[updated_permission.entity_id]
+
+class GroupPermissionServiceClient(BaseUpdatableModelServiceClient):
+    """
+    Service class that interfaces with the Argus alert Group Permissions endpoint.
+    """
+    def __init__(self, argus):
+        super(GroupPermissionServiceClient, self).__init__([], argus, "grouppermission", "grouppermission/getvalidgroupkeys")
+
+    def get_groups_with_valid_permissions(self, group_ids):
+        """
+        Checks if the group ids specified have valid permissions
+        :return: the a list of strings representing group id's that have valid permissions.
+        """
+
+        groups_with_valid_permissions = self.argus._request("get", "grouppermission/getvalidgroupkeys",
+                                                            params=dict(groupIds=group_ids))
+        return groups_with_valid_permissions
 
 def convert(input):
     if isinstance(input, Mapping):
@@ -880,6 +933,7 @@ class ArgusServiceClient(object):
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
         self.alerts = AlertsServiceClient(self)
+        self.group_permissions = GroupPermissionServiceClient(self)
         self.conn = requests.Session()
 
     def login(self):
@@ -930,9 +984,13 @@ class ArgusServiceClient(object):
         headers = {"Content-Type": "application/json"}
         if self.accessToken:
             headers["Authorization"] = "Bearer "+self.accessToken
+
+        # print "url "+ str(url) + " data "+ str(data) + "params "+ str(params) + "headers "+ str(headers)
         resp = req_method(url, data=data, params=params,
                           headers=headers,
-                          timeout=self.timeout)
+                          timeout=self.timeout,
+                          verify=False)
+        # print resp
         res = check_success(resp, decCls)
         return res
 

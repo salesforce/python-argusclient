@@ -38,6 +38,12 @@ groupPermissionIdentifier = "group"
 userPermissionIdentifier = "user"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
+username = "testuser"
+permission_ids = [1,2,3]
+user_type = "user"
+group_type = "group"
+group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
+entity_id = 23590046
 
 compAlertID = 6000
 childAlertID_1 = 6003
@@ -126,6 +132,32 @@ userPermission_D = {
     "type": userPermissionIdentifier,
     "permissionNames": permissionNames,
     "username": userName
+}
+
+permission_user_D = {
+    "id": testId,
+    "createdById": 6906380,
+    "createdDate": 1616098911000,
+    "modifiedById": 6906380,
+    "modifiedDate": 1616098911000,
+    "type": user_type,
+    "username": userName,
+    "permissionIds": permission_ids,
+    "entityId": testId,
+    "groupId": ""
+}
+
+permission_group_D = {
+    "id": testId,
+    "createdById": 6906380,
+    "createdDate": 1616098911000,
+    "modifiedById": 6906380,
+    "modifiedDate": 1616098911000,
+    "type": group_type,
+    "groupId": group_id,
+    "username": '',
+    "permissionIds": [],
+    "entityId": testId
 }
 
 namespace_D = {
