@@ -840,7 +840,7 @@ class TestCompositeAlert(TestServiceBase):
             alert = Alert.from_dict(compalert_D)
             self.assertTrue(isinstance(alert, Alert))
             delattr(alert, "id")
-            comp_alert = self.argus.alerts.create_composite_alert(alert)
+            comp_alert = self.argus.alerts.add(alert)
             self.assertTrue(isinstance(comp_alert, Alert))
             self.assertTrue(hasattr(comp_alert, "id"))
             self.assertEqual(comp_alert.expression['expression']['operator'], 'AND')
@@ -873,8 +873,10 @@ class TestCompositeAlert(TestServiceBase):
             uri_path = os.path.join(endpoint, "alerts/{}/children".format(comp_alert.id))
             self.assertIn((uri_path,), call_args)
 
-        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(childAlert_trigger_1), 200)) as mock_trigger_post:
-            trigger = self.argus.alerts.add_trigger_to_child_alert(child_alert.id, Trigger.from_dict(childAlert_trigger_1))
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([childAlert_trigger_1]), 200)) as mock_trigger_post:
+            trigger_obj = Trigger.from_dict(childAlert_trigger_1)
+            delattr(trigger_obj, "id")
+            trigger = child_alert.triggers.add(trigger_obj)
             self.assertTrue(isinstance(trigger, Trigger))
             call_args = tuple(mock_trigger_post.call_args)
             uri_path = os.path.join(endpoint, "alerts/{}/triggers".format(child_alert.id))
@@ -886,7 +888,7 @@ class TestCompositeAlert(TestServiceBase):
         with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([compAlert_notification]), 200)) as mock_notification:
             notification_obj = Notification.from_dict(compAlert_notification)
             delattr(notification_obj, "id")
-            notification = self.argus.alerts.add_notification_to_composite_alert(comp_alert, notification_obj)
+            notification = comp_alert.notifications.add(notification_obj)
             self.assertTrue(isinstance(notification, Notification))
             call_args = mock_notification.call_args
             uri_path = os.path.join(endpoint, "alerts/{}/notifications".format(comp_alert.id))
@@ -919,15 +921,17 @@ class TestCompositeAlert(TestServiceBase):
             uri_path = os.path.join(endpoint, "alerts/{}/children".format(comp_alert.id))
             self.assertIn((uri_path,), call_args)
 
-        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(childAlert_trigger_1), 200)) as mock_trigger_post:
-            trigger = self.argus.alerts.add_trigger_to_child_alert(child_alert.id, Trigger.from_dict(childAlert_trigger_1))
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([childAlert_trigger_1]), 200)) as mock_trigger_post:
+            trigger_obj = Trigger.from_dict(childAlert_trigger_1)
+            delattr(trigger_obj,"id")
+            trigger = child_alert.triggers.add(trigger_obj)
             self.assertTrue(isinstance(trigger, Trigger))
             call_args = tuple(mock_trigger_post.call_args)
             uri_path = os.path.join(endpoint, "alerts/{}/triggers".format(child_alert.id))
             self.assertIn((uri_path,), call_args)
 
         with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
-            self.argus.alerts.del_trigger_from_child_alert(child_alert.id, trigger.id)
+            child_alert.triggers.delete(trigger.id)
             call_args = tuple(mock_trigger_post.call_args)
             uri_path = os.path.join(endpoint, "alerts/{}/triggers".format(child_alert.id))
             self.assertIn((uri_path,), call_args)
@@ -938,14 +942,14 @@ class TestCompositeAlert(TestServiceBase):
         with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([compAlert_notification]), 200)) as mock_notification:
             notification_obj = Notification.from_dict(compAlert_notification)
             delattr(notification_obj, "id")
-            notification = self.argus.alerts.add_notification_to_composite_alert(comp_alert, notification_obj)
+            notification = comp_alert.notifications.add(notification_obj)
             self.assertTrue(isinstance(notification, Notification))
             call_args = mock_notification.call_args
             uri_path = os.path.join(endpoint, "alerts/{}/notifications".format(comp_alert.id))
             self.assertIn((uri_path,), call_args)
 
         with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
-            self.argus.alerts.del_notification_from_composite_alert(comp_alert, notification.id)
+            comp_alert.notifications.delete(notification.id)
             call_args = tuple(mock_delete.call_args)
             uri_path = os.path.join(endpoint, "alerts/{}/notifications/{}".format(comp_alert.id, notification.id))
             self.assertIn((uri_path,), call_args)
@@ -964,7 +968,7 @@ class TestCompositeAlert(TestServiceBase):
         comp_alert = self._createCompAlert()
 
         with mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(compalert_D), 200)) as mock_update:
-            self.argus.alerts.update_composite_alert(compAlertID, Alert.from_dict(compalert_D))
+            self.argus.alerts.update(compAlertID, Alert.from_dict(compalert_D))
             alert_obj = self.argus.alerts.get(compAlertID)
             self.assertTrue(isinstance(alert_obj, Alert))
             alert_obj_dict = alert_obj.to_dict()
