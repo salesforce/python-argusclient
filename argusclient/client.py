@@ -680,7 +680,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         if not isinstance(child_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(child_alert_id))
 
         uri_path = "alerts/{}/children/{}".format(comp_alert_id, child_alert_id)
-        if id in self._coll:
+        if child_alert_id in self._coll:
             del self._coll[child_alert_id]
         return self.argus._request("delete", uri_path)
 
