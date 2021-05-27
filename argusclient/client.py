@@ -613,7 +613,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
     def get_composite_alert_children_info(self, comp_alert_id):
         """
-        Get information for all children of a composite alert
+        Get information for all children (child alerts + triggers associated with them) of a composite alert
 
         :param comp_alert_id: ID of an argus composite alert
         :type comp_alert_id: integer
@@ -666,7 +666,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
     def delete_child_alert_from_composite_alert(self, comp_alert_id, child_alert_id):
         """
-         Delete child alert from a composite alert
+         Delete a child alert from a composite alert
 
         :param comp_alert_id: ID of a composite alert
         :type comp_alert_id: Integer
