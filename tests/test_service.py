@@ -902,12 +902,17 @@ class TestCompositeAlert(TestServiceBase):
             self.assertEqual(child_alert.alertType, 'COMPOSITE_CHILD')
             self.assertTrue(isinstance(child_alert, Alert))
 
+        ''' Before delete we can get the object for child_alert.id '''
+        res = self.argus.alerts.get(child_alert.id)
         with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
             self.argus.alerts.delete_child_alert_from_composite_alert(comp_alert.id, child_alert.id)
             call_args = mock_delete.call_args
             uri_path = os.path.join(endpoint, "alerts/{}/children/{}".format(comp_alert.id, child_alert.id))
             self.assertIn((uri_path,), call_args)
 
+        ''' After delete we cannot get the object for child_alert.id as its deleted from the argus '''
+        with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
+            self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.argus.alerts.get(child_alert.id))
 
     def testDeleteTriggerFromChildAlert(self):
         comp_alert = self._createCompAlert()
