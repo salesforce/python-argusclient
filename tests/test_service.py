@@ -902,7 +902,10 @@ class TestCompositeAlert(TestServiceBase):
             self.assertEqual(child_alert.alertType, 'COMPOSITE_CHILD')
             self.assertTrue(isinstance(child_alert, Alert))
 
-        ''' Before delete we can get the object for child_alert.id '''
+        '''
+        Right after add, we can access the child_alert.id without triggering an API call (i.e., no mocking is required)
+        as it gets added to the local cache
+        '''
         res = self.argus.alerts.get(child_alert.id)
         with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
             self.argus.alerts.delete_child_alert_from_composite_alert(comp_alert.id, child_alert.id)
@@ -910,7 +913,10 @@ class TestCompositeAlert(TestServiceBase):
             uri_path = os.path.join(endpoint, "alerts/{}/children/{}".format(comp_alert.id, child_alert.id))
             self.assertIn((uri_path,), call_args)
 
-        ''' After delete we cannot get the object for child_alert.id as its deleted from the argus '''
+        '''
+        After delete, the object should be gone from the local cache, so the get should result in an API call which
+        we are mocking to raise a 404 to mimic the real scenario
+        '''
         with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
             self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.argus.alerts.get(child_alert.id))
 
@@ -967,6 +973,16 @@ class TestCompositeAlert(TestServiceBase):
                     self.assertTrue(isinstance(obj, Alert))
             call_args = tuple(mock_get.call_args)
             uri_path = os.path.join(endpoint, "alerts/{}/children/info".format(compAlertID))
+            self.assertIn((uri_path,), call_args)
+
+    def testGetCompAlertChildren(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([childAlert_1, childAlert_2]), 200)) as mock_get:
+            res = self.argus.alerts.get_composite_alert_children(compAlertID)
+            if res:
+                for obj in res:
+                    self.assertTrue(isinstance(obj, Alert))
+            call_args = tuple(mock_get.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/children".format(compAlertID))
             self.assertIn((uri_path,), call_args)
 
     def testUpdateCompAlert(self):

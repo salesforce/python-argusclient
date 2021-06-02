@@ -626,20 +626,6 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         uri_path = "alerts/{}/children/info".format(comp_alert_id)
         return self.argus._request("get", uri_path)
 
-    def create_composite_alert(self, comp_alert):
-        """
-        Create a new composite Alert
-
-        :param comp_alert: Object of type argusclient.model.Alert
-        :type comp_alert: class:`argusclient.model.Alert` object
-        :return: newly created composite alert object  of type class:`argusclient.model.Alert`
-        """
-        if not comp_alert: raise ValueError("Need to specify an Alert object")
-        if not isinstance(comp_alert, Alert): raise TypeError("Need a Alert object, got: %s" % type(comp_alert))
-
-        alert_obj = self._fill(self.argus._request("post", "alerts", dataObj=comp_alert))
-        self._coll[alert_obj.id] = alert_obj
-        return alert_obj
 
     def add_child_alert_to_composite_alert(self, comp_alert_id, alert):
         """
