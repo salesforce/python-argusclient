@@ -591,6 +591,85 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         """
         return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared, limit=limit))
 
+    '''
+    Functions to enable support for composite alerts
+    '''
+
+    def get_composite_alert_children(self, comp_alert_id):
+        """
+        Get list of child alerts for a composite alert 
+        :param comp_alert_id: ID of an argus composite alert
+        :type comp_alert_id: integer
+        :return:  list of :class:`argusclient.model.Alert` object with all fields populated.
+        """
+
+        if not comp_alert_id: raise ValueError("Need to specify comp_alert_id")
+        if not isinstance(comp_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(comp_alert_id))
+
+        uri_path = "alerts/{}/children".format(comp_alert_id)
+        child_alerts = self.argus._request("get", uri_path)
+        child_alerts = [self._fill(child_alert) for child_alert in child_alerts]
+        return child_alerts 
+
+    def get_composite_alert_children_info(self, comp_alert_id):
+        """
+        Get information for all children (child alerts + triggers associated with them) of a composite alert
+
+        :param comp_alert_id: ID of an argus composite alert
+        :type comp_alert_id: integer
+        :return:  list of child alerts information (alertid, alertname, triggerids, triggernames etc)
+        """
+
+        if not comp_alert_id: raise ValueError("Need to specify comp_alert_id")
+        if not isinstance(comp_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(comp_alert_id))
+
+        uri_path = "alerts/{}/children/info".format(comp_alert_id)
+        return self.argus._request("get", uri_path)
+
+
+    def add_child_alert_to_composite_alert(self, comp_alert_id, alert):
+        """
+        Add child alert to a composite alert
+
+        :param comp_alert_id: ID of a composite alert
+        :type comp_alert_id: Integer
+
+        :param alert: alert definition
+        :type alert: class:`argusclient.model.Alert` object
+
+        :return: newly created child  alert object  of type class:`argusclient.model.Alert`
+        """
+        if not comp_alert_id: raise ValueError("Need to specify a composite alert id")
+        if not alert: raise ValueError("Need to specify an Alert object")
+        if not isinstance(comp_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(comp_alert_id))
+        if not isinstance(alert, Alert): raise TypeError("Need an Alert object, got: %s" % type(alert))
+
+        uri_path = "alerts/{}/children".format(comp_alert_id)
+        alert_obj = self._fill(self.argus._request("post", uri_path, dataObj=alert))
+        self._coll[alert_obj.id] = alert_obj
+        return alert_obj
+
+
+    def delete_child_alert_from_composite_alert(self, comp_alert_id, child_alert_id):
+        """
+         Delete a child alert from a composite alert
+
+        :param comp_alert_id: ID of a composite alert
+        :type comp_alert_id: Integer
+
+        :param child_alert_id: ID of a child alert
+        :type child_alert_id: Integer
+        """
+        if not comp_alert_id: raise ValueError("Need to specify a composite alert id")
+        if not child_alert_id: raise ValueError("Need to specify a child alert id")
+        if not isinstance(comp_alert_id, int): raise TypeError("Need a composite Alert ID, got: %s" % type(comp_alert_id))
+        if not isinstance(child_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(child_alert_id))
+
+        uri_path = "alerts/{}/children/{}".format(comp_alert_id, child_alert_id)
+        if child_alert_id in self._coll:
+            del self._coll[child_alert_id]
+        return self.argus._request("delete", uri_path)
+
 
 class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
     """

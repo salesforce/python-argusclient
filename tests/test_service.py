@@ -830,3 +830,171 @@ class TestAlertMultipleTriggers(TestServiceBase):
             self.assertEquals(len(alert.triggers), 2)
         self.assertEquals(alert.triggers[100].argus_id, 100)
         self.assertEquals(alert.triggers[101].argus_id, 101)
+
+
+
+class TestCompositeAlert(TestServiceBase):
+
+    def _createCompAlert(self):
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(compalert_D), 200)) as mock_add_comp_alert:
+            alert = Alert.from_dict(compalert_D)
+            self.assertTrue(isinstance(alert, Alert))
+            delattr(alert, "id")
+            comp_alert = self.argus.alerts.add(alert)
+            self.assertTrue(isinstance(comp_alert, Alert))
+            self.assertTrue(hasattr(comp_alert, "id"))
+            self.assertEqual(comp_alert.expression['expression']['operator'], 'AND')
+            call_args = mock_add_comp_alert.call_args
+            uri_path = os.path.join(endpoint, "alerts")
+            self.assertIn((uri_path,), call_args)
+            return comp_alert 
+
+    def testAddCompAlert(self):
+        self._createCompAlert()
+
+
+    def testAddChildAlert(self):
+        comp_alert = self._createCompAlert()
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(childAlert_1), 200)):
+            child_alert = self.argus.alerts.add_child_alert_to_composite_alert(comp_alert.id, Alert.from_dict(childAlert_1))
+        self.assertEqual(child_alert.alertType, 'COMPOSITE_CHILD')
+        self.assertTrue(isinstance(child_alert, Alert))
+
+    def testAddTriggerToChildAlert(self):
+        comp_alert = self._createCompAlert()
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(childAlert_1), 200)) as mock_add_childalert:
+            child_alert = self.argus.alerts.add_child_alert_to_composite_alert(comp_alert.id,
+                                                                               Alert.from_dict(childAlert_1))
+            self.assertEqual(child_alert.alertType, 'COMPOSITE_CHILD')
+            self.assertTrue(isinstance(child_alert, Alert))
+            call_args = tuple(mock_add_childalert.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/children".format(comp_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([childAlert_trigger_1]), 200)) as mock_trigger_post:
+            trigger_obj = Trigger.from_dict(childAlert_trigger_1)
+            delattr(trigger_obj, "id")
+            trigger = child_alert.triggers.add(trigger_obj)
+            self.assertTrue(isinstance(trigger, Trigger))
+            call_args = tuple(mock_trigger_post.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/triggers".format(child_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+    def testAddNotification(self):
+        comp_alert = self._createCompAlert()
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([compAlert_notification]), 200)) as mock_notification:
+            notification_obj = Notification.from_dict(compAlert_notification)
+            delattr(notification_obj, "id")
+            notification = comp_alert.notifications.add(notification_obj)
+            self.assertTrue(isinstance(notification, Notification))
+            call_args = mock_notification.call_args
+            uri_path = os.path.join(endpoint, "alerts/{}/notifications".format(comp_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+
+    def testDeleteChildAlert(self):
+        comp_alert = self._createCompAlert()
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(childAlert_1), 200)):
+            child_alert = self.argus.alerts.add_child_alert_to_composite_alert(comp_alert.id, Alert.from_dict(childAlert_1))
+            self.assertEqual(child_alert.alertType, 'COMPOSITE_CHILD')
+            self.assertTrue(isinstance(child_alert, Alert))
+
+        '''
+        Right after add, we can access the child_alert.id without triggering an API call (i.e., no mocking is required)
+        as it gets added to the local cache
+        '''
+        res = self.argus.alerts.get(child_alert.id)
+        with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
+            self.argus.alerts.delete_child_alert_from_composite_alert(comp_alert.id, child_alert.id)
+            call_args = mock_delete.call_args
+            uri_path = os.path.join(endpoint, "alerts/{}/children/{}".format(comp_alert.id, child_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+        '''
+        After delete, the object should be gone from the local cache, so the get should result in an API call which
+        we are mocking to raise a 404 to mimic the real scenario
+        '''
+        with mock.patch('requests.Session.get', return_value=MockResponse("", 404)) as mockGet:
+            self.failUnlessRaises(ArgusObjectNotFoundException, lambda: self.argus.alerts.get(child_alert.id))
+
+    def testDeleteTriggerFromChildAlert(self):
+        comp_alert = self._createCompAlert()
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(childAlert_1), 200)) as mock_add_childalert:
+            child_alert = self.argus.alerts.add_child_alert_to_composite_alert(comp_alert.id,
+                                                                               Alert.from_dict(childAlert_1))
+            self.assertEqual(child_alert.alertType, 'COMPOSITE_CHILD')
+            self.assertTrue(isinstance(child_alert, Alert))
+            call_args = tuple(mock_add_childalert.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/children".format(comp_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([childAlert_trigger_1]), 200)) as mock_trigger_post:
+            trigger_obj = Trigger.from_dict(childAlert_trigger_1)
+            delattr(trigger_obj,"id")
+            trigger = child_alert.triggers.add(trigger_obj)
+            self.assertTrue(isinstance(trigger, Trigger))
+            call_args = tuple(mock_trigger_post.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/triggers".format(child_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+        with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
+            child_alert.triggers.delete(trigger.id)
+            call_args = tuple(mock_trigger_post.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/triggers".format(child_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+    def testDeleteNotification(self):
+        comp_alert = self._createCompAlert()
+
+        with mock.patch('requests.Session.post', return_value=MockResponse(json.dumps([compAlert_notification]), 200)) as mock_notification:
+            notification_obj = Notification.from_dict(compAlert_notification)
+            delattr(notification_obj, "id")
+            notification = comp_alert.notifications.add(notification_obj)
+            self.assertTrue(isinstance(notification, Notification))
+            call_args = mock_notification.call_args
+            uri_path = os.path.join(endpoint, "alerts/{}/notifications".format(comp_alert.id))
+            self.assertIn((uri_path,), call_args)
+
+        with mock.patch('requests.Session.delete', return_value=MockResponse("", 200)) as mock_delete:
+            comp_alert.notifications.delete(notification.id)
+            call_args = tuple(mock_delete.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/notifications/{}".format(comp_alert.id, notification.id))
+            self.assertIn((uri_path,), call_args)
+
+    def testGetCompAlertChildrenInfo(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([childAlert_1, childAlert_2]), 200)) as mock_get:
+            res = self.argus.alerts.get_composite_alert_children_info(compAlertID)
+            if res:
+                for obj in res:
+                    self.assertTrue(isinstance(obj, Alert))
+            call_args = tuple(mock_get.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/children/info".format(compAlertID))
+            self.assertIn((uri_path,), call_args)
+
+    def testGetCompAlertChildren(self):
+        with mock.patch('requests.Session.get', return_value=MockResponse(json.dumps([childAlert_1, childAlert_2]), 200)) as mock_get:
+            res = self.argus.alerts.get_composite_alert_children(compAlertID)
+            if res:
+                for obj in res:
+                    self.assertTrue(isinstance(obj, Alert))
+            call_args = tuple(mock_get.call_args)
+            uri_path = os.path.join(endpoint, "alerts/{}/children".format(compAlertID))
+            self.assertIn((uri_path,), call_args)
+
+    def testUpdateCompAlert(self):
+        comp_alert = self._createCompAlert()
+
+        with mock.patch('requests.Session.put', return_value=MockResponse(json.dumps(compalert_D), 200)) as mock_update:
+            self.argus.alerts.update(compAlertID, Alert.from_dict(compalert_D))
+            alert_obj = self.argus.alerts.get(compAlertID)
+            self.assertTrue(isinstance(alert_obj, Alert))
+            alert_obj_dict = alert_obj.to_dict()
+            alert_dict = compalert_D
+            self.assertEquals(alert_obj_dict, alert_dict)
+            call_args = mock_update.call_args
+            uri_path = os.path.join(endpoint, "alerts/{}".format(compAlertID))
+            self.assertIn((uri_path,), call_args)
