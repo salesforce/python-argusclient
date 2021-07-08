@@ -4,33 +4,33 @@ The implementation is based on API documentation from ``/help`` on various endpo
 and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Service%20API>`__.
 """
 
+import json
+import logging
+import os
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
-import unicodedata
 from collections import Mapping
 
 import requests
-import json
-import os
-import logging
-import collections
+
 try:
     import http.client as httplib  # Python 3
 except ImportError:
-    import httplib                 # Python 2
+    import httplib  # Python 2
 from functools import wraps
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
-    Permission
+    Permission, GroupPermission
 
 REQ_METHOD = "req_method"
 REQ_PATH = "req_path"
 REQ_PARAMS = "req_params"
 REQ_BODY = "req_body"
+
 
 class ArgusException(Exception):
     """
@@ -38,17 +38,20 @@ class ArgusException(Exception):
     """
     pass
 
+
 class ArgusAuthException(ArgusException):
     """
     An exception type that is thrown for Argus authentication errors.
     """
     pass
 
+
 class ArgusObjectNotFoundException(ArgusException):
     """
     An exception type that is thrown for Argus object not found errors.
     """
     pass
+
 
 class BaseQuery(object):
     def __init__(self, baseExpr, *tailParams, **kwargs):
@@ -80,9 +83,12 @@ class MetricQuery(BaseQuery):
     >>> print str(mquery)
     -1d:-0d:test.scope:test.metric{test.tag=test.value}:sum:test.namespace
     """
-    def __init__(self, scope, metric, aggregator, tags=None, namespace=None, downsampler=None, stTimeSpec=None, enTimeSpec=None):
+
+    def __init__(self, scope, metric, aggregator, tags=None, namespace=None, downsampler=None, stTimeSpec=None,
+                 enTimeSpec=None):
         # NOTE: Namespace no longer goes into the metric expression, so we pass it down as a tail parameter.
-        super(MetricQuery, self).__init__(str(Metric(scope, metric, tags=tags)), aggregator, downsampler, namespace, stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
+        super(MetricQuery, self).__init__(str(Metric(scope, metric, tags=tags)), aggregator, downsampler, namespace,
+                                          stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
 
 
 class AnnotationQuery(BaseQuery):
@@ -94,8 +100,10 @@ class AnnotationQuery(BaseQuery):
     >>> print str(mquery)
     -1d:-0d:test.scope:test.metric{test.tag=test.value}:test.source
     """
+
     def __init__(self, scope, metric, source, tags=None, stTimeSpec=None, enTimeSpec=None):
-        super(AnnotationQuery, self).__init__(str(Annotation(source, scope, metric, None, None, None, tags=tags)), stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
+        super(AnnotationQuery, self).__init__(str(Annotation(source, scope, metric, None, None, None, tags=tags)),
+                                              stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
 
 
 class BaseCollectionServiceClient(object):
@@ -121,7 +129,8 @@ class BaseCollectionServiceClient(object):
         :return: :class:`argusclient.model.AddListResult` object with a summary of the operation.
         """
         if not data: raise ValueError("need a value for data parameter")
-        if not isinstance(data, list) or not isinstance(data[0], self.obj_type): raise TypeError("data should be a list of %s objects" % self.obj_type)
+        if not isinstance(data, list) or not isinstance(data[0], self.obj_type): raise TypeError(
+            "data should be a list of %s objects" % self.obj_type)
         return self.argus._request("post", self.coll_path, dataObj=data)
 
 
@@ -131,6 +140,7 @@ class MetricCollectionServiceClient(BaseCollectionServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.metrics` attribute.
     """
+
     def __init__(self, argus):
         super(MetricCollectionServiceClient, self).__init__(MetricQuery, Metric, argus, "metrics", "collection/metrics")
 
@@ -141,8 +151,10 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.annotations` attribute.
     """
+
     def __init__(self, argus):
-        super(AnnotationCollectionServiceClient, self).__init__(AnnotationQuery, Annotation, argus, "annotations", "collection/annotations")
+        super(AnnotationCollectionServiceClient, self).__init__(AnnotationQuery, Annotation, argus, "annotations",
+                                                                "collection/annotations")
 
 
 class BaseModelServiceClient(object):
@@ -163,9 +175,11 @@ class BaseModelServiceClient(object):
         if not self._retrieved_all:
             self._coll = dict((obj.argus_id, self._fill(obj))
                               for obj in (coll or self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
-                                                                       self.get_all_req_opts.get(REQ_PATH, None),
-                                                                       params=self.get_all_req_opts.get(REQ_PARAMS, None),
-                                                                       dataObj=self.get_all_req_opts.get(REQ_BODY, None))))
+                                                                      self.get_all_req_opts.get(REQ_PATH, None),
+                                                                      params=self.get_all_req_opts.get(REQ_PARAMS,
+                                                                                                       None),
+                                                                      dataObj=self.get_all_req_opts.get(REQ_BODY,
+                                                                                                        None))))
             self._retrieved_all = True
 
     def _fill(self, obj):
@@ -246,6 +260,7 @@ class UsersServiceClient(BaseModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.users` attribute.
     """
+
     def __init__(self, argus):
         super(UsersServiceClient, self).__init__(argus)
         self._coll_by_name = {}
@@ -276,6 +291,7 @@ class NamespacesServiceClient(BaseModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.namespaces` attribute.
     """
+
     def __init__(self, argus):
         super(NamespacesServiceClient, self).__init__(argus, get_all_req_opts={REQ_PATH: "namespace"})
 
@@ -288,7 +304,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
         if not id: raise ValueError("Need to specify an id to update namespace")
         id = int(id)
         if not namespace.argus_id: raise ValueError("Namespace needs an id to update")
-        if id != namespace.argus_id: raise ValueError("Namespace id: %s doesn't match the id: %s that you are updating" % (namespace.id, id))
+        if id != namespace.argus_id: raise ValueError(
+            "Namespace id: %s doesn't match the id: %s that you are updating" % (namespace.id, id))
         self._coll[id] = self.argus._request("put", "namespace/%s" % id, dataObj=namespace)
         return self._coll[id]
 
@@ -342,7 +359,8 @@ class BaseUpdatableModelServiceClient(BaseModelServiceClient):
         if not isinstance(obj, self.objType): raise TypeError("Need an object of type: %s" % self.objType)
         if not obj.argus_id: raise ValueError("Object needs an id to update")
         # Ensure that user doesn't accidentally copy another item.
-        if id != obj.argus_id: raise ValueError("Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
+        if id != obj.argus_id: raise ValueError(
+            "Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
         self._coll[id] = self.argus._request("put", self.id_path % id, dataObj=obj)
         return self._coll[id]
 
@@ -363,6 +381,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.dashboards` attribute.
     """
+
     def __init__(self, argus, get_all_req_opts=None):
         """
         :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
@@ -393,7 +412,8 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         """
         assert dashboardName, "Expected a dashboard name"
         assert ownerName, "Expected a owner name"
-        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
+        dashboards = self.argus._request("get", "dashboards",
+                                         params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
         if not dashboards:
             return None
         else:
@@ -407,7 +427,36 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: a list of :class:`argusclient.model.Dashboard` objects with all fields populated.
         """
-        return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
+        return self.argus._request("get", "dashboards",
+                                   params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
+
+
+class GroupPermissionsServiceCleint(BaseUpdatableModelServiceClient):
+    """
+    Service class that interfaces with the Argus grouppermissions endpoint.
+
+    There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
+    """
+
+    def __init__(self, argus, get_all_req_opts=None):
+        """
+      :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
+      """
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts.setdefault(REQ_PATH, "dashboards")
+        super(DashboardsServiceClient, self).__init__(GroupPermission, argus, id_path="grouppermission/%s",
+                                                      get_all_req_opts=get_all_req_opts)
+
+    def get_permissions_for_group(self, groupId):
+        return convert(self.argus._request("get", "grouppermission", dataObj=groupId))
+
+    def add_permissions_for_group(self, groupId):
+        return convert(self.argus._request("post", "grouppermission", dataObj=groupId))
+
+    def delete_permissions_for_group(self, groupId):
+        return self.argus._request("delete", "grouppermission/%" % groupId)
+
 
 
 class PermissionsServiceClient(BaseUpdatableModelServiceClient):
@@ -416,6 +465,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
     """
+
     def __init__(self, argus, get_all_req_opts=None):
         """
         :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
@@ -432,9 +482,9 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
             raise TypeError("Unsupported operation on: %s" % type(self))
         if not self._retrieved_all:
             resp = convert(self.argus._request(self.get_all_req_opts.get(REQ_METHOD, "get"),
-                                                    self.get_all_req_opts.get(REQ_PATH, None),
-                                                    params=self.get_all_req_opts.get(REQ_PARAMS, None),
-                                                    dataObj=self.get_all_req_opts.get(REQ_BODY, None)))
+                                               self.get_all_req_opts.get(REQ_PATH, None),
+                                               params=self.get_all_req_opts.get(REQ_PARAMS, None),
+                                               dataObj=self.get_all_req_opts.get(REQ_BODY, None)))
             for id, perms in resp.items():
                 self._coll[id] = perms
             self._retrieved_all = True
@@ -484,6 +534,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
             del self._coll[updated_permission.entityId]
 
 
+
 def convert(input):
     if isinstance(input, Mapping):
         return {convert(key): convert(value) for key, value in input.iteritems()}
@@ -517,6 +568,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
          Interfaces with the Argus alert notifications endpoint.
 
     """
+
     def __init__(self, argus, get_all_req_opts=None):
         """
         :param get_all_req_opts: See BaseModelServiceClient.__init__() for description.
@@ -580,7 +632,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         if not notificationid: raise ValueError("Need to specify a notificationid")
         if not triggerid: raise ValueError("Need to specify a triggerid")
         # TODO: Update self._coll
-        return self.argus._request("get", "alerts/%s/notifications/%s/triggers/%s" % (alertid, notificationid, triggerid))
+        return self.argus._request("get",
+                                   "alerts/%s/notifications/%s/triggers/%s" % (alertid, notificationid, triggerid))
 
     def add_notification_trigger(self, alertid, notificationid, triggerid):
         """
@@ -592,7 +645,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         if not notificationid: raise ValueError("Need to specify a notificationid")
         if not triggerid: raise ValueError("Need to specify a triggerid")
         # TODO: Update self._coll
-        return self.argus._request("post", "alerts/%s/notifications/%s/triggers/%s" % (alertid, notificationid, triggerid))
+        return self.argus._request("post",
+                                   "alerts/%s/notifications/%s/triggers/%s" % (alertid, notificationid, triggerid))
 
     def delete_notification_trigger(self, alertid, notificationid, triggerid):
         """
@@ -612,7 +666,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         """
         assert alertName, "Expected an alert name"
         assert ownerName, "Expected a owner name"
-        alerts = self.argus._request("get", "alerts/meta", params=dict(alertname=alertName, ownername=ownerName, shared=shared))
+        alerts = self.argus._request("get", "alerts/meta",
+                                     params=dict(alertname=alertName, ownername=ownerName, shared=shared))
         if not alerts:
             return None
         else:
@@ -627,7 +682,9 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: the list of :class:`argusclient.model.Alert` objects, with all fields populated, including triggers and notifications
         """
-        return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared, limit=limit))
+        return self.argus._request("get", "alerts/allinfo",
+                                   params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared,
+                                               limit=limit))
 
     '''
     Functions to enable support for composite alerts
@@ -647,7 +704,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         uri_path = "alerts/{}/children".format(comp_alert_id)
         child_alerts = self.argus._request("get", uri_path)
         child_alerts = [self._fill(child_alert) for child_alert in child_alerts]
-        return child_alerts 
+        return child_alerts
 
     def get_composite_alert_children_info(self, comp_alert_id):
         """
@@ -663,7 +720,6 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
         uri_path = "alerts/{}/children/info".format(comp_alert_id)
         return self.argus._request("get", uri_path)
-
 
     def add_child_alert_to_composite_alert(self, comp_alert_id, alert):
         """
@@ -687,7 +743,6 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         self._coll[alert_obj.id] = alert_obj
         return alert_obj
 
-
     def delete_child_alert_from_composite_alert(self, comp_alert_id, child_alert_id):
         """
          Delete a child alert from a composite alert
@@ -700,7 +755,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         """
         if not comp_alert_id: raise ValueError("Need to specify a composite alert id")
         if not child_alert_id: raise ValueError("Need to specify a child alert id")
-        if not isinstance(comp_alert_id, int): raise TypeError("Need a composite Alert ID, got: %s" % type(comp_alert_id))
+        if not isinstance(comp_alert_id, int): raise TypeError(
+            "Need a composite Alert ID, got: %s" % type(comp_alert_id))
         if not isinstance(child_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(child_alert_id))
 
         uri_path = "alerts/{}/children/{}".format(comp_alert_id, child_alert_id)
@@ -739,7 +795,8 @@ class AlertTriggersServiceClient(BaseUpdatableModelServiceClient):
         try:
             return next(t for t in triggers if t.name == trigger.name)
         except StopIteration:
-            raise ArgusException("This is unexpected... trigger: %s not found after successfully adding it" % trigger.name)
+            raise ArgusException(
+                "This is unexpected... trigger: %s not found after successfully adding it" % trigger.name)
 
     def delete(self, id):
         super(AlertTriggersServiceClient, self).delete(id)
@@ -752,11 +809,14 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.AlertsServiceClient.notifications` attribute.
     """
+
     def __init__(self, argus, alert):
         assert alert, "Expected an alert at this point"
         assert alert.id, "Alert expected to have an id at this point"
-        super(AlertNotificationsServiceClient, self).__init__(Notification, argus, id_path="alerts/%s/notifications/%%s" % alert.id,
-                                                              get_all_req_opts={REQ_PATH: "alerts/%s/notifications" % alert.id})
+        super(AlertNotificationsServiceClient, self).__init__(Notification, argus,
+                                                              id_path="alerts/%s/notifications/%%s" % alert.id,
+                                                              get_all_req_opts={
+                                                                  REQ_PATH: "alerts/%s/notifications" % alert.id})
         self.alert = alert
         if alert.notifications:
             self._init_all(alert.notifications)
@@ -767,7 +827,8 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: the added :class:`argusclient.model.Notification` with all fields populated.
         """
-        if not isinstance(notification, Notification): raise TypeError("Need a Notification object, got: %s" % type(notification))
+        if not isinstance(notification, Notification): raise TypeError(
+            "Need a Notification object, got: %s" % type(notification))
         if notification.argus_id: raise ValueError("A new Notification can't have an id")
         notifications = self.argus._request("post", "alerts/%s/notifications" % self.alert.id, dataObj=notification)
         self._init_all(notifications)
@@ -775,7 +836,8 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
         try:
             return next(n for n in notifications if n.name == notification.name)
         except StopIteration:
-            raise ArgusException("This is unexpected... notification: %s not found after successfully adding it" % notification.name)
+            raise ArgusException(
+                "This is unexpected... notification: %s not found after successfully adding it" % notification.name)
 
     def delete(self, id):
         super(AlertNotificationsServiceClient, self).delete(id)
@@ -806,8 +868,8 @@ def auto_auth(f):
         if not argus.accessToken and argus.refreshToken:
             try:
                 res = argus._request_no_auth("post",
-                                     "v2/auth/token/refresh",
-                                     dataObj=dict(refreshToken=argus.refreshToken))
+                                             "v2/auth/token/refresh",
+                                             dataObj=dict(refreshToken=argus.refreshToken))
                 argus.accessToken = res["accessToken"]
             except ArgusAuthException:
                 if argus.password:
@@ -817,8 +879,8 @@ def auto_auth(f):
         if not argus.accessToken and argus.password:
             argus.refreshToken = None
             res = argus._request_no_auth("post",
-                                 "v2/auth/login",
-                                 dataObj=dict(username=argus.user, password=argus.password))
+                                         "v2/auth/login",
+                                         dataObj=dict(username=argus.user, password=argus.password))
             argus.refreshToken, argus.accessToken = res["refreshToken"], res["accessToken"]
 
         try:
@@ -860,6 +922,12 @@ class ArgusServiceClient(object):
 
          Interfaces with the Argus permissions endpoint.
 
+    ..attribute:: grouppermissions
+
+        :class: `argusclient.client.GroupPermissionsServiceClient`
+
+        Interfaces with the argus group permissions endpoint
+
     .. attribute:: users
 
          :class:`argusclient.client.UsersServiceClient`
@@ -897,6 +965,7 @@ class ArgusServiceClient(object):
         :param accessToken: A token that can be used to authenticate with Argus. If a ``refreshToken`` or ``password`` is specified, the ``accessToken`` will be refreshed as and when it is needed.
         :type refreshToken: str
         """
+
         if not user:
             raise ValueError("A valid user must be specified")
         if not any((password, refreshToken, accessToken)):
@@ -917,6 +986,7 @@ class ArgusServiceClient(object):
         self.permissions = PermissionsServiceClient(self)
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
+        self.grouppermissions = GroupPermission(self)
         self.alerts = AlertsServiceClient(self)
         self.conn = requests.Session()
 
@@ -935,7 +1005,7 @@ class ArgusServiceClient(object):
         Logs out of the Argus service and destroys the session.
         """
         # The new V2 auth doesn't support a logout, so just clear the tokens.
-        #self._request("get", "auth/logout")
+        # self._request("get", "auth/logout")
         self.refreshToken = self.accessToken = None
 
     @retry_auth
@@ -963,11 +1033,14 @@ class ArgusServiceClient(object):
         url = os.path.join(self.endpoint, path)
         req_method = getattr(self.conn, method)
         data = dataObj and json.dumps(dataObj, cls=encCls) or None
-        logging.debug("%s request with params: %s data length %s on: %s", method.upper(), params, data and len(data) or 0, url) # Mainly for the sake of data length
+        logging.debug("%s request with params: %s data length %s on: %s", method.upper(), params,
+                      data and len(data) or 0, url)  # Mainly for the sake of data length
         # Argus seems to recognized "Accept" header for "application/json" and "application/ms-excel", but the former is the default.
         headers = {"Content-Type": "application/json"}
         if self.accessToken:
+
             headers["Authorization"] = "Bearer "+self.accessToken
+
 
         resp = req_method(url, data=data, params=params,
                           headers=headers,
