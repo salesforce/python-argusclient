@@ -268,6 +268,13 @@ class Permission(BaseEncodable):
         super(Permission, self).__init__(type=type, permissionNames=permissionNames, **kwargs)
 
 
+class GroupPermission(BaseEncodable):
+
+    id_fields = ("groupId",)
+
+    def __init__(self, type, groupId, **kwargs):
+        super(GroupPermission, self).__init__(type=type, groupId=groupId, **kwargs)
+
 class Namespace(BaseEncodable):
     """
     Represents a Namespace object in Argus.
