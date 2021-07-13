@@ -27,7 +27,7 @@ except ImportError:
 from functools import wraps
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
-    Permission, GroupPermission, basestring
+    Permission, GroupPermission
 
 REQ_METHOD = "req_method"
 REQ_PATH = "req_path"
@@ -434,7 +434,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
                                    params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
 
-class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
+class GroupPermissionsServiceCleint(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus grouppermissions endpoint.
 
@@ -448,7 +448,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         if not get_all_req_opts:
             get_all_req_opts = {}
         get_all_req_opts.setdefault(REQ_PATH, "dashboards")
-        super(GroupPermissionsServiceClient, self).__init__(GroupPermission, argus, id_path="grouppermission",
+        super(DashboardsServiceClient, self).__init__(GroupPermission, argus, id_path="grouppermission/%s",
                                                       get_all_req_opts=get_all_req_opts)
 
     def get_permissions_for_group(self, groupId):
@@ -458,7 +458,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         return convert(self.argus._request("post", "grouppermission", dataObj=groupId))
 
     def delete_permissions_for_group(self, groupId):
-        return self.argus._request("delete", "grouppermission" % groupId)
+        return self.argus._request("delete", "grouppermission/%" % groupId)
 
 
 class PermissionsServiceClient(BaseUpdatableModelServiceClient):
@@ -951,7 +951,7 @@ class ArgusServiceClient(object):
         self.permissions = PermissionsServiceClient(self)
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
-        self.grouppermissions = GroupPermissionsServiceClient(self)
+        self.grouppermissions = GroupPermission(self)
         self.alerts = AlertsServiceClient(self)
         self.conn = requests.Session()
 
@@ -1006,7 +1006,7 @@ class ArgusServiceClient(object):
             headers["Authorization"] = "Bearer " + self.accessToken
         resp = req_method(url, data=data, params=params,
                           headers=headers,
-                          timeout=self.timeout, verify=False)
+                          timeout=self.timeout)
         res = check_success(resp, decCls)
         return res
 

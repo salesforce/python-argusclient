@@ -36,7 +36,6 @@ triggerName = "test.trigger"
 notificationName = "test.notification"
 groupPermissionIdentifier = "group"
 userPermissionIdentifier = "user"
-groupID = "5eb1fc18-c985-47eb-94f9-aebce66e119a"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
 
@@ -343,7 +342,7 @@ childAlert_trigger_1 = {
     'id': triggerID_1,
     'threshold': 1.0,
     'type': 'GREATER_THAN',
-    'inertia': 0,
+    'inertia': 0L,
     'name': 'CompAlertTest/trigger1'
 }
 
@@ -354,7 +353,7 @@ compAlert_notification = {
     'subscriptions': ['jdoe@example.com'],
     'notifierName': 'com.salesforce.dva.argus.service.alert.notifier.EmailNotifier',
     'metricsToAnnotate': [],
-    'cooldownPeriod': 0,
+    'cooldownPeriod': 0L,
     'sractionable': False,
     'customText': 'None'
 }

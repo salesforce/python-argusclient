@@ -269,12 +269,6 @@ class Permission(BaseEncodable):
 
 
 class GroupPermission(BaseEncodable):
-    """
-    Represents a Group permission object in Argus
-
-    :param groupId : the id of the group to be given permissions to
-    :type groupId: str
-    """
 
     id_fields = ("groupId",)
 
