@@ -18,7 +18,7 @@ from argusclient.model import Permission
 LOGGING IN!~
 """
 username = "s.basu"
-password = "SanFrancisco2021!"
+password = " "
 argus = ArgusServiceClient(username,
                            password,
                            endpoint="http://shared1-argusws1-1-prd.eng.sfdc.net:8080/argusws/")
