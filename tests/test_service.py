@@ -9,11 +9,11 @@ import os
 import unittest
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, GroupPermissionsServiceClient, PermissionsServiceClient, \
+from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
     DashboardsServiceClient, REQ_PATH, REQ_PARAMS, REQ_METHOD, REQ_BODY
 from argusclient.model import Permission
 
-from tests.test_data import *
+from test_data import *
 
 try:
     import mock      # Python 2
@@ -197,9 +197,6 @@ class TestLogin(TestServiceBase):
             self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
             self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
             self.assertEquals(3, mockConn.get.call_count)
-
-
-
 
     def testInvalidPasswordWithDirectRefreshToken(self):
         """Test inability to refresh refresh token as there is no password"""
@@ -393,12 +390,6 @@ class TestDashboard(TestServiceBase):
         self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockGet.call_args))
         self.assertEquals(len(mockGet.call_args_list), 1)
 
-class TestGroupPermissions(TestServiceBase):
-    @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
-    def testGroupPermissionsWrongID(self, mockPost):
-        res = self.argus.grouppermissions.get(permissionGroupId)
-        self.assertIsNone(res)
-        self.assertIn((os.path.join(endpoint, "grouppermission/groupIds"),), tuple(mockPost.call_args))
 
 class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
