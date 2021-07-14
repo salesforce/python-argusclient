@@ -449,13 +449,13 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
                                                       get_all_req_opts=get_all_req_opts)
 
     def get_permissions_for_group(self, groupId):
-        return convert(self.argus._request("get", "grouppermission", dataObj=groupId))
+        return convert(self.argus._request("get", "grouppermission", params=dict(groupId= groupId)))
 
     def add_permissions_for_group(self, groupId):
-        return convert(self.argus._request("post", "grouppermission", dataObj=groupId))
+        return convert(self.argus._request("post", "grouppermission", params=groupId))
 
     def delete_permissions_for_group(self, groupId):
-        return self.argus._request("delete", "grouppermission" % groupId)
+        return self.argus._request("delete", "grouppermission" , params=groupId)
 
 
 
