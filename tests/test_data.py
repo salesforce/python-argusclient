@@ -126,7 +126,7 @@ dashboard_2_D = {
 groupPermission_D = {
     "type": groupPermissionIdentifier,
     "permissionNames": permissionNames,
-    "groupId": permissionGroupId
+    "groupId": groupID
 }
 
 userPermission_D = {
