@@ -162,6 +162,15 @@ Look for an existing alert and delete it so that we can recreate it
         logging.info("Deleting existing alert with name: %s id: %s", alert_name, alertobj.argus_id)
         argus.alerts.delete(alertobj.argus_id)
 
+Update and create groups and give permissions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    logging.info("Looking up exisiting group with groupID %s", groupID)
+    groupObj =
+
+
 Finally, create alert with a trigger and a notification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

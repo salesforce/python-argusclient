@@ -196,7 +196,7 @@ class TestEncoding(unittest.TestCase):
         self._testFor(userPermission_D, Permission)
 
     def testEncGroupPermission(self):
-        self._testFor(groupPermission_D, Permission)
+        self._testFor(groupPermission_D, GroupPermission)
 
     def testEncNamespace(self):
         self._testFor(namespace_D, Namespace)

@@ -18,7 +18,7 @@ from argusclient.model import Permission
 LOGGING IN!~
 """
 username = "s.basu"
-password = " "
+password = ""
 argus = ArgusServiceClient(username,
                            password,
                            endpoint="http://shared1-argusws1-1-prd.eng.sfdc.net:8080/argusws/")
@@ -45,27 +45,30 @@ permission_group_D = {
     "permissionIds": [],
     "entityId": 23590046
 }
-argus.permissions = PermissionsServiceClient(argus)
-group_perm = Permission.from_dict(permission_group_D)
+groupID = "c8be7819-bf5e-40aa-8535-88694d34280f"
+argus.grouppermissions = GroupPermissionsServiceClient(argus)
+groupPerm = argus.grouppermissions.get_permissions_for_group(groupID)
+#argus.permissions = PermissionsServiceClient(argus)
+#group_perm = Permission.from_dict(permission_group_D)
 # delattr(group_perm, "id")
 # deleted_perm = argus.permissions.delete(23590046, group_perm)
 #
 # print "updating perm"
 # updated_perm = argus.permissions.add(23590046, group_perm)
 # print "updated permission is "+ str(updated_perm)
-print ("making call to get perms for entities")
-all_perms = argus.permissions.get_permissions_for_entities([26947204])
-print (all_perms)
-print (type(all_perms))
-for id, val in all_perms.items():
-    print (id)
-    print (type(val))
-    for perm in val:
-        perm_type = perm.type
-        if perm_type == 'group':
-            print (perm.groupId)
-        else:
-            print (perm.username)
+#print ("making call to get perms for entities")
+#all_perms = argus.permissions.get_permissions_for_entities([26947204])
+#print (all_perms)
+#print (type(group_perm))
+#for id, val group_perm.items():
+    #print (id)
+   # print (type(val))
+   # for perm in val:
+      #  perm_type = perm.type
+      #  if perm_type == 'group':
+       ##     print (perm.groupId)
+       # else:
+       #     print (perm.username)
 # argus.permissions = PermissionsServiceClient(argus, get_all_req_opts={REQ_PARAMS: dict(shared=False),
 #                                                                       REQ_PATH: "entityIds",
 #                                                                       REQ_METHOD: "post",
@@ -80,12 +83,13 @@ if __name__ == '__main__':
     # res = argus.alerts.items()
    # res = argus.permissions.items()
     # res = argus.dashboards.items()
-    res = argus.grouppermissions.get()
-    # res = argus.permissions.get(16348603)
+    print ("calling groupPerms")
+    res = argus.grouppermissions.items()
+    print ('size of result: ', len(res))
+    #res = argus.permissions.get(16348603)
     # Get notif
     # alert = res[0][1]
     # print 'notifs:', alert.notifications.items()
     # notifs = alert.notifications.items()
     # notif = notifs[0][1]
     # print '\nresult: ', res
-    print ('size of result: ', len(res))
