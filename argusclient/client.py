@@ -21,7 +21,7 @@ import requests
 try:
     import http.client as httplib  # Python 3
 except ImportError:
-    import httplib  # Python 2
+    import httplib                 # Python 2
 from functools import wraps
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
@@ -101,8 +101,7 @@ class MetricQuery(BaseQuery):
     -1d:-0d:test.scope:test.metric{test.tag=test.value}:sum:test.namespace
     """
 
-    def __init__(self, scope, metric, aggregator, tags=None, namespace=None, downsampler=None, stTimeSpec=None,
-                 enTimeSpec=None):
+    def __init__(self, scope, metric, aggregator, tags=None, namespace=None, downsampler=None, stTimeSpec=None,enTimeSpec=None):
         # NOTE: Namespace no longer goes into the metric expression, so we pass it down as a tail parameter.
         super(MetricQuery, self).__init__(str(Metric(scope, metric, tags=tags)), aggregator, downsampler, namespace,
                                           stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
@@ -119,8 +118,7 @@ class AnnotationQuery(BaseQuery):
     """
 
     def __init__(self, scope, metric, source, tags=None, stTimeSpec=None, enTimeSpec=None):
-        super(AnnotationQuery, self).__init__(str(Annotation(source, scope, metric, None, None, None, tags=tags)),
-                                              stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
+        super(AnnotationQuery, self).__init__(str(Annotation(source, scope, metric, None, None, None, tags=tags)),stTimeSpec=stTimeSpec, enTimeSpec=enTimeSpec)
 
 
 class BaseCollectionServiceClient(object):
@@ -146,8 +144,7 @@ class BaseCollectionServiceClient(object):
         :return: :class:`argusclient.model.AddListResult` object with a summary of the operation.
         """
         if not data: raise ValueError("need a value for data parameter")
-        if not isinstance(data, list) or not isinstance(data[0], self.obj_type): raise TypeError(
-            "data should be a list of %s objects" % self.obj_type)
+        if not isinstance(data, list) or not isinstance(data[0], self.obj_type): raise TypeError("data should be a list of %s objects" % self.obj_type)
         return self.argus._request("post", self.coll_path, dataObj=data)
 
 
@@ -170,8 +167,7 @@ class AnnotationCollectionServiceClient(BaseCollectionServiceClient):
     """
 
     def __init__(self, argus):
-        super(AnnotationCollectionServiceClient, self).__init__(AnnotationQuery, Annotation, argus, "annotations",
-                                                                "collection/annotations")
+        super(AnnotationCollectionServiceClient, self).__init__(AnnotationQuery, Annotation, argus, "annotations","collection/annotations")
 
 
 class BaseModelServiceClient(object):
@@ -321,8 +317,7 @@ class NamespacesServiceClient(BaseModelServiceClient):
         if not id: raise ValueError("Need to specify an id to update namespace")
         id = int(id)
         if not namespace.argus_id: raise ValueError("Namespace needs an id to update")
-        if id != namespace.argus_id: raise ValueError(
-            "Namespace id: %s doesn't match the id: %s that you are updating" % (namespace.id, id))
+        if id != namespace.argus_id: raise ValueError("Namespace id: %s doesn't match the id: %s that you are updating" % (namespace.id, id))
         self._coll[id] = self.argus._request("put", "namespace/%s" % id, dataObj=namespace)
         return self._coll[id]
 
@@ -376,8 +371,7 @@ class BaseUpdatableModelServiceClient(BaseModelServiceClient):
         if not isinstance(obj, self.objType): raise TypeError("Need an object of type: %s" % self.objType)
         if not obj.argus_id: raise ValueError("Object needs an id to update")
         # Ensure that user doesn't accidentally copy another item.
-        if id != obj.argus_id: raise ValueError(
-            "Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
+        if id != obj.argus_id: raise ValueError("Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
         self._coll[id] = self.argus._request("put", self.id_path % id, dataObj=obj)
         return self._coll[id]
 
@@ -429,8 +423,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         """
         assert dashboardName, "Expected a dashboard name"
         assert ownerName, "Expected a owner name"
-        dashboards = self.argus._request("get", "dashboards",
-                                         params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
+        dashboards = self.argus._request("get", "dashboards", params=dict(dashboardName=dashboardName, owner=ownerName, shared=shared))
         if not dashboards:
             return None
         else:
@@ -444,8 +437,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: a list of :class:`argusclient.model.Dashboard` objects with all fields populated.
         """
-        return self.argus._request("get", "dashboards",
-                                   params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
+        return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
 
 class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
