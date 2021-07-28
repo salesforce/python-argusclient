@@ -14,6 +14,7 @@ import os
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 from collections import Mapping
+from lib2to3.pytree import convert
 
 import requests
 
@@ -30,6 +31,22 @@ REQ_METHOD = "req_method"
 REQ_PATH = "req_path"
 REQ_PARAMS = "req_params"
 REQ_BODY = "req_body"
+
+
+
+def convert(input):
+    if isinstance(input, Mapping):
+        return {convert(key): convert(value) for key, value in input.items()}
+    elif isinstance(input, list):
+        return [convert(element) for element in input]
+    elif isinstance(input, basestring):
+        ret = str(input)
+        if ret.isdigit():
+            ret = int(ret)
+        return ret
+    else:
+        return input
+
 
 
 class ArgusException(Exception):
@@ -445,17 +462,17 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         if not get_all_req_opts:
             get_all_req_opts = {}
         get_all_req_opts.setdefault(REQ_PATH, "dashboards")
-        super(GroupPermissionsServiceClient, self).__init__(GroupPermission, argus, id_path="grouppermission",
+        super(GroupPermissionsServiceClient, self).__init__(GroupPermission, argus, id_path="grouppermission/",
                                                       get_all_req_opts=get_all_req_opts)
 
     def get_permissions_for_group(self, groupId):
-        return convert(self.argus._request("get", "grouppermission", params=dict(groupId= groupId)))
+        return convert(self.argus._request("get", "grouppermission", params=list(groupId)))
 
     def add_permissions_for_group(self, groupId):
-        return convert(self.argus._request("post", "grouppermission", params=groupId))
+        return convert(self.argus._request("post", "grouppermission", params=dict(groupId = groupId)))
 
     def delete_permissions_for_group(self, groupId):
-        return self.argus._request("delete", "grouppermission" , params=groupId)
+        return self.argus._request("delete", "grouppermission" , params=dict(groupId =groupId))
 
 
 
@@ -534,19 +551,6 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
             del self._coll[updated_permission.entityId]
 
 
-
-def convert(input):
-    if isinstance(input, Mapping):
-        return {convert(key): convert(value) for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [convert(element) for element in input]
-    elif isinstance(input, basestring):
-        ret = str(input)
-        if ret.isdigit():
-            ret = int(ret)
-        return ret
-    else:
-        return input
 
 
 class AlertsServiceClient(BaseUpdatableModelServiceClient):

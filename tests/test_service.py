@@ -394,17 +394,16 @@ class TestDashboard(TestServiceBase):
         self.assertEquals(len(mockGet.call_args_list), 1)
 
 class TestGroupPermissions(TestServiceBase):
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(groupPermission_D), 200))
-    def testGroupPermissionsWrongID(self, mockPost):
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(groupPermission_D), 200))
+    def testGroupPermissionsID(self, mockPost):
         res = self.argus.grouppermissions.get_permissions_for_group(permissionGroupId)
-        print(res)
-        self.assertIsNone(res)
+        self.assertEquals(res.get("permissionIds"), [0, 1, 2])
         self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
 
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D]})))
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D]}),200))
 
     def testGetPermissions(self, mockPost):
-        resp = self.argus.grouppermissions.get_permissions_for_group(testId1)
+        resp = self.argus.grouppermissions.get_permissions_for_group(testId)
         for id, perms in resp.items():
             for p in perms:
                 self.assertTrue(isinstance(p, Permission))
@@ -421,6 +420,7 @@ class TestPermission(TestServiceBase):
                                                                                testId2: [userPermission_D],
                                                                                testId3: []}), 200))
     def testGetItems(self, mockPost):
+
         # Check
         self.assertEquals(len(mockPost.call_args_list), 0)
 

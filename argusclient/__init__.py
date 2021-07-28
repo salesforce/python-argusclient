@@ -6,5 +6,5 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-from .client import ArgusServiceClient, ArgusException, ArgusAuthException, ArgusObjectNotFoundException, MetricQuery, AnnotationQuery
-from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, User, AddListResult
+from .client import ArgusServiceClient, GroupPermissionsServiceClient, ArgusException, ArgusAuthException, ArgusObjectNotFoundException, MetricQuery, AnnotationQuery
+from .model import Namespace, Metric, Annotation, GroupPermission, Dashboard, Alert, Trigger, Notification, User, AddListResult
