@@ -971,8 +971,7 @@ class ArgusServiceClient(object):
 
         resp = req_method(url, data=data, params=params,
                           headers=headers,
-                          timeout=self.timeout,
-                          verify=False)
+                          timeout=self.timeout)
         res = check_success(resp, decCls)
         return res
 
