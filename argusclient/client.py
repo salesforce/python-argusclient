@@ -482,23 +482,6 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         if updated_permission.entityId in self._coll:
             del self._coll[updated_permission.entity_id]
 
-class GroupPermissionServiceClient(BaseUpdatableModelServiceClient):
-    """
-    Service class that interfaces with the Argus alert Group Permissions endpoint.
-    """
-    def __init__(self, argus):
-        super(GroupPermissionServiceClient, self).__init__([], argus, "grouppermission", "grouppermission/getvalidgroupkeys")
-
-    def get_groups_with_valid_permissions(self, group_ids):
-        """
-        Checks if the group ids specified have valid permissions
-        :return: the a list of strings representing group id's that have valid permissions.
-        """
-
-        groups_with_valid_permissions = self.argus._request("get", "grouppermission/getvalidgroupkeys",
-                                                            params=dict(groupIds=group_ids))
-        return groups_with_valid_permissions
-
 def convert(input):
     if isinstance(input, Mapping):
         return {convert(key): convert(value) for key, value in input.iteritems()}
@@ -985,12 +968,10 @@ class ArgusServiceClient(object):
         if self.accessToken:
             headers["Authorization"] = "Bearer "+self.accessToken
 
-        # print "url "+ str(url) + " data "+ str(data) + "params "+ str(params) + "headers "+ str(headers)
         resp = req_method(url, data=data, params=params,
                           headers=headers,
                           timeout=self.timeout,
                           verify=False)
-        # print resp
         res = check_success(resp, decCls)
         return res
 
