@@ -409,6 +409,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         """
         return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
+
 class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus permissions endpoint.
@@ -451,10 +452,10 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
 
         if entityIds:
             response = convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
-            for id, perms in response.items():
-                self._coll[id] = perms
+            if response:
+                for id, perms in response.items():
+                    self._coll[id] = perms
         return self._coll
-
 
     def add(self, entity_id, permission):
         """
@@ -480,7 +481,8 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
             raise ValueError("A user permission needs to have the permission that needs to be revoked")
         updated_permission = self.argus._request("delete", "permission/%s" % entity_id, dataObj=permission)
         if updated_permission.entityId in self._coll:
-            del self._coll[updated_permission.entity_id]
+            del self._coll[updated_permission.entityId]
+
 
 def convert(input):
     if isinstance(input, Mapping):
@@ -916,7 +918,6 @@ class ArgusServiceClient(object):
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
         self.alerts = AlertsServiceClient(self)
-        self.group_permissions = GroupPermissionServiceClient(self)
         self.conn = requests.Session()
 
     def login(self):
