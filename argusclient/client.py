@@ -690,8 +690,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         """
         if not comp_alert_id: raise ValueError("Need to specify a composite alert id")
         if not child_alert_id: raise ValueError("Need to specify a child alert id")
-        if not isinstance(comp_alert_id, int): raise TypeError(
-            "Need a composite Alert ID, got: %s" % type(comp_alert_id))
+        if not isinstance(comp_alert_id, int):
+            raise TypeError("Need a composite Alert ID, got: %s" % type(comp_alert_id))
         if not isinstance(child_alert_id, int): raise TypeError("Need an Alert ID, got: %s" % type(child_alert_id))
 
         uri_path = "alerts/{}/children/{}".format(comp_alert_id, child_alert_id)
