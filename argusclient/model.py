@@ -341,8 +341,8 @@ class Alert(BaseEncodable):
 
     @trigger.setter
     def trigger(self, value):
-        if not isinstance(value, Trigger): raise ValueError(
-            "argument should be of Trigger type, but is: %s" % type(value))
+        if not isinstance(value, Trigger):
+            raise ValueError( "argument should be of Trigger type, but is: %s" % type(value))
         if not ((
                         value.owner_id is None and self.argus_id is None) or value.owner_id == self.argus_id): raise ValueError(
             "trigger owned by alert id: %s not by %s" % (value.owner_id, self.argus_id))
