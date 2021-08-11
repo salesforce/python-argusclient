@@ -444,7 +444,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus grouppermissions endpoint.
 
-    There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.permissions` attribute.
+    There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.grouppermissions` attribute.
     """
 
     def __init__(self, argus, get_all_req_opts=None):
