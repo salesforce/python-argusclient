@@ -9,11 +9,10 @@ import os
 import unittest
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, GroupPermissionsServiceClient, PermissionsServiceClient, \
+from argusclient.client import JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
     DashboardsServiceClient, REQ_PATH, REQ_PARAMS, REQ_METHOD, REQ_BODY
 from argusclient.model import Permission
-
-from tests.test_data import *
+from test_data import *
 
 try:
     import mock      # Python 2
@@ -400,20 +399,20 @@ class TestGroupPermissions(TestServiceBase):
         self.assertEquals(res.get("permissionIds"), [0, 1, 2])
         self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
 
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D]}),200))
-
-    def testGetPermissions(self, mockPost):
-        resp = self.argus.grouppermissions.get_permissions_for_group(testId)
-        for id, perms in resp.items():
-            for p in perms:
-                self.assertTrue(isinstance(p, Permission))
+    #@mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D]}),200))
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(groupPermission_D), 200))
+    def testGetGroupPermissionsBadId(self, mockPost):
+        res = self.argus.grouppermissions.get_permissions_for_group(permissionGroupIdBad)
+        self.assertIsNone(res)
         self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
+
 
 class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
     def testGetPermissionsBadId(self, mockPost):
         res = self.argus.permissions.get_permissions_for_entities([testId])
         self.assertEquals(len(res), 0)
+
         self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
 
     @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
@@ -459,7 +458,7 @@ class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
                                                                                testId2: [userPermission_D],
                                                                                testId3: []}), 200))
-    def testGetPermissions(self, mockPost):
+    def testGetPermissions(self, mockPost): #test is broken in master as well
         resp = self.argus.permissions.get_permissions_for_entities([testId, testId2, testId3])
         for id, perms in resp.items():
             for p in perms:

@@ -25,7 +25,7 @@ except ImportError:
 from functools import wraps
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
-    Permission, GroupPermission, basestring
+    Permission, GroupPermission
 
 REQ_METHOD = "req_method"
 REQ_PATH = "req_path"
@@ -461,7 +461,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         return convert(self.argus._request("get", "grouppermission", params=list(groupId)))
 
     def add_permissions_for_group(self, groupId):
-        return convert(self.argus._request("post", "grouppermission", params=dict(groupId = groupId)))
+        return convert(self.argus._request("post", "grouppermission", params=list(groupId = groupId)))
 
     def delete_permissions_for_group(self, groupId):
         return self.argus._request("delete", "grouppermission" , params=dict(groupId =groupId))

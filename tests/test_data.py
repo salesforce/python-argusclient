@@ -39,12 +39,14 @@ userPermissionIdentifier = "user"
 groupID = "5eb1fc18-c985-47eb-94f9-aebce66e119a"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
+
 username = "testuser"
 permission_ids = [1,2,3]
 user_type = "user"
 group_type = "group"
 group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
 entity_id = 23590046
+
 
 compAlertID = 6000
 childAlertID_1 = 6003
