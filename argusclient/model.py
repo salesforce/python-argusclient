@@ -367,8 +367,8 @@ class Alert(BaseEncodable):
 
     @notification.setter
     def notification(self, value):
-        if not isinstance(value, Notification): raise ValueError(
-            "value should be of Notification type, but is: %s" % type(value))
+        if not isinstance(value, Notification):
+            raise ValueError("value should be of Notification type, but is: %s" % type(value))
         if not ((
                         value.owner_id is None and self.argus_id is None) or value.owner_id == self.argus_id): raise ValueError(
             "notification owned by alert id: %s not by %s" % (value.owner_id, self.argus_id))
