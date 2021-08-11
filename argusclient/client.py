@@ -359,8 +359,8 @@ class BaseUpdatableModelServiceClient(BaseModelServiceClient):
         if not isinstance(obj, self.objType): raise TypeError("Need an object of type: %s" % self.objType)
         if not obj.argus_id: raise ValueError("Object needs an id to update")
         # Ensure that user doesn't accidentally copy another item.
-        if id != obj.argus_id: raise ValueError(
-            "Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
+        if id != obj.argus_id:
+            raise ValueError("Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
         self._coll[id] = self.argus._request("put", self.id_path % id, dataObj=obj)
         return self._coll[id]
 
