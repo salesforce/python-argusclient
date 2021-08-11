@@ -129,8 +129,8 @@ class BaseCollectionServiceClient(object):
         :return: :class:`argusclient.model.AddListResult` object with a summary of the operation.
         """
         if not data: raise ValueError("need a value for data parameter")
-        if not isinstance(data, list) or not isinstance(data[0], self.obj_type): raise TypeError(
-            "data should be a list of %s objects" % self.obj_type)
+        if not isinstance(data, list) or not isinstance(data[0], self.obj_type):
+            raise TypeError("data should be a list of %s objects" % self.obj_type)
         return self.argus._request("post", self.coll_path, dataObj=data)
 
 
