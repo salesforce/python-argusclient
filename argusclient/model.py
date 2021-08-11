@@ -280,10 +280,10 @@ class GroupPermission(BaseEncodable):
                             0, 1, and 2 correspond to "VIEW", "EDIT", and "DELETE" respectively.
     """
 
-    id_fields = ("groupId",)
+    id_fields = ("groupId","permissionIds")
 
-    def __init__(self, groupId, **kwargs):
-        super(GroupPermission, self).__init__(groupId=groupId, **kwargs)
+    def __init__(self, groupId,permissionIds, **kwargs):
+        super(GroupPermission, self).__init__(  permissionId = permissionIds, groupId=groupId,**kwargs)
 
 class Namespace(BaseEncodable):
     """

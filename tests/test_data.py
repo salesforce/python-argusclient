@@ -40,6 +40,7 @@ groupID = "5eb1fc18-c985-47eb-94f9-aebce66e119a"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
 permissionGroup2ID= '24231-52321-43523-64353-23121'
+permissionGroup3ID = '24231-52321-43523-64353-24121'
 permissionGroupIdBad = '2423480-3843hlfw-jf'
 
 compAlertID = 6000
@@ -125,8 +126,14 @@ groupPermission_D = {
 }
 groupPermission_E = {
     "groupId": permissionGroup2ID,
-    "permissionIds": [1]
+    "permissionIds": [0]
 }
+
+groupPermission_E = {
+    "groupId": permissionGroup3ID,
+    "permissionIds": [0,1,2]
+}
+
 
 groupBadPermission_D = {
     "groupId": groupID,
