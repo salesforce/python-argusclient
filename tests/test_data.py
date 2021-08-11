@@ -48,6 +48,7 @@ group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
 entity_id = 23590046
 
 permissionGroup2ID= '24231-52321-43523-64353-23121'
+permissionGroup3ID = '24231-52321-43523-64353-24121'
 permissionGroupIdBad = '2423480-3843hlfw-jf'
 
 
@@ -134,8 +135,14 @@ groupPermission_D = {
 }
 groupPermission_E = {
     "groupId": permissionGroup2ID,
-    "permissionIds": [1]
+    "permissionIds": [0]
 }
+
+groupPermission_E = {
+    "groupId": permissionGroup3ID,
+    "permissionIds": [0,1,2]
+}
+
 
 groupBadPermission_D = {
     "groupId": groupID,
