@@ -304,8 +304,8 @@ class NamespacesServiceClient(BaseModelServiceClient):
         if not id: raise ValueError("Need to specify an id to update namespace")
         id = int(id)
         if not namespace.argus_id: raise ValueError("Namespace needs an id to update")
-        if id != namespace.argus_id: raise ValueError(
-            "Namespace id: %s doesn't match the id: %s that you are updating" % (namespace.id, id))
+        if id != namespace.argus_id:
+            raise ValueError("Namespace id: %s doesn't match the id: %s that you are updating" % (namespace.id, id))
         self._coll[id] = self.argus._request("put", "namespace/%s" % id, dataObj=namespace)
         return self._coll[id]
 
