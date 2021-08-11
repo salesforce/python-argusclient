@@ -167,7 +167,7 @@ Update and create groups and give permissions
 
 ::
 
-    logging.info("Looking up exisiting group with groupID %s", groupID)
+    logging.info("Looking up existing group with groupID %s", groupID)
     groupObj =
 
 
