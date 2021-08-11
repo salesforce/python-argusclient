@@ -399,8 +399,15 @@ class TestGroupPermissions(TestServiceBase):
         self.assertEquals(res.get("permissionIds"), [0, 1, 2])
         self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
 
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(groupPermission_E), 200))
+    def testGroupPermissionsIDAdd(self, mockPost):
+        gpermission = GroupPermission(groupPermission_E)
+        res = self.argus.grouppermissions.add_permissions_for_group(permissionGroupId,gpermission)
+        self.assertEquals(res.get("permissionIds"), [0, 1])
+        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
+
     #@mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D]}),200))
-    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(groupPermission_D), 200))
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(groupBadPermission_D), 200))
     def testGetGroupPermissionsBadId(self, mockPost):
         res = self.argus.grouppermissions.get_permissions_for_group(permissionGroupIdBad)
         self.assertIsNone(res)

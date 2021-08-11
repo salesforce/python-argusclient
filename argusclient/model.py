@@ -275,12 +275,16 @@ class GroupPermission(BaseEncodable):
 
     :param groupId : the id of the group to be given permissions to
     :type groupId: str
+    :type grouppermissionIds: List of permissions that this group
+                            has on the associated entity (id is put in the entityId field).
+                            Permissions in this list are in the form of integers: like 0, 1, and 2.
+                            0, 1, and 2 correspond to "VIEW", "EDIT", and "DELETE" respectively.
     """
 
     id_fields = ("groupId",)
 
-    def __init__(self, type, groupId, **kwargs):
-        super(GroupPermission, self).__init__(type=type, groupId=groupId, **kwargs)
+    def __init__(self, groupId, **kwargs):
+        super(GroupPermission, self).__init__(groupId=groupId, **kwargs)
 
 class Namespace(BaseEncodable):
     """

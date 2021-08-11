@@ -47,6 +47,9 @@ group_type = "group"
 group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
 entity_id = 23590046
 
+permissionGroup2ID= '24231-52321-43523-64353-23121'
+permissionGroupIdBad = '2423480-3843hlfw-jf'
+
 
 compAlertID = 6000
 childAlertID_1 = 6003
@@ -126,10 +129,20 @@ dashboard_2_D = {
 }
 
 groupPermission_D = {
-    "type": groupPermissionIdentifier,
-    "groupId": groupID,
+    "groupId": permissionGroupId,
     "permissionIds": [0,1,2]
 }
+groupPermission_E = {
+    "groupId": permissionGroup2ID,
+    "permissionIds": [1]
+}
+
+groupBadPermission_D = {
+    "groupId": groupID,
+    "permissionIds": [0,3]
+}
+
+
 
 userPermission_D = {
     "type": userPermissionIdentifier,
