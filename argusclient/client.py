@@ -474,9 +474,13 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         return convert(self.argus._request("get", "grouppermission", params=list(groupId)))
 
     def add_permissions_for_group(self, grouppermission):
+        """
+               Updates permissions in groups
+               :return: a list of :class:`argusclient.model.GroupPermission` objects with all fields populated.
+        """
         if not isinstance(grouppermission, GroupPermission):
             raise TypeError("Need a GroupPermission object, got: %s" % type(grouppermission))
-        updatedGroup = convert(self.argus._request("post", "grouppermission", dataObj=grouppermission))  # returns None here
+        updatedGroup = convert(self.argus._request("post", "grouppermission", dataObj=grouppermission))
         return updatedGroup
 
     def delete_permissions_for_group(self, grouppermission):
