@@ -4,23 +4,19 @@ The implementation is based on API documentation from ``/help`` on various endpo
 and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Service%20API>`__.
 """
 
+import json
+import logging
+import os
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
-import unicodedata
-import unicodedata
 from collections import Mapping
 from lib2to3.pytree import convert
 
 import requests
-import json
-import os
-import logging
-
-import collections
 
 try:
     import http.client as httplib  # Python 3
@@ -464,11 +460,25 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
     def get_permissions_for_group(self, groupId):
         return convert(self.argus._request("get", "grouppermission", params=list(groupId)))
 
-    def add_permissions_for_group(self, groupId):
-        return convert(self.argus._request("post", "grouppermission", params=list(groupId = groupId)))
+    def add_permissions_for_group(self, grouppermission):
+        if not isinstance(grouppermission, GroupPermission):
+            raise TypeError("Need a GroupPermission object, got: %s" % type(grouppermission))
+        updated_permission = self.argus._request("post", "grouppermission" , dataObj=grouppermission)
+        return updated_permission
 
-    def delete_permissions_for_group(self, groupId):
-        return self.argus._request("delete", "grouppermission" , params=dict(groupId =groupId))
+    def delete_permissions_for_group(self, grouppermission):
+        if not isinstance(grouppermission, GroupPermission):
+            raise TypeError("Need a GroupPermission object, got: %s" % type(grouppermission))
+
+        if grouppermission.get("permissionIds") == []:
+            raise ValueError("Permission is not already assigned and hence cant be deleted")
+        permsPresent = grouppermission.get("permissionIds")
+        if permsPresent in self.get_permissions_for_group(grouppermission.get("groupId")):
+
+            deleted_permission = self.argus._request("delete", "grouppermission", dataObj=grouppermission)
+            return deleted_permission
+        else:
+            raise ValueError("Permission %s wasnt assigned so not deleted" %str(permsPresent))
 
 
 class PermissionsServiceClient(BaseUpdatableModelServiceClient):
