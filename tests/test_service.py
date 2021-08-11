@@ -394,10 +394,10 @@ class TestDashboard(TestServiceBase):
 
 class TestGroupPermissions(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(groupPermission_D), 200))
-    def testGroupPermissionsID(self, mockPost):
+    def testGroupPermissionsID(self, mockGet):
         res = self.argus.grouppermissions.get_permissions_for_group(permissionGroupId)
         self.assertEquals(res.get("permissionIds"), [0, 1, 2])
-        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
+        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockGet.call_args))
 
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
     def testGroupPermissionsIDAdd(self, mockPost):
@@ -408,12 +408,12 @@ class TestGroupPermissions(TestServiceBase):
         self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
 
     #@mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D]}),200))
-    @mock.patch('requests.Session.delete', return_value=MockResponse(json.dumps(groupPermission_E), 200))
-    def testDeletePermission(self, mockPost):
+    @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
+    def testDeletePermission(self, mockDelete):
         gpermission = GroupPermission(permissionGroup3ID,[2])
         res = self.argus.grouppermissions.delete_permissions_for_group(gpermission)
         self.assertEquals(res.get("permissionIds"), [0,1])
-        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
+        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockDelete.call_args))
 
 
 class TestPermission(TestServiceBase):

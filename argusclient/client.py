@@ -476,8 +476,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
     def add_permissions_for_group(self, grouppermission):
         if not isinstance(grouppermission, GroupPermission):
             raise TypeError("Need a GroupPermission object, got: %s" % type(grouppermission))
-        updatedGroup = convert(
-            self.argus._request("post", "grouppermission", dataObj=grouppermission))  # returns None here
+        updatedGroup = convert(self.argus._request("post", "grouppermission", dataObj=grouppermission))  # returns None here
         return updatedGroup
 
     def delete_permissions_for_group(self, grouppermission):
@@ -486,7 +485,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         permsPresent = grouppermission.permissionId
         if permsPresent == []:
             raise ValueError("Permission is not already assigned and hence cant be deleted")
-        deleted_permission = convert(self.argus._request("delete", "grouppermission", dataObj=grouppermission))
+        deleted_permission = convert(self.argus._request("delete", "grouppermission", dataObj=grouppermission))#this request doesnt delete anything, i am manually deleting later
         check = any(item in permsPresent for item in deleted_permission["permissionIds"] )
         if check == True:
             for i in permsPresent:
