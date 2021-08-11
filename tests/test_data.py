@@ -39,6 +39,7 @@ userPermissionIdentifier = "user"
 groupID = "5eb1fc18-c985-47eb-94f9-aebce66e119a"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
+permissionGroupIdBad = '2423480-3843hlfw-jf'
 
 compAlertID = 6000
 childAlertID_1 = 6003
