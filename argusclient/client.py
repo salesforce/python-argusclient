@@ -446,6 +446,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
         entityIds = []
+        # Filter out entity id's for which the permissions have already been queried
         for entity_id in entity_ids:
             if entity_id not in self._coll:
                 entityIds.append(entity_id)
