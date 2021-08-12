@@ -394,8 +394,8 @@ class TestDashboard(TestServiceBase):
 class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
     def testGetPermissionsBadId(self, mockPost):
-        res = self.argus.permissions.get_permissions_for_entities(testId)
-        self.assertIsNone(res)
+        res = self.argus.permissions.get_permissions_for_entities([testId])
+        self.assertEquals(len(res), 0)
         self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
 
     @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
@@ -446,6 +446,26 @@ class TestPermission(TestServiceBase):
             for p in perms:
                 self.assertTrue(isinstance(p, Permission))
         self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
+
+    def testAddInvalidPermission(self):
+        self.failUnlessRaises(TypeError, lambda: self.argus.permissions.add(entity_id, dict()))
+        self.failUnlessRaises(ValueError, lambda: self.argus.permissions.add(entity_id, Permission.from_dict(permission_user_D)))
+
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(permission_user_D), 200))
+    def testAddPermission(self, mockPost):
+        user_permission = Permission.from_dict(permission_user_D)
+        delattr(user_permission, "id")
+        res = self.argus.permissions.add(testId, user_permission)
+        self.assertTrue(isinstance(res, Permission))
+        self.assertTrue(hasattr(res, "id"))
+        self.assertIn((os.path.join(endpoint, "permission", str(testId)),), tuple(mockPost.call_args))
+        self.assertEquals(self.argus.permissions[testId].argus_id, testId)
+
+    @mock.patch('requests.Session.delete', return_value=MockResponse(json.dumps(permission_user_D), 200))
+    def testDeletePermission(self, mockDelete):
+        self.argus.permissions.delete(testId, Permission.from_dict(permission_user_D))
+        self.assertIn((os.path.join(endpoint, "permission", str(testId)),), tuple(mockDelete.call_args))
+
 
 class TestNamespace(TestServiceBase):
     def testAddInvalidNamespace(self):

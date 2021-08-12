@@ -7,7 +7,7 @@
 
 from setuptools import setup, find_packages
 
-version = '1.2'
+version = '1.3'
 
 with open("README.rst", 'r') as fin:
     README = fin.read()
