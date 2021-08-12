@@ -478,7 +478,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         if not isinstance(permission, Permission):
             raise TypeError("Need a Permission object, got: %s" % type(permission))
         if permission.type == "user" and permission.permissionIds == []:
-            raise ValueError("A user permission needs to have the permission that needs to be revoked")
+            raise ValueError("Deleting a user permission requires the permission that needs to be revoked")
         updated_permission = self.argus._request("delete", "permission/%s" % entity_id, dataObj=permission)
         if updated_permission.entityId in self._coll:
             del self._coll[updated_permission.entityId]

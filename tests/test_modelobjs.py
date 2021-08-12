@@ -160,15 +160,15 @@ class ObjTest(unittest.TestCase):
         self.failUnlessRaises(AssertionError, lambda: Notification(notificationName, "abc"))
 
     def testCreateUserPermission(self):
-        permission = Permission(user_type, id=testId, permissionIds=permission_ids, username=username, entityId=testId)
-        self.assertEquals(permission.type, user_type)
+        permission = Permission(userPermissionIdentifier, id=testId, permissionIds=permission_ids, username=username, entityId=testId)
+        self.assertEquals(permission.type, userPermissionIdentifier)
         self.assertEquals(permission.entityId, testId)
         self.assertEquals(permission.permissionIds, permission_ids)
         self.assertEquals(permission.username, username)
 
     def testCreateGroupPermission(self):
-        permission = Permission(group_type, id=testId, groupId=group_id, entityId=testId)
-        self.assertEquals(permission.type, group_type)
+        permission = Permission(groupPermissionIdentifier, id=testId, groupId=group_id, entityId=testId)
+        self.assertEquals(permission.type, groupPermissionIdentifier)
         self.assertEquals(permission.entityId, testId)
         self.assertEquals(permission.groupId, group_id)
 
