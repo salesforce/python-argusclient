@@ -510,7 +510,7 @@ class JsonDecoder(json.JSONDecoder):
     def from_json(self, jsonObj):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
-        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification, Permission):
+        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification, Permission, GroupPermission):
             obj = cls.from_dict(jsonObj)
             if obj:
                 return obj

@@ -12,9 +12,9 @@ from argusclient import *
 LOGGING IN!~
 """
 username = "s.basu"
-password = ""
+password = "TownsendStreet2SF!"
 argus = ArgusServiceClient(user="s.basu",
-                           password="",
+                           password=password,
                            endpoint="http://shared1-argusws1-1-prd.eng.sfdc.net:8080/argusws/")
                            # endpoint = "https://argus-ws.data.sfdc.net/argusws/")
 print ('logging in...')
@@ -57,7 +57,7 @@ grouppermission = GroupPermission(GroupPermission_D.get("groupId"),[0,1,2])
 groupPerm1 = argus.grouppermissions.add_permissions_for_group(grouppermission)
 print("groupPerms are "+ str(groupPerm1))
 gpermission = GroupPermission(groupID1,[2])
-deletedPerm = argus.grouppermissions.delete_permissions_for_group(gpermission) #this is not working as adding group_permission returns a permission object instead of groupPermission object ?
+deletedPerm = argus.grouppermissions.delete_permissions_for_group(groupPerm1) #this is not working as adding group_permission returns a permission object instead of groupPermission object ?
 print("removed groupPerms are "+ str(deletedPerm))
 
 #argus.permissions = PermissionsServiceClient(argus)
