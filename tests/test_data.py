@@ -137,7 +137,7 @@ groupPermission_D = {
 groupPermission_E = {
     "type": "group",
     "groupId": permissionGroup2ID,
-    "permissionIds": [0]
+    "permissionIds": [0,1]
 }
 
 groupPermission_F = {
