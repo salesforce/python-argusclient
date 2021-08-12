@@ -130,15 +130,18 @@ dashboard_2_D = {
 }
 
 groupPermission_D = {
+    "type": "group",
     "groupId": permissionGroupId,
     "permissionIds": [0,1,2]
 }
 groupPermission_E = {
+    "type": "group",
     "groupId": permissionGroup2ID,
     "permissionIds": [0]
 }
 
-groupPermission_E = {
+groupPermission_F = {
+    "type": "group",
     "groupId": permissionGroup3ID,
     "permissionIds": [0,1,2]
 }

@@ -7,12 +7,13 @@
 # Use the package in this repo (argusclient directory)
 
 from argusclient import *
+from argusclient.model import Permission
 
 """
 LOGGING IN!~
 """
 username = "s.basu"
-password = "TownsendStreet2SF!"
+password = ""
 argus = ArgusServiceClient(user="s.basu",
                            password=password,
                            endpoint="http://shared1-argusws1-1-prd.eng.sfdc.net:8080/argusws/")
@@ -23,10 +24,11 @@ print ('logged in!')
 """
 Set endpoint and params
 """
-argus.grouppermissions = GroupPermissionsServiceClient(argus, get_all_req_opts= dict(groupID="234-567-891-667-001",
+argus.grouppermissions = GroupPermissionsServiceClient(argus, get_all_req_opts= dict(groupID="234-567-891-667-001", type="group",
                                                                                                 permissionsID=[0,1,2]))
 
-
+print(argus.grouppermissions)
+print(type(argus.grouppermissions))
 
 # argus.alerts = AlertsServiceClient(argus, get_all_req_opts={REQ_PARAMS: dict(shared=False,
 #                                                                              alertNameContains='TestAlert',
@@ -46,18 +48,27 @@ argus.grouppermissions = GroupPermissionsServiceClient(argus, get_all_req_opts= 
 # }
 
 GroupPermission_D = {
-    "groupId": "24231-52321-43523-64353-23111",
-    "permissionIds": [0,1,2]
+    "type": "group",
+    "groupId": "ebd7db70-290b-4d85-b366-b4be9d5967e4",
+    "permissionIds": [0,1,2],
+    "permissionNames": []
 }
-groupID1 = "24231-52321-43523-64353-23111"
+GroupPermission_R ={
+    "type": "group",
+    "groupId": "ebd7db70-290b-4d85-b366-b4be9d5967e4",
+    "permissionIds": [1],
+    "permissionNames": []
+}
+groupID1 = "ebd7db70-290b-4d85-b366-b4be9d5967e4"
 grouppermission = GroupPermission.from_dict(GroupPermission_D)
+perm = Permission.from_dict(GroupPermission_R)
 #groupPerm = argus.grouppermissions.get_permissions_for_group(groupID1)
 #print("groupPerms are "+ str(groupPerm))
-grouppermission = GroupPermission(GroupPermission_D.get("groupId"),[0,1,2])
+#grouppermission = GroupPermission(GroupPermission_D.get("groupId"),[0,1,2])
 groupPerm1 = argus.grouppermissions.add_permissions_for_group(grouppermission)
 print("groupPerms are "+ str(groupPerm1))
-gpermission = GroupPermission(groupID1,[2])
-deletedPerm = argus.grouppermissions.delete_permissions_for_group(groupPerm1) #this is not working as adding group_permission returns a permission object instead of groupPermission object ?
+
+deletedPerm = argus.grouppermissions.delete_permissions_for_group(perm) #this is not working as adding group_permission returns a permission object instead of groupPermission object ?
 print("removed groupPerms are "+ str(deletedPerm))
 
 #argus.permissions = PermissionsServiceClient(argus)
@@ -96,9 +107,9 @@ if __name__ == '__main__':
    # res = argus.permissions.items()
     # res = argus.dashboards.items()
     print ("calling groupPerms")
-    res1 = groupPerm1
+#    res1 = groupPerm1
 
-    print ('size of result: ', len(res))
+    #print ('size of result: ', len())
     #res = argus.permissions.get(16348603)
     # Get notif
     # alert = res[0][1]

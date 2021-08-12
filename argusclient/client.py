@@ -454,7 +454,8 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         if not get_all_req_opts:
             get_all_req_opts = {}
         get_all_req_opts.setdefault(REQ_PATH, "grouppermission")
-        super(GroupPermissionsServiceClient, self).__init__(GroupPermission, argus, id_path="grouppermission/",
+        print("init happening")
+        super(GroupPermissionsServiceClient, self).__init__(Permission, argus, id_path="grouppermission/",
                                                             get_all_req_opts=get_all_req_opts)
 
     def _init_all(self, coll=None):
@@ -484,14 +485,17 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
         return updatedGroup
 
     def delete_permissions_for_group(self, grouppermission):
-        if not isinstance(grouppermission, GroupPermission):
-            raise TypeError("Need a GroupPermission object, got: %s" % type(grouppermission))
-        perms_to_delete = grouppermission.permissionId
+        if not isinstance(grouppermission, Permission):
+            raise TypeError("Need a Permission object, got: %s" % type(grouppermission))
+        perms_to_delete = grouppermission.permissionIds
         if perms_to_delete == []:
 
             raise ValueError("Permission is not already assigned and hence cant be deleted")
+        #add check for if permissions dont exist
         deleted_permission = convert(self.argus._request("delete", "grouppermission", dataObj=grouppermission))
-        return deleted_permission
+        if deleted_permission:
+            return True
+        return False
 
 
 
@@ -1068,6 +1072,7 @@ class ArgusServiceClient(object):
         resp = req_method(url, data=data, params=params,
                           headers=headers,
                           timeout=self.timeout)
+        print("This is response",resp)
         res = check_success(resp, decCls)
         return res
 
