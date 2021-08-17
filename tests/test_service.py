@@ -9,10 +9,9 @@ import os
 import unittest
 
 from argusclient import *
-from argusclient.client import JsonEncoder, JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
+from argusclient.client import JsonDecoder, check_success, AlertsServiceClient, PermissionsServiceClient, \
     DashboardsServiceClient, REQ_PATH, REQ_PARAMS, REQ_METHOD, REQ_BODY
 from argusclient.model import Permission
-
 from test_data import *
 
 try:
@@ -197,6 +196,9 @@ class TestLogin(TestServiceBase):
             self.failUnlessRaises(ArgusAuthException, lambda: self.argus.namespaces.values())
             self.assertEquals((os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"), os.path.join(endpoint, "namespace"),), called_endpoints(mockConn.get))
             self.assertEquals(3, mockConn.get.call_count)
+
+
+
 
     def testInvalidPasswordWithDirectRefreshToken(self):
         """Test inability to refresh refresh token as there is no password"""
@@ -390,6 +392,29 @@ class TestDashboard(TestServiceBase):
         self.assertIn((os.path.join(endpoint, "dashboards"),), tuple(mockGet.call_args))
         self.assertEquals(len(mockGet.call_args_list), 1)
 
+class TestGroupPermissions(TestServiceBase):
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(groupPermission_D), 200))
+    def testGroupPermissionsID(self, mockGet):
+        res = self.argus.grouppermissions.get_permissions_for_group(permissionGroupId)
+        self.assertEquals(res.get("permissionIds"), [0, 1, 2])
+        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps(groupPermission_E), 200))
+    def testGroupPermissionsIDAdd(self, mockPost):
+        ggroupId = permissionGroup2ID
+        gperms = GroupPermission(ggroupId, [1])
+        res = self.argus.grouppermissions.add_permissions_for_group(gperms)
+        self.assertEquals(res.permissionIds, [0, 1])
+        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockPost.call_args))
+
+
+    @mock.patch('requests.Session.delete', return_value=MockResponse(json.dumps(groupPermission_F), 200))
+    def testDeletePermission(self, mockDelete):
+        gpermission =  Permission.from_dict(groupPermission_F) # group with new permissions
+        res = self.argus.grouppermissions.delete_permissions_for_group(gpermission)
+        self.assertEquals(res, False) #self._colls is empty
+        self.assertIn((os.path.join(endpoint, "grouppermission"),), tuple(mockDelete.call_args))
+
 
 class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse({}, 200))
@@ -402,6 +427,7 @@ class TestPermission(TestServiceBase):
                                                                                testId2: [userPermission_D],
                                                                                testId3: []}), 200))
     def testGetItems(self, mockPost):
+
         # Check
         self.assertEquals(len(mockPost.call_args_list), 0)
 
@@ -440,7 +466,7 @@ class TestPermission(TestServiceBase):
     @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
                                                                                testId2: [userPermission_D],
                                                                                testId3: []}), 200))
-    def testGetPermissions(self, mockPost):
+    def testGetPermissions(self, mockPost): #test is broken in master as well
         resp = self.argus.permissions.get_permissions_for_entities([testId, testId2, testId3])
         for id, perms in resp.items():
             for p in perms:

@@ -265,9 +265,28 @@ class Permission(BaseEncodable):
     id_fields = ("type",)
     VALID_TYPES = frozenset(("user", "group"))
 
+
     def __init__(self, type, **kwargs):
-        assert type in Permission.VALID_TYPES, "Permission type %s is not valid" % type
+        assert type in Permission.VALID_TYPES, "permission type is not valid: %s" % type
         super(Permission, self).__init__(type=type, **kwargs)
+
+class GroupPermission(BaseEncodable):
+    """
+    Represents a Group permission object in Argus
+
+    :param groupId : the id of the group to be given permissions to
+    :type groupId: str
+    :type grouppermissionIds: List of permissions that this group
+                            has on the associated entity (id is put in the entityId field).
+                            Permissions in this list are in the form of integers: like 0, 1, and 2.
+                            0, 1, and 2 correspond to "VIEW", "EDIT", and "DELETE" respectively.
+    """
+
+    id_fields = ("groupId","permissionIds")
+
+    def __init__(self, groupId,permissionIds, **kwargs):
+        super(GroupPermission, self).__init__(  permissionId = permissionIds, groupId=groupId,**kwargs)
+
 
 class Namespace(BaseEncodable):
     """
@@ -493,7 +512,7 @@ class JsonDecoder(json.JSONDecoder):
     def from_json(self, jsonObj):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
-        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification, Permission):
+        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification, Permission, GroupPermission):
             obj = cls.from_dict(jsonObj)
             if obj:
                 return obj

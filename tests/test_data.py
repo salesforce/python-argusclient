@@ -36,12 +36,25 @@ triggerName = "test.trigger"
 notificationName = "test.notification"
 groupPermissionIdentifier = "group"
 userPermissionIdentifier = "user"
+groupID = "5eb1fc18-c985-47eb-94f9-aebce66e119a"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
 username = "testuser"
 permission_ids = [1,2,3]
 group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
 entity_id = 23590046
+
+username = "testuser"
+permission_ids = [1,2,3]
+user_type = "user"
+group_type = "group"
+group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
+entity_id = 23590046
+
+permissionGroup2ID= '24231-52321-43523-64353-23121'
+permissionGroup3ID = '24231-52321-43523-64353-24121'
+permissionGroupIdBad = '2423480-3843hlfw-jf'
+
 
 compAlertID = 6000
 childAlertID_1 = 6003
@@ -121,10 +134,29 @@ dashboard_2_D = {
 }
 
 groupPermission_D = {
-    "type": groupPermissionIdentifier,
-    "permissionNames": permissionNames,
-    "groupId": permissionGroupId
+    "type": "group",
+    "groupId": permissionGroupId,
+    "permissionIds": [0,1,2]
 }
+groupPermission_E = {
+    "type": "group",
+    "groupId": permissionGroup2ID,
+    "permissionIds": [0,1]
+}
+
+groupPermission_F = {
+    "type": "group",
+    "groupId": permissionGroup3ID,
+    "permissionIds": [0,1,2]
+}
+
+
+groupBadPermission_D = {
+    "groupId": groupID,
+    "permissionIds": [0,3]
+}
+
+
 
 userPermission_D = {
     "type": userPermissionIdentifier,
@@ -372,7 +404,7 @@ childAlert_trigger_1 = {
     'id': triggerID_1,
     'threshold': 1.0,
     'type': 'GREATER_THAN',
-    'inertia': 0L,
+    'inertia': 0,
     'name': 'CompAlertTest/trigger1'
 }
 
@@ -383,7 +415,7 @@ compAlert_notification = {
     'subscriptions': ['jdoe@example.com'],
     'notifierName': 'com.salesforce.dva.argus.service.alert.notifier.EmailNotifier',
     'metricsToAnnotate': [],
-    'cooldownPeriod': 0L,
+    'cooldownPeriod': 0,
     'sractionable': False,
     'customText': 'None'
 }
