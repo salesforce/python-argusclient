@@ -440,6 +440,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
         return self.argus._request("get", "dashboards", params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
 
+
 class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus grouppermissions endpoint.
@@ -505,6 +506,7 @@ class GroupPermissionsServiceClient(BaseUpdatableModelServiceClient):
 
 
 
+
 class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus permissions endpoint.
@@ -542,6 +544,9 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
         entityIds = []
+
+        # Filter out entity id's for which the permissions have already been queried
+
         for entity_id in entity_ids:
             if entity_id not in self._coll:
                 entityIds.append(entity_id)
@@ -574,7 +579,9 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         if not isinstance(permission, Permission):
             raise TypeError("Need a Permission object, got: %s" % type(permission))
         if permission.type == "user" and permission.permissionIds == []:
-            raise ValueError("A user permission needs to have the permission that needs to be revoked")
+
+            raise ValueError("Deleting a user permission requires the permission that needs to be revoked")
+
         updated_permission = self.argus._request("delete", "permission/%s" % entity_id, dataObj=permission)
         if updated_permission.entityId in self._coll:
             del self._coll[updated_permission.entityId]

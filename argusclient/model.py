@@ -265,6 +265,7 @@ class Permission(BaseEncodable):
     id_fields = ("type",)
     VALID_TYPES = frozenset(("user", "group"))
 
+
     def __init__(self, type, **kwargs):
         assert type in Permission.VALID_TYPES, "permission type is not valid: %s" % type
         super(Permission, self).__init__(type=type, **kwargs)
@@ -285,6 +286,7 @@ class GroupPermission(BaseEncodable):
 
     def __init__(self, groupId,permissionIds, **kwargs):
         super(GroupPermission, self).__init__(  permissionId = permissionIds, groupId=groupId,**kwargs)
+
 
 class Namespace(BaseEncodable):
     """

@@ -39,6 +39,10 @@ userPermissionIdentifier = "user"
 groupID = "5eb1fc18-c985-47eb-94f9-aebce66e119a"
 permissionNames = ["VIEW", "EDIT", "DELETE"]
 permissionGroupId = '24231-52321-43523-64353-23111'
+username = "testuser"
+permission_ids = [1,2,3]
+group_id = "c8be7819-bf5e-40aa-8535-88694d34280f"
+entity_id = 23590046
 
 username = "testuser"
 permission_ids = [1,2,3]
@@ -166,7 +170,7 @@ permission_user_D = {
     "createdDate": 1616098911000,
     "modifiedById": 6906380,
     "modifiedDate": 1616098911000,
-    "type": user_type,
+    "type": userPermissionIdentifier,
     "username": userName,
     "permissionIds": permission_ids,
     "entityId": testId,
@@ -179,7 +183,7 @@ permission_group_D = {
     "createdDate": 1616098911000,
     "modifiedById": 6906380,
     "modifiedDate": 1616098911000,
-    "type": group_type,
+    "type": groupPermissionIdentifier,
     "groupId": group_id,
     "username": '',
     "permissionIds": [],

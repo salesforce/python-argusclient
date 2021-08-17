@@ -421,7 +421,6 @@ class TestPermission(TestServiceBase):
     def testGetPermissionsBadId(self, mockPost):
         res = self.argus.permissions.get_permissions_for_entities([testId])
         self.assertEquals(len(res), 0)
-
         self.assertIn((os.path.join(endpoint, "permission/entityIds"),), tuple(mockPost.call_args))
 
     @mock.patch('requests.Session.post', return_value=MockResponse(json.dumps({testId: [groupPermission_D, groupPermission_D],
