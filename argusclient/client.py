@@ -695,6 +695,9 @@ def auto_auth(f):
             except ArgusAuthException:
                 if argus.password:
                     logging.debug("Token refresh failed, will attempt a fresh login", exc_info=True)
+                if argus.falconEnv:
+                    logging.debug("Access Token and Refresh Token expired, update token files and provide relevant path")
+                    argus.refreshToken, argus.accessToken = getTokensFromFiles()
                 else:
                     raise
         if not argus.accessToken and argus.password:
@@ -712,6 +715,18 @@ def auto_auth(f):
 
     return with_auth_token
 
+# Updates Access token and refresh token from files for mac to falcon usecase
+def getTokensFromFiles():
+    # Prompt for access token
+    filepath = raw_input("Provide path to access token file")
+    with open(filepath, 'r') as f:
+        access_token = f.read()
+
+    # Prompt for refresh token
+    filepath = raw_input("Provide path to refresh token file")
+    with open(filepath, 'r') as f:
+        refresh_token = f.read()
+    return access_token, refresh_token
 
 class ArgusServiceClient(object):
     """
@@ -763,7 +778,7 @@ class ArgusServiceClient(object):
 
     """
 
-    def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None):
+    def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None, falconEnv=False):
         """
         Creates a new client object to interface with the Argus RESTful API.
 
@@ -788,6 +803,7 @@ class ArgusServiceClient(object):
             raise ValueError("Need a valid Argus endpoint URL")
 
         self.user = user
+        self.falconEnv = falconEnv
         self.password = password
         self.endpoint = endpoint
         self.timeout = timeout
