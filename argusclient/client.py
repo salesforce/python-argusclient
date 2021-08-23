@@ -794,6 +794,8 @@ class ArgusServiceClient(object):
         :type refreshToken: str
         :param accessToken: A token that can be used to authenticate with Argus. If a ``refreshToken`` or ``password`` is specified, the ``accessToken`` will be refreshed as and when it is needed.
         :type refreshToken: str
+        :param falconEnv: is falcon environment
+        :type falconEnv: bool
         """
         if not user:
             raise ValueError("A valid user must be specified")
