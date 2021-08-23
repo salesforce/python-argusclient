@@ -628,7 +628,7 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: the list of :class:`argusclient.model.Alert` objects, with all fields populated, including triggers and notifications
         """
-        return self.argus._request("get", "alerts/allinfo", params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared, limit=limit))
+        return self.argus._request("get", "alerts/allinfo/accessible", params=dict(ownername=ownerName, alertNameContains=alertNameContains, shared=shared, limit=limit))
 
     '''
     Functions to enable support for composite alerts
