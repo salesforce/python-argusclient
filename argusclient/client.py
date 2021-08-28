@@ -801,8 +801,8 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
 
         :return: the added :class:`argusclient.model.Notification` with all fields populated.
         """
-        if not isinstance(notification, Notification): raise TypeError(
-            "Need a Notification object, got: %s" % type(notification))
+        if not isinstance(notification, Notification):
+            raise TypeError("Need a Notification object, got: %s" % type(notification))
         if notification.argus_id: raise ValueError("A new Notification can't have an id")
         notifications = self.argus._request("post", "alerts/%s/notifications" % self.alert.id, dataObj=notification)
         self._init_all(notifications)
