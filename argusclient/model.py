@@ -206,8 +206,8 @@ class Annotation(BaseEncodable):
         ``scope:metric[{tagk=tagv,...}]:source``
         """
         tags = hasattr(self, "tags") and self.tags or None
-        metricWithTags = tags and "%s{%s}" % (
-        self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) or self.metric
+        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) \
+                              or self.metric
         return ":".join(str(q) for q in (self.scope, metricWithTags, self.source) if q)
 
 
