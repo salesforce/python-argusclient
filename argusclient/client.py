@@ -431,6 +431,7 @@ class DashboardsServiceClient(BaseUpdatableModelServiceClient):
                                    params=dict(owner=ownerName, shared=shared, limit=limit, version=version))
 
 
+
 class PermissionsServiceClient(BaseUpdatableModelServiceClient):
     """
     Service class that interfaces with the Argus permissions endpoint.
@@ -461,13 +462,51 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
                 self._coll[id] = perms
             self._retrieved_all = True
 
-    def get_permissions_for_entities(self, entityIds):
+    def get_permissions_for_entities(self, entity_ids):
         """
         Gets permissions that are associated with the given entity id's.
 
         :return: a dict of entity id's mapped to a list of :class:`argusclient.model.Permission` objects
         """
-        return convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
+        entityIds = []
+        # Filter out entity id's for which the permissions have already been queried
+        for entity_id in entity_ids:
+            if entity_id not in self._coll:
+                entityIds.append(entity_id)
+
+        if entityIds:
+            response = convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
+            if response:
+                for id, perms in response.items():
+                    self._coll[id] = perms
+        return self._coll
+
+    def add(self, entity_id, permission):
+        """
+        Associates a permission with an alert
+        :return: the :class:`argusclient.model.Permission` object with the entityId field set.
+        """
+        if not isinstance(permission, Permission):
+            raise TypeError("Need a Permission object, got: %s" % type(permission))
+        if permission.argus_id: raise ValueError("A new permission can't have an entity id associated with it")
+        updated_permission = self.argus._request("post", "permission/%s" % entity_id, dataObj=permission)
+
+        self._coll[updated_permission.entityId] = updated_permission
+
+        if updated_permission.entityId != entity_id:
+            raise ArgusException("This is unexpected... permission: %s not associated with entity after successfully"
+                                 " adding it" % permission)
+        return updated_permission
+
+    def delete(self, entity_id, permission):
+        if not isinstance(permission, Permission):
+            raise TypeError("Need a Permission object, got: %s" % type(permission))
+        if permission.type == "user" and permission.permissionIds == []:
+            raise ValueError("Deleting a user permission requires the permission that needs to be revoked")
+        updated_permission = self.argus._request("delete", "permission/%s" % entity_id, dataObj=permission)
+        if updated_permission.entityId in self._coll:
+            del self._coll[updated_permission.entityId]
+
 
 
 def convert(input):
@@ -966,6 +1005,7 @@ class ArgusServiceClient(object):
         headers = {"Content-Type": "application/json"}
         if self.accessToken:
             headers["Authorization"] = "Bearer " + self.accessToken
+
         resp = req_method(url, data=data, params=params,
                           headers=headers,
                           timeout=self.timeout)
