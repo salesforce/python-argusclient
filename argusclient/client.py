@@ -971,7 +971,7 @@ class ArgusServiceClient(object):
         Logs out of the Argus service and destroys the session.
         """
         # The new V2 auth doesn't support a logout, so just clear the tokens.
-        # self._request("get", "auth/logout")
+        #self._request("get", "auth/logout")
         self.refreshToken = self.accessToken = None
 
     @retry_auth
