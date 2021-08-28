@@ -12,7 +12,7 @@ Module containing the classes that model the Argus base objects.
 import json
 
 try:
-    basestring        # Python 2
+    basestring  # Python 2
 except NameError:
     basestring = str  # Python 3
 
@@ -56,7 +56,8 @@ class BaseEncodable(object):
         """
         The ID of the object that owns this object or ``None``. Only applicable to a few types that are not first-class objects.
         """
-        return hasattr(self, "owner_id_field") and hasattr(self, self.owner_id_field) and int(getattr(self, self.owner_id_field)) or None
+        return hasattr(self, "owner_id_field") and hasattr(self, self.owner_id_field) and int(
+            getattr(self, self.owner_id_field)) or None
 
     def __str__(self):
         return str(self.to_dict())
@@ -158,8 +159,10 @@ class Metric(BaseEncodable):
         ``scope:metric[{tagk=tagv,...}][:namespace]``
         """
         tags = hasattr(self, "tags") and self.tags or None
-        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) or self.metric
-        return ":".join(str(q) for q in (self.scope, metricWithTags, hasattr(self, "namespace") and self.namespace or None) if q)
+        metricWithTags = tags and "%s{%s}" % (
+        self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) or self.metric
+        return ":".join(
+            str(q) for q in (self.scope, metricWithTags, hasattr(self, "namespace") and self.namespace or None) if q)
 
 
 class Annotation(BaseEncodable):
@@ -190,7 +193,8 @@ class Annotation(BaseEncodable):
     id_fields = ("source", "timestamp",)
 
     def __init__(self, source, scope, metric, id, timestamp, type, **kwargs):
-        super(Annotation, self).__init__(source=source, scope=scope, metric=metric, id=id, timestamp=timestamp, type=type, **kwargs)
+        super(Annotation, self).__init__(source=source, scope=scope, metric=metric, id=id, timestamp=timestamp,
+                                         type=type, **kwargs)
         if not hasattr(self, "fields") or self.fields is None:
             self.fields = {}
         if not hasattr(self, "tags") or self.tags is None:
@@ -202,7 +206,8 @@ class Annotation(BaseEncodable):
         ``scope:metric[{tagk=tagv,...}]:source``
         """
         tags = hasattr(self, "tags") and self.tags or None
-        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) or self.metric
+        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) \
+                              or self.metric
         return ":".join(str(q) for q in (self.scope, metricWithTags, self.source) if q)
 
 
@@ -233,6 +238,7 @@ class Dashboard(BaseEncodable):
 
     def __init__(self, name, content, **kwargs):
         super(Dashboard, self).__init__(name=name, content=content, **kwargs)
+
 
 class Permission(BaseEncodable):
     """
@@ -336,8 +342,11 @@ class Alert(BaseEncodable):
 
     @trigger.setter
     def trigger(self, value):
-        if not isinstance(value, Trigger): raise ValueError("argument should be of Trigger type, but is: %s" % type(value))
-        if not ((value.owner_id is None and self.argus_id is None) or value.owner_id == self.argus_id): raise ValueError("trigger owned by alert id: %s not by %s" % (value.owner_id, self.argus_id))
+        if not isinstance(value, Trigger):
+            raise ValueError( "argument should be of Trigger type, but is: %s" % type(value))
+        if not ((
+                        value.owner_id is None and self.argus_id is None) or value.owner_id == self.argus_id): raise ValueError(
+            "trigger owned by alert id: %s not by %s" % (value.owner_id, self.argus_id))
         self._triggers = [value]
 
     @property
@@ -359,8 +368,11 @@ class Alert(BaseEncodable):
 
     @notification.setter
     def notification(self, value):
-        if not isinstance(value, Notification): raise ValueError("value should be of Notification type, but is: %s" % type(value))
-        if not ((value.owner_id is None and self.argus_id is None) or value.owner_id == self.argus_id): raise ValueError("notification owned by alert id: %s not by %s" % (value.owner_id, self.argus_id))
+        if not isinstance(value, Notification):
+            raise ValueError("value should be of Notification type, but is: %s" % type(value))
+        if not ((
+                        value.owner_id is None and self.argus_id is None) or value.owner_id == self.argus_id): raise ValueError(
+            "notification owned by alert id: %s not by %s" % (value.owner_id, self.argus_id))
         self._notifications = [value]
 
     @property
@@ -415,7 +427,8 @@ class Trigger(BaseEncodable):
     NO_DATA = "NO_DATA"
 
     #: Set of all valid trigger types.
-    VALID_TYPES = frozenset((GREATER_THAN, GREATER_THAN_OR_EQ, LESS_THAN, LESS_THAN_OR_EQ, EQUAL, NOT_EQUAL, BETWEEN, NOT_BETWEEN, NO_DATA))
+    VALID_TYPES = frozenset(
+        (GREATER_THAN, GREATER_THAN_OR_EQ, LESS_THAN, LESS_THAN_OR_EQ, EQUAL, NOT_EQUAL, BETWEEN, NOT_BETWEEN, NO_DATA))
 
     def __init__(self, name, type, threshold, inertia, **kwargs):
         assert type in Trigger.VALID_TYPES, "type is not valid: %s" % type
@@ -470,7 +483,8 @@ class Notification(BaseEncodable):
     def __init__(self, name, notifierName=None, metricsToAnnotate=None, **kwargs):
         notifierName = notifierName or kwargs.get('notifier')
         assert notifierName in Notification.VALID_NOTIFIERS, "notifierName is not valid: %s" % notifierName
-        super(Notification, self).__init__(name=name, notifierName=notifierName, metricsToAnnotate=metricsToAnnotate or [],
+        super(Notification, self).__init__(name=name, notifierName=notifierName,
+                                           metricsToAnnotate=metricsToAnnotate or [],
                                            **kwargs)
 
 
@@ -493,7 +507,8 @@ class JsonDecoder(json.JSONDecoder):
     def from_json(self, jsonObj):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
-        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation, Alert, Trigger, Notification, Permission):
+        for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation,
+                    Alert, Trigger, Notification, Permission):
             obj = cls.from_dict(jsonObj)
             if obj:
                 return obj
