@@ -4,24 +4,24 @@ The implementation is based on API documentation from ``/help`` on various endpo
 and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Service%20API>`__.
 """
 
-import json
-import logging
-import os
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
 # Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
+
+import json
+import logging
+import os
 from collections import Mapping
-
-import requests
-
 try:
     import http.client as httplib  # Python 3
 except ImportError:
     import httplib  # Python 2
 from functools import wraps
+
+import requests
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
     Permission
