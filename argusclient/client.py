@@ -718,7 +718,7 @@ def auto_auth(f):
 # Updates Access token and refresh token from files for mac to falcon usecase
 def getTokensFromFiles():
     # Prompt for access token
-    filepath = raw_input("Provide path to access token file")
+    filepath = raw_input("Provide the path to the file containing your new access token")
     with open(filepath, 'r') as f:
         access_token = f.read()
 
