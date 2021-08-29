@@ -696,7 +696,7 @@ def auto_auth(f):
                 if argus.password:
                     logging.debug("Token refresh failed, will attempt a fresh login", exc_info=True)
                 if argus.falconEnv:
-                    logging.debug("Access Token and Refresh Token expired, update token files and provide relevant path")
+                    logging.debug("Access Token and Refresh Token expired, acquire tokens again and follow next steps")
                     argus.refreshToken, argus.accessToken = getTokensFromFiles()
                 else:
                     raise
