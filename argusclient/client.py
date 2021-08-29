@@ -723,7 +723,7 @@ def getTokensFromFiles():
         access_token = f.read()
 
     # Prompt for refresh token
-    filepath = raw_input("Provide path to refresh token file")
+    filepath = raw_input("Provide the path to the file containing your new refresh token")
     with open(filepath, 'r') as f:
         refresh_token = f.read()
     return access_token, refresh_token
