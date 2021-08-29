@@ -715,7 +715,7 @@ def auto_auth(f):
 
     return with_auth_token
 
-# Updates Access token and refresh token from files for mac to falcon usecase
+# Updates access token and refresh token from files. For mac access to falcon usecase
 def getTokensFromFiles():
     # Prompt for access token
     filepath = raw_input("Provide the path to the file containing your new access token")
