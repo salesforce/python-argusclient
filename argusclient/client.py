@@ -697,7 +697,7 @@ def auto_auth(f):
                     logging.debug("Token refresh failed, will attempt a fresh login", exc_info=True)
                 if argus.falconEnv:
                     logging.debug("Access Token and Refresh Token expired, acquire tokens again and follow next steps")
-                    argus.refreshToken, argus.accessToken = getTokensFromFiles()
+                    argus.refreshToken, argus.accessToken = promptForTokens()
                 else:
                     raise
         if not argus.accessToken and argus.password:
@@ -716,7 +716,7 @@ def auto_auth(f):
     return with_auth_token
 
 # Updates access token and refresh token from files. For mac access to falcon usecase
-def getTokensFromFiles():
+def promptForTokens():
     # Prompt for access token
     filepath = raw_input("Provide the path to the file containing your new access token")
     with open(filepath, 'r') as f:
@@ -726,7 +726,7 @@ def getTokensFromFiles():
     filepath = raw_input("Provide the path to the file containing your new refresh token")
     with open(filepath, 'r') as f:
         refresh_token = f.read()
-    return access_token, refresh_token
+    return access_token.rstrip("\n"), refresh_token.rstrip("\n")
 
 class ArgusServiceClient(object):
     """
