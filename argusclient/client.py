@@ -848,6 +848,9 @@ def auto_auth(f):
             except ArgusAuthException:
                 if argus.password:
                     logging.debug("Token refresh failed, will attempt a fresh login", exc_info=True)
+                if argus.falconEnv:
+                    logging.debug("Access Token and Refresh Token expired, acquire tokens again and follow next steps")
+                    argus.refreshToken, argus.accessToken = promptForTokens()
                 else:
                     raise
         if not argus.accessToken and argus.password:
@@ -865,6 +868,18 @@ def auto_auth(f):
 
     return with_auth_token
 
+# Updates access token and refresh token from files. For mac access to falcon usecase
+def promptForTokens():
+    # Prompt for access token
+    filepath = raw_input("Provide the path to the file containing your new access token")
+    with open(filepath, 'r') as f:
+        access_token = f.read()
+
+    # Prompt for refresh token
+    filepath = raw_input("Provide the path to the file containing your new refresh token")
+    with open(filepath, 'r') as f:
+        refresh_token = f.read()
+    return access_token.rstrip("\n"), refresh_token.rstrip("\n")
 
 class ArgusServiceClient(object):
     """
@@ -916,7 +931,7 @@ class ArgusServiceClient(object):
 
     """
 
-    def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None):
+    def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None, falconEnv=False):
         """
         Creates a new client object to interface with the Argus RESTful API.
 
@@ -932,6 +947,8 @@ class ArgusServiceClient(object):
         :type refreshToken: str
         :param accessToken: A token that can be used to authenticate with Argus. If a ``refreshToken`` or ``password`` is specified, the ``accessToken`` will be refreshed as and when it is needed.
         :type refreshToken: str
+        :param falconEnv: is falcon environment
+        :type falconEnv: bool
         """
         if not user:
             raise ValueError("A valid user must be specified")
@@ -941,6 +958,7 @@ class ArgusServiceClient(object):
             raise ValueError("Need a valid Argus endpoint URL")
 
         self.user = user
+        self.falconEnv = falconEnv
         self.password = password
         self.endpoint = endpoint
         self.timeout = timeout

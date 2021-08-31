@@ -1,0 +1,3 @@
+jenkinsapi
+jenkinsapi_tests
+jenkinsapi_utils
