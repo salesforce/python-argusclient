@@ -933,10 +933,6 @@ class ArgusServiceClient(object):
         :param accessToken: A token that can be used to authenticate with Argus. If a ``refreshToken`` or ``password`` is specified, the ``accessToken`` will be refreshed as and when it is needed.
         :type refreshToken: str
         """
-        if not user:
-            raise ValueError("A valid user must be specified")
-        if not any((password, refreshToken, accessToken)):
-            raise ValueError("One of these parameters must be specified: (password, refreshToken, accessToken)")
         if not endpoint:
             raise ValueError("Need a valid Argus endpoint URL")
 
