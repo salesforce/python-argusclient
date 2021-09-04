@@ -68,7 +68,7 @@ Some package imports and initializations that we use later
 
 Login to the service and establish session
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+*For mtls login, see examples/mtls_login.py
 ::
 
     argus = ArgusServiceClient(user,
