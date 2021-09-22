@@ -5,7 +5,7 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-import requests, sys, json, os, time, calendar, csv, getpass, logging, urlparse
+import requests, sys, json, os, time, calendar, csv, getpass, logging, urllib.parse
 from optparse import OptionParser, Option, OptionValueError
 
 import splunklib.client as splunkclient
@@ -70,7 +70,7 @@ def to_gmt_epoch(tsstr):
     return calendar.timegm(time.strptime(tsstr[:19], "%Y-%m-%dT%H:%M:%S"))
 
 def get_splunk_metrics(opts):
-    splunkendpoint = urlparse.urlsplit(opts.splunkapi)
+    splunkendpoint = urllib.parse.urlsplit(opts.splunkapi)
     splunk_opts = {
         "scheme": splunkendpoint.scheme,
         "host": splunkendpoint.hostname,
@@ -126,7 +126,7 @@ def get_splunk_metrics(opts):
         if not cols:
             cols = row
             continue
-        data.append(dict(zip(cols, row)))
+        data.append(dict(list(zip(cols, row))))
     if not opts.quite:
         logging.info("Total result count: %s", len(data))
 
@@ -158,7 +158,7 @@ def get_splunk_metrics(opts):
     if not opts.quite:
         logging.info("Total metric count: %s", len(m_dict))
     job.cancel()
-    return m_dict.values()
+    return list(m_dict.values())
 
 metrics = get_splunk_metrics(opts)
 if metrics:

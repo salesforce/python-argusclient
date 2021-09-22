@@ -12,19 +12,19 @@ Module containing the classes that model the Argus base objects.
 import json
 
 try:
-    basestring  # Python 2
+    str  # Python 2
 except NameError:
-    basestring = str  # Python 3
+    str = str  # Python 3
 
 
 class BaseEncodable(object):
 
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
     def to_dict(self):
-        D = dict((k, v) for k, v in self.__dict__.items() if not k.startswith("_"))
+        D = dict((k, v) for k, v in list(self.__dict__.items()) if not k.startswith("_"))
         return D
 
     @classmethod
@@ -160,7 +160,7 @@ class Metric(BaseEncodable):
         """
         tags = hasattr(self, "tags") and self.tags or None
         metricWithTags = tags and "%s{%s}" % (
-        self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) or self.metric
+        self.metric, ",".join("%s=%s" % (k, v) for k, v in list(self.tags.items()))) or self.metric
         return ":".join(
             str(q) for q in (self.scope, metricWithTags, hasattr(self, "namespace") and self.namespace or None) if q)
 
@@ -206,7 +206,7 @@ class Annotation(BaseEncodable):
         ``scope:metric[{tagk=tagv,...}]:source``
         """
         tags = hasattr(self, "tags") and self.tags or None
-        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in self.tags.items())) \
+        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in list(self.tags.items()))) \
                               or self.metric
         return ":".join(str(q) for q in (self.scope, metricWithTags, self.source) if q)
 
@@ -295,7 +295,7 @@ class Namespace(BaseEncodable):
     id_fields = ("qualifier",)
 
     def __init__(self, qualifier, **kwargs):
-        assert qualifier and isinstance(qualifier, basestring), "A string qualifier is required for namespace"
+        assert qualifier and isinstance(qualifier, str), "A string qualifier is required for namespace"
         super(Namespace, self).__init__(qualifier=qualifier, **kwargs)
 
 
