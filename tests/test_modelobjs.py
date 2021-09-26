@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
@@ -186,6 +186,13 @@ class ObjTest(unittest.TestCase):
         self.assertEquals(a.trigger, trigger)
         self.assertEquals(a.notification, notification)
 
+    def testCreateDerivative(self):
+        derivative = Derivative(derivativeName, derivativeSourceExpression, derivedScope, derivativeInterval)
+        self.assertEquals(derivative.name, derivativeName)
+        self.assertEquals(derivative.sourceExpression, derivativeSourceExpression)
+        self.assertEquals(derivative.derivedScope, derivedScope)
+        self.assertEquals(derivative.derivativeInterval, derivativeInterval)
+
 
 class TestEncoding(unittest.TestCase):
     def setUp(self):
@@ -231,6 +238,9 @@ class TestEncoding(unittest.TestCase):
 
     def testEncNotification(self):
         self._testFor(notification_D, Notification)
+
+    def testEncDerivative(self):
+        self._testFor(derivative_1_D, Derivative)
 
     def testDecAlert(self):
         jsonStr = json.dumps(alert_all_info_D)

@@ -24,7 +24,7 @@ from functools import wraps
 import requests
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
-    Permission
+Permission, Derivative
 
 REQ_METHOD = "req_method"
 REQ_PATH = "req_path"
@@ -818,6 +818,100 @@ class AlertNotificationsServiceClient(BaseUpdatableModelServiceClient):
         self.alert.notificationIds = list(self._coll.keys())
 
 
+class DerivativeServiceClient(BaseUpdatableModelServiceClient):
+    """
+    Service class that interfaces with the Argus derivatives enpoint.
+
+    There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.derivatives` attribute
+
+    """
+
+    def __init__(self, argus, get_all_req_opts=None):
+        """
+        :param get_all_req_opts: See BaseModelServiceClient.__init() for description
+        """
+        if not get_all_req_opts:
+            get_all_req_opts = {}
+        get_all_req_opts[REQ_PATH] = "derivatives/" + get_all_req_opts.get(REQ_PATH, "")
+        super(DerivativeServiceClient, self).__init__(Derivative, argus, id_path="derivatives/%s", get_all_req_opts = get_all_req_opts)
+
+    def _fill(self, derivative):
+        return derivative
+
+    def add(self, derivative):
+        """
+        Adds the derivative
+        :return: the :class:`argusclient.model.Derivative` object with all fields populated.
+        """
+        if not isinstance(derivative, Derivative): raise TypeError("Need a Derivative object, got: %s" % type(derivative))
+        if derivative.argus_id: raise ValueError("A new derivative cann't have an id")
+        derivativeobj = self._fill(self.argus._request("post", "derivatives", dataObj=derivative))
+        self._coll[derivativeobj.id] = derivativeobj
+        return derivativeobj
+
+    def update(self, id, derivative):
+        """
+        Updates the specified derivative.
+        :return: the updated :class:`argusclient.model.Derivative` object with all fields populated.
+        """
+        return self._fill(super(DerivativeServiceClient, self).update(id, derivative))
+
+    def get_derivative(self, derivativeId):
+        """
+        Looks up derivative with its ID. Returns `None` if not found
+
+        :return: the :class:`argusclient.model.Derivative` object with all fields populated.
+
+        """
+        assert derivativeId, "Derivative ID expected"
+        derivative = self.argus._request("get", "derivatives/%s" % derivativeId)
+        if not derivative:
+            return None
+        else:
+            return derivative
+
+    def delete_derivative(self, derivativeId):
+        """
+        Deletes the specified derivative
+        """
+        if not derivativeId: raise ValueError("Need to specify a derivativeId")
+        self.argus._request("delete", "derivatives/%s" % derivativeId)
+
+    def get_user_derivatives(self, derivativename=None, limit=None):
+        """
+        Gets list of derivatives owned by the user under given derivative name
+
+        :return: a list of :class:`argusclient.model.Derivative` objects with all fields populated.
+
+        """
+        if not derivativename: raise ValueError("Need to specify a derivative name")
+        return self.argus._request("get", "derivatives/meta", params=dict(derivativename=derivativename, limit=limit))
+
+    def get_user_derivatives_page(self, pagesize=None, pagenumber=None, searchtext=None, sortfield=None, sortorder=None, ownername=None):
+        """
+        Returns the page of list of derivatives belonging to the current user
+        """
+        return self.argus._request("get", "derivatives/meta/user", params=dict(pagesize=pagesize,pagenumber=pagenumber, searchtext=searchtext, sortfield=sortfield, sortorder=sortorder, ownername=ownername))
+
+    def get_user_derivatives_count(self, searchtext=None, ownername=None):
+        """
+        Returns the count of derivatives belonging to the provided user
+        """
+        return self.argus._request("get", "derivatives/meta/user/count", params=dict(searchtext=searchtext, ownername=ownername))
+
+    def get_shared_user_derivatives(self, pagesize=None, pagenumber=None, searchtext=None, sortfield=None, sortorder=None):
+        """
+        Return a page of shared derivatives the current user has access to with given offset and page size.
+        """
+        return self.argus._request("get", "derivatives/meta/shared",params=dict(pagesize=pagesize,pagenumber=pagenumber, searchtext=searchtext, sortfield=sortfield, sortorder=sortorder))
+
+    def get_shared_user_derivatives_count(self, searchtext=None):
+        """
+        Count the total number of shared derivatives the current user has access to.
+        """
+        return self.argus._request("get", "derivatives/meta/shared/count", params=dict(searchtext=searchtext))
+
+
 def retry_auth(f):
     @wraps(f)
     def with_retry(*args, **kwargs):
@@ -914,6 +1008,12 @@ class ArgusServiceClient(object):
 
          Interfaces with the Argus alerts endpoint.
 
+     .. attribute:: derivatives
+
+         :class:`argusclient.client.DerivativesServiceClient`
+
+         Interfaces with the Argus derivatives endpoint.
+
     """
 
     def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None):
@@ -954,7 +1054,10 @@ class ArgusServiceClient(object):
         self.users = UsersServiceClient(self)
         self.namespaces = NamespacesServiceClient(self)
         self.alerts = AlertsServiceClient(self)
+        self.derivatives = DerivativeServiceClient(self)
         self.conn = requests.Session()
+
+
 
     def login(self):
         """
