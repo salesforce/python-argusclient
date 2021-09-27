@@ -973,7 +973,6 @@ class ArgusServiceClient(object):
          :class:`argusclient.client.DerivativesServiceClient`
 
          Interfaces with the Argus derivatives endpoint.
-
     """
 
     def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None):
