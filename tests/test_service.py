@@ -1022,14 +1022,13 @@ class TestCompositeAlert(TestServiceBase):
 class TestDerivative(TestServiceBase):
     @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
     def testGetDerivativeById(self, mockGet):
-        res = self.argus.derivatives.get_derivative(derivativeID_1)
+        res = self.argus.derivatives.get(derivativeID_1)
         self.assertTrue(isinstance(res, Derivative))
         self.assertEquals(res.to_dict(), derivative_1_D)
-        print(tuple(mockGet.call_args))
         self.assertIn((os.path.join(endpoint, "derivatives", str(derivativeID_1)),), tuple(mockGet.call_args))
 
     def testGetDerivativeNoId(self):
-        self.failUnlessRaises(ValueError, lambda: self.argus.derivatives.get_derivative(None))
+        self.failUnlessRaises(ValueError, lambda: self.argus.derivatives.get(None))
 
     @mock.patch('requests.Session.post', return_value = MockResponse(json.dumps(derivative_1_D), 200))
     def testAddDerivative(self, mockPost):
@@ -1054,5 +1053,6 @@ class TestDerivative(TestServiceBase):
 
     @mock.patch('requests.Session.get', return_value=MockResponse("[]", 200))
     def testGetUserDerivativeNonExisting(self, mockGet):
-        res = self.argus.derivatives.get_derivative(derivativeID_1)
-        self.assertTrue(res is None)
+        res = self.argus.derivatives.get(derivativeID_1)
+        self.assertTrue(not res)
+

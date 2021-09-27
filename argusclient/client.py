@@ -24,7 +24,7 @@ from functools import wraps
 import requests
 
 from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, JsonEncoder, JsonDecoder, \
-Permission, Derivative
+    Permission, Derivative
 
 REQ_METHOD = "req_method"
 REQ_PATH = "req_path"
@@ -362,6 +362,7 @@ class BaseUpdatableModelServiceClient(BaseModelServiceClient):
         if id != obj.argus_id:
             raise ValueError("Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
         self._coll[id] = self.argus._request("put", self.id_path % id, dataObj=obj)
+        self._fill(self._coll[id])
         return self._coll[id]
 
     def delete(self, id):
@@ -576,14 +577,6 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
             alertobj.notification.triggersIds = [alertobj.trigger.id]
             alertobj.trigger.notificationsIds = [alertobj.notification.id]
         return alertobj
-
-    def update(self, id, alert):
-        """
-        Updates the specified alert.
-
-        :return: the updated :class:`argusclient.model.Alert` object with all fields populated.
-        """
-        return self._fill(super(AlertsServiceClient, self).update(id, alert))
 
     def get_notification_triggers(self, alertid, notificationid):
         """
@@ -823,7 +816,6 @@ class DerivativeServiceClient(BaseUpdatableModelServiceClient):
     Service class that interfaces with the Argus derivatives enpoint.
 
     There is no need to instantiate this directly, as it is available as :attr:`argusclient.client.ArgusServiceClient.derivatives` attribute
-
     """
 
     def __init__(self, argus, get_all_req_opts=None):
@@ -834,9 +826,6 @@ class DerivativeServiceClient(BaseUpdatableModelServiceClient):
             get_all_req_opts = {}
         get_all_req_opts[REQ_PATH] = "derivatives/" + get_all_req_opts.get(REQ_PATH, "")
         super(DerivativeServiceClient, self).__init__(Derivative, argus, id_path="derivatives/%s", get_all_req_opts = get_all_req_opts)
-
-    def _fill(self, derivative):
-        return derivative
 
     def add(self, derivative):
         """
@@ -849,40 +838,11 @@ class DerivativeServiceClient(BaseUpdatableModelServiceClient):
         self._coll[derivativeobj.id] = derivativeobj
         return derivativeobj
 
-    def update(self, id, derivative):
-        """
-        Updates the specified derivative.
-        :return: the updated :class:`argusclient.model.Derivative` object with all fields populated.
-        """
-        return self._fill(super(DerivativeServiceClient, self).update(id, derivative))
-
-    def get_derivative(self, derivativeId):
-        """
-        Looks up derivative with its ID. Returns `None` if not found
-
-        :return: the :class:`argusclient.model.Derivative` object with all fields populated.
-
-        """
-        if not derivativeId: raise ValueError("Need to specify a derivativeId")
-        derivative = self.argus._request("get", "derivatives/%s" % derivativeId)
-        if not derivative:
-            return None
-        else:
-            return derivative
-
-    def delete_derivative(self, derivativeId):
-        """
-        Deletes the specified derivative
-        """
-        if not derivativeId: raise ValueError("Need to specify a derivativeId")
-        self.argus._request("delete", "derivatives/%s" % derivativeId)
-
     def get_user_derivatives(self, derivativename=None, limit=None):
         """
         Gets list of derivatives owned by the user under given derivative name
 
         :return: a list of :class:`argusclient.model.Derivative` objects with all fields populated.
-
         """
         if not derivativename: raise ValueError("Need to specify a derivative name")
         return self.argus._request("get", "derivatives/meta", params=dict(derivativename=derivativename, limit=limit))
@@ -1056,8 +1016,6 @@ class ArgusServiceClient(object):
         self.alerts = AlertsServiceClient(self)
         self.derivatives = DerivativeServiceClient(self)
         self.conn = requests.Session()
-
-
 
     def login(self):
         """

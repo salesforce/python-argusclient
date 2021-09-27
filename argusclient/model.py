@@ -519,8 +519,6 @@ class Derivative(BaseEncodable):
                                             derivativeInterval = derivativeInterval, **kwargs)
 
 
-
-
 class JsonEncoder(json.JSONEncoder):
     def default(self, obj):
         return self.to_json(obj)
