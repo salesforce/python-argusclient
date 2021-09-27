@@ -844,7 +844,7 @@ class DerivativeServiceClient(BaseUpdatableModelServiceClient):
         :return: the :class:`argusclient.model.Derivative` object with all fields populated.
         """
         if not isinstance(derivative, Derivative): raise TypeError("Need a Derivative object, got: %s" % type(derivative))
-        if derivative.argus_id: raise ValueError("A new derivative cann't have an id")
+        if derivative.argus_id: raise ValueError("A new derivative can't have an id")
         derivativeobj = self._fill(self.argus._request("post", "derivatives", dataObj=derivative))
         self._coll[derivativeobj.id] = derivativeobj
         return derivativeobj
@@ -863,7 +863,7 @@ class DerivativeServiceClient(BaseUpdatableModelServiceClient):
         :return: the :class:`argusclient.model.Derivative` object with all fields populated.
 
         """
-        assert derivativeId, "Derivative ID expected"
+        if not derivativeId: raise ValueError("Need to specify a derivativeId")
         derivative = self.argus._request("get", "derivatives/%s" % derivativeId)
         if not derivative:
             return None
