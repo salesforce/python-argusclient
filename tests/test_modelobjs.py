@@ -21,106 +21,106 @@ class ObjTest(unittest.TestCase):
 
     def testCreateMetric(self):
         m = Metric(scope, metric)
-        self.assertEquals(m.scope, scope)
-        self.assertEquals(m.metric, metric)
+        self.assertEqual(m.scope, scope)
+        self.assertEqual(m.metric, metric)
 
-        for k, v in datapoints.items():
+        for k, v in list(datapoints.items()):
             m.datapoints[k] = v
-        self.assertEquals(m.datapoints, datapoints)
+        self.assertEqual(m.datapoints, datapoints)
 
         m.datapoints = {}
         m.datapoints.update(datapoints)
-        self.assertEquals(m.datapoints, datapoints)
+        self.assertEqual(m.datapoints, datapoints)
 
         m.datapoints = datapoints
-        self.assertEquals(m.datapoints, datapoints)
+        self.assertEqual(m.datapoints, datapoints)
 
-        for k, v in tags.items():
+        for k, v in list(tags.items()):
             m.tags[k] = v
-        self.assertEquals(m.tags, tags)
+        self.assertEqual(m.tags, tags)
 
         m.tags = {}
         m.tags.update(tags)
-        self.assertEquals(m.tags, tags)
+        self.assertEqual(m.tags, tags)
 
         m.tags = tags
-        self.assertEquals(m.tags, tags)
+        self.assertEqual(m.tags, tags)
 
         m = Metric(scope, metric, datapoints=datapoints)
-        self.assertEquals(m.datapoints, datapoints)
-        self.assertEquals(str(m), scope+":"+metric)
+        self.assertEqual(m.datapoints, datapoints)
+        self.assertEqual(str(m), scope+":"+metric)
 
         m = Metric(scope, metric, namespace=namespace, displayName=displayName, unitType=unitType, id=testId)
-        self.assertEquals(m.namespace, namespace)
-        self.assertEquals(m.displayName, displayName)
-        self.assertEquals(m.unitType, unitType)
-        self.assertEquals(m.id, testId)
-        self.assertEquals(str(m), scope + ":" + metric + ":" + namespace)
+        self.assertEqual(m.namespace, namespace)
+        self.assertEqual(m.displayName, displayName)
+        self.assertEqual(m.unitType, unitType)
+        self.assertEqual(m.id, testId)
+        self.assertEqual(str(m), scope + ":" + metric + ":" + namespace)
 
         m.tags = tags
-        self.assertEquals(str(m), scope + ":" + metric + "{test.tag=test.value}" + ":" + namespace)
+        self.assertEqual(str(m), scope + ":" + metric + "{test.tag=test.value}" + ":" + namespace)
 
     def testCreateDashboard(self):
         d = Dashboard(dashboardName, content, shared=False, id=testId)
-        self.assertEquals(d.name, dashboardName)
-        self.assertEquals(d.content, content)
-        self.assertEquals(d.id, testId)
+        self.assertEqual(d.name, dashboardName)
+        self.assertEqual(d.content, content)
+        self.assertEqual(d.id, testId)
 
     def testCreateUserPermission(self):
         p = Permission(userPermissionIdentifier, permissionNames, username=userName)
-        self.assertEquals(p.type, userPermissionIdentifier)
-        self.assertEquals(p.permissionNames, permissionNames)
-        self.assertEquals(p.username, userName)
+        self.assertEqual(p.type, userPermissionIdentifier)
+        self.assertEqual(p.permissionNames, permissionNames)
+        self.assertEqual(p.username, userName)
 
     def testCreateGroupPermission(self):
         p = Permission(groupPermissionIdentifier, permissionNames, groupId=permissionGroupId)
-        self.assertEquals(p.type, groupPermissionIdentifier)
-        self.assertEquals(p.permissionNames, permissionNames)
-        self.assertEquals(p.groupId, permissionGroupId)
+        self.assertEqual(p.type, groupPermissionIdentifier)
+        self.assertEqual(p.permissionNames, permissionNames)
+        self.assertEqual(p.groupId, permissionGroupId)
 
     def testCreateUser(self):
         u = User(userName, email=email, id=testId)
-        self.assertEquals(u.userName, userName)
-        self.assertEquals(u.email, email)
-        self.assertEquals(u.id, testId)
+        self.assertEqual(u.userName, userName)
+        self.assertEqual(u.email, email)
+        self.assertEqual(u.id, testId)
 
     def testCreateNamespace(self):
         n = Namespace(namespace, usernames=usernames)
-        self.assertEquals(n.qualifier, namespace)
-        self.assertEquals(n.usernames, usernames)
+        self.assertEqual(n.qualifier, namespace)
+        self.assertEqual(n.usernames, usernames)
 
     def testCreateAnnotation(self):
         a = Annotation(source, scope, metric, testId, timestamp, testType)
-        self.assertEquals(a.source, source)
-        self.assertEquals(a.scope, scope)
-        self.assertEquals(a.metric, metric)
-        self.assertEquals(a.id, testId)
-        self.assertEquals(a.timestamp, timestamp)
-        self.assertEquals(a.type, testType)
-        self.assertEquals(str(a), scope + ":" + metric + ":"+source)
+        self.assertEqual(a.source, source)
+        self.assertEqual(a.scope, scope)
+        self.assertEqual(a.metric, metric)
+        self.assertEqual(a.id, testId)
+        self.assertEqual(a.timestamp, timestamp)
+        self.assertEqual(a.type, testType)
+        self.assertEqual(str(a), scope + ":" + metric + ":"+source)
 
-        for k, v in tags.items():
+        for k, v in list(tags.items()):
             a.tags[k] = v
-        self.assertEquals(a.tags, tags)
-        self.assertEquals(str(a), scope + ":" + metric + "{test.tag=test.value}:" + source)
+        self.assertEqual(a.tags, tags)
+        self.assertEqual(str(a), scope + ":" + metric + "{test.tag=test.value}:" + source)
 
         a.tags = {}
         a.tags.update(tags)
-        self.assertEquals(a.tags, tags)
+        self.assertEqual(a.tags, tags)
 
         a.tags = tags
-        self.assertEquals(a.tags, tags)
+        self.assertEqual(a.tags, tags)
 
-        for k, v in fields.items():
+        for k, v in list(fields.items()):
             a.fields[k] = v
-        self.assertEquals(a.fields, fields)
+        self.assertEqual(a.fields, fields)
 
         a.fields = {}
         a.fields.update(fields)
-        self.assertEquals(a.fields, fields)
+        self.assertEqual(a.fields, fields)
 
         a.fields = fields
-        self.assertEquals(a.fields, fields)
+        self.assertEqual(a.fields, fields)
 
     def testAddListResult(self):
         errors = ["error1", "error2"]
@@ -130,67 +130,67 @@ class ObjTest(unittest.TestCase):
             "Success": "2 metrics"
         }
         r = AddListResult(**D)
-        self.assertEquals(r.error_messages(), errors)
-        self.assertEquals(r.error_count(), 1)
-        self.assertEquals(r.success_count(), 2)
+        self.assertEqual(r.error_messages(), errors)
+        self.assertEqual(r.error_count(), 1)
+        self.assertEqual(r.success_count(), 2)
 
     def testCreateAlert(self):
         a = Alert(alertName, alertQuery, alertCron)
-        self.assertEquals(a.name, alertName)
-        self.assertEquals(a.expression, alertQuery)
-        self.assertEquals(a.cronEntry, alertCron)
+        self.assertEqual(a.name, alertName)
+        self.assertEqual(a.expression, alertQuery)
+        self.assertEqual(a.cronEntry, alertCron)
 
     def testCreateTrigger(self):
         t = Trigger(triggerName, Trigger.EQUAL, 100, 200)
-        self.assertEquals(t.name, triggerName)
-        self.assertEquals(t.type, Trigger.EQUAL)
-        self.assertEquals(t.threshold, 100)
-        self.assertEquals(t.inertia, 200)
+        self.assertEqual(t.name, triggerName)
+        self.assertEqual(t.type, Trigger.EQUAL)
+        self.assertEqual(t.threshold, 100)
+        self.assertEqual(t.inertia, 200)
 
     def testCreateTriggerInvalidType(self):
-        self.failUnlessRaises(AssertionError, lambda: Trigger(triggerName, "abc", 100, 200))
+        self.assertRaises(AssertionError, lambda: Trigger(triggerName, "abc", 100, 200))
 
     def testCreateNotification(self):
         n = Notification(notificationName, notifierName=Notification.EMAIL, subscriptions=[email])
-        self.assertEquals(n.name, notificationName)
-        self.assertEquals(n.notifierName, Notification.EMAIL)
-        self.assertEquals(n.subscriptions, [email])
+        self.assertEqual(n.name, notificationName)
+        self.assertEqual(n.notifierName, Notification.EMAIL)
+        self.assertEqual(n.subscriptions, [email])
 
     def testCreateNotificationInvalidNotifier(self):
-        self.failUnlessRaises(AssertionError, lambda: Notification(notificationName, "abc"))
+        self.assertRaises(AssertionError, lambda: Notification(notificationName, "abc"))
 
     def testCreateUserPermission(self):
         permission = Permission(userPermissionIdentifier, id=testId, permissionIds=permission_ids, username=username, entityId=testId)
-        self.assertEquals(permission.type, userPermissionIdentifier)
-        self.assertEquals(permission.entityId, testId)
-        self.assertEquals(permission.permissionIds, permission_ids)
-        self.assertEquals(permission.username, username)
+        self.assertEqual(permission.type, userPermissionIdentifier)
+        self.assertEqual(permission.entityId, testId)
+        self.assertEqual(permission.permissionIds, permission_ids)
+        self.assertEqual(permission.username, username)
 
     def testCreateGroupPermission(self):
         permission = Permission(groupPermissionIdentifier, id=testId, groupId=group_id, entityId=testId)
-        self.assertEquals(permission.type, groupPermissionIdentifier)
-        self.assertEquals(permission.entityId, testId)
-        self.assertEquals(permission.groupId, group_id)
+        self.assertEqual(permission.type, groupPermissionIdentifier)
+        self.assertEqual(permission.entityId, testId)
+        self.assertEqual(permission.groupId, group_id)
 
     def testCreateInvalidPermission(self):
-        self.failUnlessRaises(AssertionError, lambda: Permission("abc", id=testId))
+        self.assertRaises(AssertionError, lambda: Permission("abc", id=testId))
 
     def testCreateAlertDeep(self):
         trigger = Trigger(triggerName, Trigger.EQUAL, 100, 200)
         notification = Notification(notificationName, notifierName=Notification.EMAIL, subscriptions=[email])
         a = Alert(alertName, alertQuery, alertCron, trigger=trigger, notification=notification)
-        self.assertEquals(a.trigger, trigger)
-        self.assertEquals(a.notification, notification)
+        self.assertEqual(a.trigger, trigger)
+        self.assertEqual(a.notification, notification)
         a.trigger = trigger
         a.notification = notification
-        self.assertEquals(a.trigger, trigger)
-        self.assertEquals(a.notification, notification)
+        self.assertEqual(a.trigger, trigger)
+        self.assertEqual(a.notification, notification)
 
 
 class TestEncoding(unittest.TestCase):
     def setUp(self):
         self.objClasses = []
-        for v in argusclient.__dict__.values():
+        for v in list(argusclient.__dict__.values()):
             if v != BaseEncodable and isinstance(v, type) and issubclass(v, BaseEncodable):
                 self.objClasses.append(v)
         if not self.objClasses:
@@ -252,26 +252,26 @@ class TestEncoding(unittest.TestCase):
         jsonStr = json.dumps(D)
         o = json.loads(jsonStr, cls=JsonDecoder)
         self.assertTrue(isinstance(o, dict))
-        self.assertEquals(o, D)
+        self.assertEqual(o, D)
 
     def _testFor(self, D, objClass):
         o = objClass.from_dict(D)
         self.assertTrue(o is not None)
         self.assertTrue(isinstance(o, objClass))
-        self.assertEquals(o.to_dict(), D)
+        self.assertEqual(o.to_dict(), D)
         if "id" in D:
-            self.assertEquals(o.argus_id, D["id"])
+            self.assertEqual(o.argus_id, D["id"])
         if hasattr(objClass, "owner_id_field"):
-            self.assertEquals(o.owner_id, D[getattr(objClass, "owner_id_field")])
+            self.assertEqual(o.owner_id, D[getattr(objClass, "owner_id_field")])
         for c in self.objClasses:
             if c == objClass:
                 pass
             else:
-                self.assertEquals(c.from_dict(D), None, "Expected None for class: %s" % c)
+                self.assertEqual(c.from_dict(D), None, "Expected None for class: %s" % c)
         jsonStr = json.dumps(D)
         o = json.loads(jsonStr, cls=JsonDecoder)
         self._assertType(o, objClass)
-        self.assertEquals(json.loads(jsonStr), D)
+        self.assertEqual(json.loads(jsonStr), D)
 
     def _assertType(self, obj, objClass):
         self.assertTrue(isinstance(obj, objClass),
@@ -280,17 +280,17 @@ class TestEncoding(unittest.TestCase):
 class TestW_2816614(unittest.TestCase):
     def test_namespace_qualifier(self):
         ns = Namespace.from_dict(namespace_D)
-        self.assertEquals(ns.qualifier, namespace)
-        self.assertEquals(ns.__dict__.get("qualifier"), namespace)
+        self.assertEqual(ns.qualifier, namespace)
+        self.assertEqual(ns.__dict__.get("qualifier"), namespace)
         ns.qualifier = "test"
-        self.assertEquals(ns.qualifier, "test")
+        self.assertEqual(ns.qualifier, "test")
         D = dict(namespace_D)
         D["qualifier"] = "test"
-        self.assertEquals(ns.to_dict(), D)
+        self.assertEqual(ns.to_dict(), D)
 
     def test_metric_namespace(self):
         m = Metric.from_dict(metric_D)
-        self.assertEquals(m.namespace, namespace)
-        self.assertEquals(m.__dict__.get("namespace"), namespace)
+        self.assertEqual(m.namespace, namespace)
+        self.assertEqual(m.__dict__.get("namespace"), namespace)
         m.namespace = "test"
-        self.assertEquals(m.namespace, "test")
+        self.assertEqual(m.namespace, "test")

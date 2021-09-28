@@ -14,11 +14,9 @@ and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Se
 import json
 import logging
 import os
+from six import string_types, iteritems, itervalues, iterkeys
+from six.moves import http_client as httplib
 from collections import Mapping
-try:
-    import http.client as httplib  # Python 3
-except ImportError:
-    import httplib  # Python 2
 from functools import wraps
 
 import requests
@@ -206,7 +204,7 @@ class BaseModelServiceClient(object):
         Calling this method may result in sending a request to Argus to fetch all relevant objects.
         """
         self._init_all()
-        return self._coll.items()
+        return list(iteritems(self._coll))
 
     def keys(self):
         """
@@ -214,7 +212,7 @@ class BaseModelServiceClient(object):
         Calling this method may result in sending a request to Argus to fetch all relevant objects.
         """
         self._init_all()
-        return self._coll.items()
+        return list(iterkeys(self._coll))
 
     def values(self):
         """
@@ -222,7 +220,7 @@ class BaseModelServiceClient(object):
         Calling this method may result in sending a request to Argus to fetch all relevant objects.
         """
         self._init_all()
-        return self._coll.values()
+        return list(itervalues(self._coll))
 
     def __iter__(self):
         """
@@ -458,7 +456,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
                                                self.get_all_req_opts.get(REQ_PATH, None),
                                                params=self.get_all_req_opts.get(REQ_PARAMS, None),
                                                dataObj=self.get_all_req_opts.get(REQ_BODY, None)))
-            for id, perms in resp.items():
+            for id, perms in iteritems(resp):
                 self._coll[id] = perms
             self._retrieved_all = True
 
@@ -477,7 +475,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         if entityIds:
             response = convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
             if response:
-                for id, perms in response.items():
+                for id, perms in iteritems(response):
                     self._coll[id] = perms
         return self._coll
 
@@ -511,10 +509,10 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
 
 def convert(input):
     if isinstance(input, Mapping):
-        return {convert(key): convert(value) for key, value in input.iteritems()}
+        return {convert(key): convert(value) for key, value in iteritems(input)}
     elif isinstance(input, list):
         return [convert(element) for element in input]
-    elif isinstance(input, basestring):
+    elif isinstance(input, string_types):
         ret = str(input)
         if ret.isdigit():
             ret = int(ret)

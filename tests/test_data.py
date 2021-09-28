@@ -372,7 +372,7 @@ childAlert_trigger_1 = {
     'id': triggerID_1,
     'threshold': 1.0,
     'type': 'GREATER_THAN',
-    'inertia': 0L,
+    'inertia': 0,
     'name': 'CompAlertTest/trigger1'
 }
 
@@ -383,7 +383,7 @@ compAlert_notification = {
     'subscriptions': ['jdoe@example.com'],
     'notifierName': 'com.salesforce.dva.argus.service.alert.notifier.EmailNotifier',
     'metricsToAnnotate': [],
-    'cooldownPeriod': 0L,
+    'cooldownPeriod': 0,
     'sractionable': False,
     'customText': 'None'
 }

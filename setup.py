@@ -7,7 +7,7 @@
 
 from setuptools import setup, find_packages
 
-version = '1.3'
+version = '1.4'
 
 with open("README.rst", 'r') as fin:
     README = fin.read()
@@ -20,7 +20,7 @@ setup(name='argusclient',
       long_description_content_type="text/x-rst",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
-          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3.8",
           "License :: OSI Approved :: BSD License",
           "Intended Audience :: Developers",
           "Topic :: System :: Monitoring",
@@ -34,8 +34,9 @@ setup(name='argusclient',
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          "requests>=2.9.1",
-          "lxml>=3.2.3"
+          "six>=1.12.0",
+          "requests>=2.26.0",
+          "lxml>=4.6.3"
       ],
       entry_points="""
       # -*- Entry points: -*-
