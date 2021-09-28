@@ -1085,5 +1085,3 @@ class TestDerivative(TestServiceBase):
         res = self.argus.derivatives.get_shared_user_derivatives_count(mockGet)
         self.assertTrue(res is not None)
         self.assertIn((os.path.join(endpoint, "derivatives/meta/shared/count"),), tuple(mockGet.call_args))
-
-
