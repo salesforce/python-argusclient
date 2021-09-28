@@ -257,6 +257,11 @@ class TestEncoding(unittest.TestCase):
         for notif in o.notifications:
             self._assertType(notif, Notification)
 
+    def testDecDerivative(self):
+        jsonStr = json.dumps(derivative_1_D)
+        o = json.loads(jsonStr, cls = JsonDecoder)
+        self._assertType(o, Derivative)
+
     def testNonModel(self):
         D = dict(someRandomField="1", anotherRandomField="2")
         jsonStr = json.dumps(D)
