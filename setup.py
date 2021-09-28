@@ -34,6 +34,7 @@ setup(name='argusclient',
       include_package_data=True,
       zip_safe=True,
       install_requires=[
+          "six>=1.12.0",
           "requests>=2.26.0",
           "lxml>=4.6.3"
       ],

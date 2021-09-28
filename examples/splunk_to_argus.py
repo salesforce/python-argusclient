@@ -5,8 +5,10 @@
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
-import requests, sys, json, os, time, calendar, csv, getpass, logging, urllib.parse
+import requests, sys, json, os, time, calendar, csv, getpass, logging
 from optparse import OptionParser, Option, OptionValueError
+from six import itervalues
+from six.moves import urllib
 
 import splunklib.client as splunkclient
 
@@ -126,7 +128,7 @@ def get_splunk_metrics(opts):
         if not cols:
             cols = row
             continue
-        data.append(dict(list(zip(cols, row))))
+        data.append(dict(zip(cols, row)))
     if not opts.quite:
         logging.info("Total result count: %s", len(data))
 
@@ -158,7 +160,7 @@ def get_splunk_metrics(opts):
     if not opts.quite:
         logging.info("Total metric count: %s", len(m_dict))
     job.cancel()
-    return list(m_dict.values())
+    return list(itervalues(m_dict))
 
 metrics = get_splunk_metrics(opts)
 if metrics:
