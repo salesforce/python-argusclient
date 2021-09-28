@@ -16,11 +16,11 @@ from six import string_types, iteritems
 class BaseEncodable(object):
 
     def __init__(self, **kwargs):
-        for k, v in list(iteritems(kwargs)):
+        for k, v in iteritems(kwargs):
             setattr(self, k, v)
 
     def to_dict(self):
-        D = dict((k, v) for k, v in list(iteritems(self.__dict__)) if not k.startswith("_"))
+        D = dict((k, v) for k, v in iteritems(self.__dict__) if not k.startswith("_"))
         return D
 
     @classmethod
@@ -156,7 +156,7 @@ class Metric(BaseEncodable):
         """
         tags = hasattr(self, "tags") and self.tags or None
         metricWithTags = tags and "%s{%s}" % (
-        self.metric, ",".join("%s=%s" % (k, v) for k, v in list(iteritems(self.tags)))) or self.metric
+        self.metric, ",".join("%s=%s" % (k, v) for k, v in iteritems(self.tags))) or self.metric
         return ":".join(
             str(q) for q in (self.scope, metricWithTags, hasattr(self, "namespace") and self.namespace or None) if q)
 
@@ -202,7 +202,7 @@ class Annotation(BaseEncodable):
         ``scope:metric[{tagk=tagv,...}]:source``
         """
         tags = hasattr(self, "tags") and self.tags or None
-        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in list(iteritems(self.tags)))) \
+        metricWithTags = tags and "%s{%s}" % (self.metric, ",".join("%s=%s" % (k, v) for k, v in iteritems(self.tags))) \
                               or self.metric
         return ":".join(str(q) for q in (self.scope, metricWithTags, self.source) if q)
 

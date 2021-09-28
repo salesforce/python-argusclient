@@ -14,7 +14,7 @@ and `web service reference <https://github.com/SalesforceEng/Argus/wiki/Web%20Se
 import json
 import logging
 import os
-from six import string_types, iteritems, itervalues
+from six import string_types, iteritems, itervalues, iterkeys
 from six.moves import http_client as httplib
 from collections import Mapping
 from functools import wraps
@@ -212,7 +212,7 @@ class BaseModelServiceClient(object):
         Calling this method may result in sending a request to Argus to fetch all relevant objects.
         """
         self._init_all()
-        return list(iteritems(self._coll))
+        return list(iterkeys(self._coll))
 
     def values(self):
         """
@@ -456,7 +456,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
                                                self.get_all_req_opts.get(REQ_PATH, None),
                                                params=self.get_all_req_opts.get(REQ_PARAMS, None),
                                                dataObj=self.get_all_req_opts.get(REQ_BODY, None)))
-            for id, perms in list(iteritems(resp)):
+            for id, perms in iteritems(resp):
                 self._coll[id] = perms
             self._retrieved_all = True
 
@@ -475,7 +475,7 @@ class PermissionsServiceClient(BaseUpdatableModelServiceClient):
         if entityIds:
             response = convert(self.argus._request("post", "permission/entityIds", dataObj=entityIds))
             if response:
-                for id, perms in list(iteritems(response)):
+                for id, perms in iteritems(response):
                     self._coll[id] = perms
         return self._coll
 
