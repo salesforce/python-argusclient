@@ -361,8 +361,7 @@ class BaseUpdatableModelServiceClient(BaseModelServiceClient):
         # Ensure that user doesn't accidentally copy another item.
         if id != obj.argus_id:
             raise ValueError("Object id: %s doesn't match the id: %s that you are updating" % (obj.id, id))
-        self._coll[id] = self.argus._request("put", self.id_path % id, dataObj=obj)
-        self._fill(self._coll[id])
+        self._coll[id] = self._fill(self.argus._request("put", self.id_path % id, dataObj=obj))
         return self._coll[id]
 
     def delete(self, id):
