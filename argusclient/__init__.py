@@ -7,4 +7,4 @@
 #
 
 from .client import ArgusServiceClient, ArgusException, ArgusAuthException, ArgusObjectNotFoundException, MetricQuery, AnnotationQuery
-from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, User, AddListResult
+from .model import Namespace, Metric, Annotation, Dashboard, Alert, Trigger, Notification, User, AddListResult, Derivative

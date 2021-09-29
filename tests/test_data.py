@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
@@ -48,6 +48,12 @@ childAlertID_1 = 6003
 childAlertID_2 = 6009
 triggerID_1 = 6005
 compAlert_notificationID = 6007
+
+derivativeID_1 = 7001
+derivativeName = "derivative1"
+derivativeSourceExpression = "-5m:-1m:argus.core:datapoints.queried:sum:2m-sum"
+derivativeInterval = "5m"
+derivedScope = "summary"
 
 metric_D = {
     "scope": scope,
@@ -386,4 +392,21 @@ compAlert_notification = {
     'cooldownPeriod': 0,
     'sractionable': False,
     'customText': 'None'
+}
+
+derivative_1_D = {
+    'id': derivativeID_1,
+    'name': 'derivative1',
+    "createdById": 101997,
+    "createdDate": 1459917506873,
+    "modifiedById": 101997,
+    "modifiedDate": 1459917506873,
+    'sourceExpression': '-5m:-1m:argus.core:datapoints.queried:sum:2m-sum',
+    'derivedScope': 'summary',
+    'derivedMetric': 'test',
+    'derivativeTagOptions': '{add={},rename={}}',
+    'derivativeInterval': '5m',
+    'enabled': True,
+    'alertIfNoData': False,
+    'ownerName': userName
 }

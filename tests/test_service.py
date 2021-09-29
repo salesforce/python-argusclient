@@ -1018,3 +1018,70 @@ class TestCompositeAlert(TestServiceBase):
             call_args = mock_update.call_args
             uri_path = os.path.join(endpoint, "alerts/{}".format(compAlertID))
             self.assertIn((uri_path,), call_args)
+
+class TestDerivative(TestServiceBase):
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
+    def testGetDerivativeById(self, mockGet):
+        res = self.argus.derivatives.get(derivativeID_1)
+        self.assertTrue(isinstance(res, Derivative))
+        self.assertEquals(res.to_dict(), derivative_1_D)
+        self.assertIn((os.path.join(endpoint, "derivatives", str(derivativeID_1)),), tuple(mockGet.call_args))
+
+    def testGetDerivativeNoId(self):
+        self.failUnlessRaises(ValueError, lambda: self.argus.derivatives.get(None))
+
+    @mock.patch('requests.Session.post', return_value = MockResponse(json.dumps(derivative_1_D), 200))
+    def testAddDerivative(self, mockPost):
+        derivative = Derivative.from_dict(derivative_1_D)
+        delattr(derivative, "id")
+        res = self.argus.derivatives.add(derivative)
+        self.assertTrue(isinstance(res, Derivative))
+        self.assertTrue(hasattr(res, "id"))
+        self.assertIn((os.path.join(endpoint, "derivatives"),), tuple(mockPost.call_args))
+
+    @mock.patch('requests.Session.put', return_value = MockResponse(json.dumps(derivative_1_D), 200))
+    def testUpdateDerivative(self, mockPut):
+        self.argus.derivatives.update(derivativeID_1, Derivative.from_dict(derivative_1_D))
+        self.assertTrue(isinstance(self.argus.derivatives.get(derivativeID_1), Derivative))
+        self.assertEquals(self.argus.derivatives.get(derivativeID_1).to_dict(), derivative_1_D)
+        self.assertIn((os.path.join(endpoint, "derivatives", str(derivativeID_1)),), tuple(mockPut.call_args))
+
+    @mock.patch('requests.Session.delete', return_value=MockResponse("", 200))
+    def testDeleteDerivative(self, mockDelete):
+        self.argus.derivatives.delete(derivativeID_1)
+        self.assertIn((os.path.join(endpoint, "derivatives", str(derivativeID_1)),), tuple(mockDelete.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse("[]", 200))
+    def testGetUserDerivativeNonExisting(self, mockGet):
+        res = self.argus.derivatives.get(derivativeID_1)
+        self.assertTrue(not res)
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
+    def testGetUserDerivatives(self, mockGet):
+        res = self.argus.derivatives.get_user_derivatives(mockGet)
+        self.assertTrue(res is not None)
+        self.assertIn((os.path.join(endpoint, "derivatives/meta"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
+    def testGetUserDerivativesPage(self, mockGet):
+        res = self.argus.derivatives.get_user_derivatives_page(mockGet)
+        self.assertTrue(res is not None)
+        self.assertIn((os.path.join(endpoint, "derivatives/meta/user"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
+    def testGetUserDerivativesCount(self, mockGet):
+        res = self.argus.derivatives.get_user_derivatives_count(mockGet)
+        self.assertTrue(res is not None)
+        self.assertIn((os.path.join(endpoint, "derivatives/meta/user/count"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
+    def testGetSharedUserDerivatives(self, mockGet):
+        res = self.argus.derivatives.get_shared_user_derivatives(mockGet)
+        self.assertTrue(res is not None)
+        self.assertIn((os.path.join(endpoint, "derivatives/meta/shared"),), tuple(mockGet.call_args))
+
+    @mock.patch('requests.Session.get', return_value=MockResponse(json.dumps(derivative_1_D), 200))
+    def testGetSharedUserDerivativesCount(self, mockGet):
+        res = self.argus.derivatives.get_shared_user_derivatives_count(mockGet)
+        self.assertTrue(res is not None)
+        self.assertIn((os.path.join(endpoint, "derivatives/meta/shared/count"),), tuple(mockGet.call_args))

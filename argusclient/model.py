@@ -5,7 +5,7 @@ Module containing the classes that model the Argus base objects.
 #
 # Copyright (c) 2016, salesforce.com, inc.
 # All rights reserved.
-# Licensed under the BSD 3-Clause license. 
+# Licensed under the BSD 3-Clause license.
 # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
 #
 
@@ -484,6 +484,37 @@ class Notification(BaseEncodable):
                                            **kwargs)
 
 
+class Derivative(BaseEncodable):
+    """
+    Represents a Derivative object in Argus.
+    ** Required parameteres to the connstructor:**
+    :param name: The name of the derivative
+    :type name: str
+    :param sourceExpression: The argus query for source metric
+    :type sourceExpression: str
+    :param derivedScope: The scope for derived metric
+    :type derivedScope: str
+    :param derivativeInterval: Interval at which derivative job needs to run
+    :type derivativeInterval: str
+
+    ** Optional parameteres to the connstructor:**
+    :param derivedMetric: The metric name for derived metric
+    :type derivedMetric: str
+    :param derivativeTagOptions: The tag modifiers for derived metric
+    :type derivativeTagOptions: str
+    :param enabled: Denotes whether job is enabled or not
+    :type enabled: bool
+    :param alertIfNoData: Denotes whether to alert user on no data or not.
+    :type alertIfNoData: str
+    """
+
+    id_fields = ("sourceExpression", "derivedScope", "derivativeInterval",)
+
+    def __init__(self, name, sourceExpression, derivedScope, derivativeInterval, **kwargs):
+        super(Derivative, self).__init__(name=name, sourceExpression = sourceExpression, derivedScope = derivedScope,
+                                            derivativeInterval = derivativeInterval, **kwargs)
+
+
 class JsonEncoder(json.JSONEncoder):
     def default(self, obj):
         return self.to_json(obj)
@@ -504,7 +535,7 @@ class JsonDecoder(json.JSONDecoder):
         if not jsonObj or not isinstance(jsonObj, dict):
             return jsonObj
         for cls in (Metric, Dashboard, AddListResult, User, Namespace, Annotation,
-                    Alert, Trigger, Notification, Permission):
+                    Alert, Trigger, Notification, Permission, Derivative):
             obj = cls.from_dict(jsonObj)
             if obj:
                 return obj
