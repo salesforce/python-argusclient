@@ -763,7 +763,7 @@ class ArgusServiceClient(object):
 
     """
 
-    def __init__(self, user, password, endpoint, timeout=(10, 120), refreshToken=None, accessToken=None):
+    def __init__(self, user, password, endpoint, timeout=(10, 300), refreshToken=None, accessToken=None):
         """
         Creates a new client object to interface with the Argus RESTful API.
 
