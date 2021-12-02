@@ -441,7 +441,7 @@ class Notification(BaseEncodable):
     :type name: str
     :param notifierName: The name of the notifier implementation. Must be one of :attr:`EMAIL`, :attr:`AUDIT`,
             :attr:`GOC`, :attr:`GUS`, :attr:`CALLBACK`, :attr:`PAGER_DUTY`, :attr:`REFOCUS_BOOLEAN`,
-            :attr:`REFOCUS_VALUE`, :attr:`SLACK`, :attr:`ALERT_ROUTER`
+            :attr:`REFOCUS_VALUE`, :attr:`SLACK`, :attr:`ALERT_ROUTER`, :attr:`ADVANCE_SLACK`
     :type notifierName or notifier: str
 
     **Optional parameters to the constructor:**
@@ -471,10 +471,11 @@ class Notification(BaseEncodable):
     REFOCUS_VALUE = "com.salesforce.dva.argus.service.alert.notifier.RefocusValueNotifier"
     SLACK = "com.salesforce.dva.argus.service.alert.notifier.SlackNotifier"
     ALERT_ROUTER = "com.salesforce.dva.argus.service.alert.notifier.AlertRouterNotifier"
+    ADVANCE_SLACK = "com.salesforce.dva.argus.service.alert.notifier.AdvanceSlackNotifier"
 
     #: Set of all valid notifier implementation names.
     VALID_NOTIFIERS = frozenset((EMAIL, AUDIT, GOC, GUS, CALLBACK, PAGER_DUTY,
-                                 REFOCUS_BOOLEAN, REFOCUS_VALUE, SLACK, ALERT_ROUTER))
+                                 REFOCUS_BOOLEAN, REFOCUS_VALUE, SLACK, ALERT_ROUTER, ADVANCE_SLACK))
 
     def __init__(self, name, notifierName=None, metricsToAnnotate=None, **kwargs):
         notifierName = notifierName or kwargs.get('notifier')
