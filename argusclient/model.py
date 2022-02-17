@@ -329,6 +329,8 @@ class Alert(BaseEncodable):
     def __init__(self, name, expression, cronEntry, **kwargs):
         self._triggers = None
         self._notifications = None
+        self._triggers_client = None
+        self._notifications_client = None
         super(Alert, self).__init__(name=name, expression=expression, cronEntry=cronEntry, **kwargs)
 
     @property
@@ -358,6 +360,10 @@ class Alert(BaseEncodable):
         self._triggers = value
 
     @property
+    def triggers_client(self):
+        return self._triggers_client
+
+    @property
     def notification(self):
         """ A convenience property to be used when :attr:`notifications` contains a single :class:`argusclient.model.Notification`. """
         return self._notifications and len(self._notifications) == 1 and self._notifications[0] or None
@@ -382,6 +388,10 @@ class Alert(BaseEncodable):
         # This is a special case allowed only while adding new alerts, so ensure that argus_id of self and the objects is None.
         # TODO Check for item type also
         self._notifications = value
+
+    @property
+    def notifications_client(self):
+        return self._notifications_client
 
 
 class Trigger(BaseEncodable):

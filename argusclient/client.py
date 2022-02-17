@@ -551,8 +551,8 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         super(AlertsServiceClient, self).__init__(Alert, argus, id_path="alerts/%s", get_all_req_opts=get_all_req_opts)
 
     def _fill(self, alert):
-        alert._triggers = AlertTriggersServiceClient(self.argus, alert)
-        alert._notifications = AlertNotificationsServiceClient(self.argus, alert)
+        alert._triggers_client = AlertTriggersServiceClient(self.argus, alert)
+        alert._notifications_client = AlertNotificationsServiceClient(self.argus, alert)
         return alert
 
     def add(self, alert):
@@ -566,9 +566,9 @@ class AlertsServiceClient(BaseUpdatableModelServiceClient):
         alertobj = self._fill(self.argus._request("post", "alerts", dataObj=alert))
         self._coll[alertobj.id] = alertobj
         if alert.trigger:
-            alertobj.trigger = alertobj.triggers.add(alert.trigger)
+            alertobj.trigger = alertobj.triggers_client.add(alert.trigger)
         if alert.notification:
-            alertobj.notification = alertobj.notifications.add(alert.notification)
+            alertobj.notification = alertobj.notifications_client.add(alert.notification)
         if alert.trigger and alert.notification:
             self.argus.alerts.add_notification_trigger(alertobj.id, alertobj.notification.id, alertobj.trigger.id)
             alertobj.notification.triggersIds = [alertobj.trigger.id]
